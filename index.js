@@ -1,8 +1,8 @@
-require("./autoFileSysModule.js");
-require("./checkHeaderMiddleware.js");
-require("./emailModule.js");
-require("./fetchModule.js");
-require("./httpsSecurity.js");
+const {fopen, fwrite, freadBin, fwriteBin, saveFile} = require("./autoFileSysModule.js");
+const checkHeaderMiddleware = require("./checkHeaderMiddleware.js");
+const sendMail = require("./emailModule.js");
+const {fetchGet, fetchPost} = require("./fetchModule.js");
+const httpsSecurityMiddleware = require("./httpsSecurity.js");
 
 
 module.exports = {
