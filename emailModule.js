@@ -1,27 +1,27 @@
-import { createTransport } from "nodemailer";
-import { fopen, fwrite } from "../modules/autoFileSysModule.js";
+const nodemailer = require("nodemailer");
+const { fopen, fwrite } = require("./autoFileSysModule.js");
 const configs = fopen("config.json");
 const configMail = configs.emailSystem
 let transporter;
 
-if (createTransport({ service: configMail.service })) {
+if (nodemailer.createTransport({ service: configMail.service })) {
     // Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço
-    transporter = createTransport({
+    transporter = nodemailer.createTransport({
         service: configMail.service || "Gmail",
         auth: {
-            user: process.env.email_server,
-            pass: process.env.email_password
+            user: process.env.PINGOBRAS_SG_email_server,
+            pass: process.env.PINGOBRAS_SG_email_password
         }
     });
 } else {
     // Caso contrário, crie o transporte manualmente
-    transporter = createTransport({
+    transporter = nodemailer.createTransport({
         host: configMail.host,
         port: configMail.port,
         secure: configMail.ssl_tls, // SSL/TLS ativado
         auth: {
-            user: process.env.email_server,
-            pass: process.env.email_password
+            user: process.env.PINGOBRAS_SG_email_server,
+            pass: process.env.PINGOBRAS_SG_email_password
         }
     });
 }
@@ -29,7 +29,7 @@ if (createTransport({ service: configMail.service })) {
 function sendMail(email, subject, text, callback) {
     try {
         const mailOptions = {
-            from: process.env.email_server, // Remetente
+            from: configMail.user, // Remetente
             to: email, // Destinatário
             subject: subject,
             text: text,
@@ -49,4 +49,4 @@ function sendMail(email, subject, text, callback) {
     }
 }
 
-export default sendMail;
+module.exports = sendMail;

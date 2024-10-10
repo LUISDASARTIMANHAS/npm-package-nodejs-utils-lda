@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+const fetch = require("node-fetch");
 
 const headersDefault = {
   "x-forwarded-proto": "https,http,http",
@@ -30,7 +30,7 @@ function fetchGet(url, header, callback) {
       // Verifica o tipo de conteúdo retornado
       if (contentType && contentType.includes("application/json")) {
         // Se for JSON, retorna o JSON
-        return response.json();
+        return response.text();
       } else {
         // Se não for JSON, retorna o conteúdo como texto
         return response.text();
@@ -106,12 +106,12 @@ function discordLogs(title, mensagem) {
     embeds: [
       {
         title: `SERVIDOR/${title}`,
-        description: "SERVIDOR: " + mensagem,
-        color: parseInt("FFFFFF", 16),
+        description: "SERVIDOR #01: " + mensagem,
+        color: parseInt("FF00FF",16),
         timestamp: date, // Adiciona um timestamp atual
         footer: {
-          text: `₢Todos os Direitos Reservados - ${ano}`,
-          icon_url: "",
+          text: `₢Todos os Direitos Reservados - PINGOBRAS S.A - ${ano}`,
+          icon_url: "https://cdn.discordapp.com/attachments/952004420265205810/1188643212378787940/pingobras-logo-fundo.png?ex=6682a481&is=66815301&hm=cc9c387ac2aad7fa8040738f47ae0ab43e2b77027d188e272a147b1829e3a53f&",
         },
       },
     ],
@@ -124,4 +124,30 @@ function discordLogs(title, mensagem) {
   });
 }
 
-export default { fetchGet, fetchPost, discordLogs };
+function discordLogsBrasilEternity(title, mensagem) {
+  const date = new Date();
+  const ano = date.getFullYear();
+  const preSet = {
+    content: "",
+    embeds: [
+      {
+        title: `SERVIDOR/${title}`,
+        description: "SERVIDOR BRASIL ETERNITY: " + mensagem,
+        color: parseInt("FF0000",16),
+        timestamp: date, // Adiciona um timestamp atual
+        footer: {
+          text: `₢Todos os Direitos Reservados - PINGOBRAS S.A  & BRASIL ETERNITY- ${ano}`,
+          icon_url: "https://cdn.discordapp.com/attachments/952004420265205810/1258422248507969546/Brasil-Eternity-image.jpg?ex=6687fc8c&is=6686ab0c&hm=842f5fca11e4b814443ca73bac9d6b35a0d309960dbdf9548405767092bf1a07&",
+        },
+      },
+    ],
+    attachments: [],
+  };
+  fetchPost(process.env.DISCORD_LOGS_BRASIL_ETERNITY_WEBHOOK_URL, preSet, null, (error, data) => {
+    if (error) {
+      console.error(error);
+    }
+  });
+}
+
+module.exports = { fetchGet, fetchPost, discordLogs, discordLogsBrasilEternity };

@@ -1,8 +1,8 @@
-import "./autoFileSysModule.js";
-import "./checkHeaderMiddleware.js";
-import "./emailModule.js";
-import "./fetchModule.js";
-import "./httpsSecurity.js";
+require("./autoFileSysModule.js");
+require("./checkHeaderMiddleware.js");
+require("./emailModule.js");
+require("./fetchModule.js");
+require("./httpsSecurity.js");
 
 
 module.exports = {

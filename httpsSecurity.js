@@ -1,5 +1,5 @@
-import cors from "cors";
-import { hsts } from "helmet";
+const cors = require("cors");
+const helmet = require("helmet");
 
 function httpsSecurityMiddleware(req, res, next) {
   console.log("executando https security");
@@ -36,8 +36,8 @@ function httpsSecurityMiddleware(req, res, next) {
     }
 
     // Chamando o middleware helmet
-    hsts(hstsOptions)(req, res, next);
+    helmet.hsts(hstsOptions)(req, res, next);
   });
 }
 
-export default httpsSecurityMiddleware;
+module.exports = httpsSecurityMiddleware;

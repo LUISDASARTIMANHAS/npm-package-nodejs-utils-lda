@@ -1,6 +1,6 @@
 {
   "name": "npm-package-nodejs-utils-lda",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Este projeto tem como fins de criar e abstrair módulos basicos e utilidades para o node js",
   "main": "index.js",
   "homepage": "https://github.com/LUISDASARTIMANHAS/npm-package-nodejs-utils",
@@ -25,5 +25,6 @@
     "node-fetch": "^2.7.0",
     "nodemailer": "^6.9.13",
     "xss": "^1.0.15"
-  }
+  },
+  "type": "commonjs"
 }

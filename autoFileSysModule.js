@@ -1,7 +1,8 @@
-import { readFileSync, writeFileSync } from "fs";
+const fs = require("fs");
+
 
 function fopen(filePath) {
-  const database = readFileSync(filePath, "utf8");
+  const database = fs.readFileSync(filePath, "utf8");
   const data = JSON.parse(database);
 
   return data;
@@ -10,7 +11,7 @@ function fopen(filePath) {
 function fwrite(filePath, data) {
   const formatData = JSON.stringify(data, null, 2);
 
-  writeFileSync(filePath, formatData, "utf8");
+  fs.writeFileSync(filePath, formatData, "utf8");
   return true;
 }
 
@@ -29,13 +30,13 @@ function fwriteBin(filePath, data) {
   const jsonString = JSON.stringify(data);
   const binaryString = stringToBinary(jsonString);
 
-  writeFileSync(filePath, binaryString, "utf8");
+  fs.writeFileSync(filePath, binaryString, "utf8");
   return true;
 }
 
 // Leitura e conversão de volta para JSON
 function freadBin(filePath) {
-  const binaryString = readFileSync(filePath, "utf8");
+  const binaryString = fs.readFileSync(filePath, "utf8");
   const jsonString = binaryString
     .split(" ")
     .map((bin) => {
@@ -47,4 +48,4 @@ function freadBin(filePath) {
   return data;
 }
 
-export default { fopen, fwrite, freadBin, fwriteBin, saveFile};
+module.exports = { fopen, fwrite, freadBin, fwriteBin, saveFile};

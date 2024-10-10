@@ -1,7 +1,21 @@
-import { getRandomInt, getRandomBin, getRandomHex, validadeApiKey, unauthorized, forbidden, formatDate, conversorSimEnao } from "./utils.js";
-import { fopen, fwrite, freadBin, fwriteBin } from "./autoFileSysModule.js";
+const {
+  getRandomInt,
+  getRandomBin,
+  getRandomHex,
+  validadeApiKey,
+  unauthorized,
+  forbidden,
+  formatDate,
+  conversorSimEnao,
+} = require("./utils.js");
+const {
+  fopen,
+  fwrite,
+  freadBin,
+  fwriteBin,
+} = require("./autoFileSysModule.js");
 const configs = fopen("config.json");
-import xss from "xss";
+const xss = require("xss");
 
 function checkHeaderMiddleware(app) {
   // Middleware para configurar o tipo de conteúdo como JSON
@@ -60,4 +74,4 @@ function print(keyHeader, key, auth) {
   console.log("----------------------------");
 }
 
-export default checkHeaderMiddleware;
+module.exports = checkHeaderMiddleware;
