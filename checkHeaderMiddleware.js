@@ -19,15 +19,15 @@ const xss = require("xss");
 
 function checkHeaderMiddleware(app) {
   // Middleware para configurar o tipo de conteúdo como JSON
-  app.all("/api/*", (req, res, next) => {
+  app.all("/api/*name", (req, res, next) => {
     if (!req.headers["authorization"]) {
-      return res.status(403).send(JSON.stringify({ error: "Unauthorized" }));
+      forbidden(res);
     }
     res.set("Content-Type", "application/json");
     next();
   });
 
-  app.all("/*", (req, res, next) => {
+  app.all("/*name", (req, res, next) => {
     const origin = req.headers.referer || req.headers.referrer;
     const keyHeader = req.headers["authorization"];
     const blockedRoutes = configs.blockedRoutes || [];
