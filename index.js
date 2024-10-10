@@ -1,14 +1,16 @@
-const {fopen, fwrite, freadBin, fwriteBin, saveFile} = require("./autoFileSysModule.js");
-const checkHeaderMiddleware = require("./checkHeaderMiddleware.js");
-const sendMail = require("./emailModule.js");
-const {fetchGet, fetchPost} = require("./fetchModule.js");
-const httpsSecurityMiddleware = require("./httpsSecurity.js");
+require("./autoFileSysModule.js");
+require("./checkHeaderMiddleware.js");
+require("./emailModule.js");
+require("./fetchModule.js");
+require("./httpsSecurity.js");
+require("./utils.js");
 
 
 module.exports = {
-    fopen, fwrite, freadBin, fwriteBin, saveFile,
+    fopen, fwrite, freadBin, fwriteBin,
     checkHeaderMiddleware,
     sendMail,
     fetchGet, fetchPost,
-    httpsSecurityMiddleware
+    httpsSecurityMiddleware,
+    getRandomInt,getRandomBin,getRandomHex,generateToken,ordenarUsuario,pesqUsuario,validadeApiKey,unauthorized,forbidden,formatDate,conversorSimEnao,
 }
