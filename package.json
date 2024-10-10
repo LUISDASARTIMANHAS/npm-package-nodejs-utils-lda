@@ -22,7 +22,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "helmet": "^8.0.0",
-    "node-fetch": "2.7.0",
+    "node-fetch": "3.3.2",
     "nodemailer": "^6.9.13",
     "xss": "^1.0.15"
   },
