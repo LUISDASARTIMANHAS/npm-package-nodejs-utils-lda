@@ -4,8 +4,8 @@ const configs = fopen("config.json");
 const configMail = configs.emailSystem
 let transporter;
 
-if (nodemailer.createTransport({ service: configMail.service })) {
-    // Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço
+// Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço
+if (nodemailer.createTransport({ service: configMail.service || "Gmail"})) {
     transporter = nodemailer.createTransport({
         service: configMail.service || "Gmail",
         auth: {
