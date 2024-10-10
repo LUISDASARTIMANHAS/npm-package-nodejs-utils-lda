@@ -1,1 +1,1 @@
-npm update && npm publish
+npm publish
