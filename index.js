@@ -1,9 +1,9 @@
-require("./autoFileSysModule.js");
-require("./checkHeaderMiddleware.js");
-require("./emailModule.js");
-require("./fetchModule.js");
-require("./httpsSecurity.js");
-require("./utils.js");
+const {fopen, fwrite, freadBin, fwriteBin} = require("./autoFileSysModule.js");
+const checkHeaderMiddleware = require("./checkHeaderMiddleware.js");
+const sendMail = require("./emailModule.js");
+const {fetchGet, fetchPost} = require("./fetchModule.js");
+const httpsSecurityMiddleware = require("./httpsSecurity.js");
+const {getRandomInt,getRandomBin,getRandomHex,generateToken,ordenarUsuario,pesqUsuario,validadeApiKey,unauthorized,forbidden,formatDate,conversorSimEnao} = require("./utils.js");
 
 
 module.exports = {

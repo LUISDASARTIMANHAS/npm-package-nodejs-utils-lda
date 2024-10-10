@@ -1,11 +1,18 @@
 const nodemailer = require("nodemailer");
 const { fopen, fwrite } = require("./autoFileSysModule.js");
 const configs = fopen("config.json");
-const configMail = configs.emailSystem
+const configMail = {
+    "service": configs.emailSystem?.service || "Gmail",
+    "host": configs.emailSystem?.host || "smtp.gmail.com",
+    "port": configs.emailSystem?.port || 25,
+    "ssl_tls": configs.emailSystem?.ssl_tls || true,
+    "user": configs.emailSystem?.user || "example@gmail.com",
+}
 let transporter;
 
-// Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço
-if (nodemailer.createTransport({ service: configMail.service || "Gmail"})) {
+
+if (nodemailer.createTransport({ service: configMail.service })) {
+    // Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço
     transporter = nodemailer.createTransport({
         service: configMail.service || "Gmail",
         auth: {
