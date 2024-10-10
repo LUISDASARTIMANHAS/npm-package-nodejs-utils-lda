@@ -48,4 +48,4 @@ function freadBin(filePath) {
   return data;
 }
 
-module.exports = { fopen, fwrite, freadBin, fwriteBin, saveFile};
+module.exports = { fopen, fwrite, freadBin, fwriteBin};
