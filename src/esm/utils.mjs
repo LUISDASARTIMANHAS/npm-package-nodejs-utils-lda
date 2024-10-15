@@ -1,14 +1,9 @@
-const path = require("path");
-const {
-  fopen,
-  fwrite,
-  freadBin,
-  fwriteBin,
-} = require("./autoFileSysModule.js");
+import { join } from "path";
+import { fopen, fwrite, freadBin, fwriteBin } from "./autoFileSysModule.mjs";
 const routesDir = __dirname;
 const files2 = __dirname + "/src/";
 const path_pages = files2 + "pages/";
-const forbiddenFilePath = path.join(path_pages, "forbidden.html");
+const forbiddenFilePath = join(path_pages, "forbidden.html");
 
 // Função para ordenar bases por usuario
 function ordenarUsuario(file) {
@@ -139,7 +134,7 @@ function unauthorized(res) {
   res.sendStatus(401);
 }
 
-module.exports = {
+export default {
   getRandomInt,
   getRandomBin,
   getRandomHex,

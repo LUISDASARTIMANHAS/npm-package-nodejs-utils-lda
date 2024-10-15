@@ -7,13 +7,13 @@ const {
   forbidden,
   formatDate,
   conversorSimEnao,
-} = require("./utils.js");
+} = require("./utils.cjs");
 const {
   fopen,
   fwrite,
   freadBin,
   fwriteBin,
-} = require("./autoFileSysModule.js");
+} = require("./autoFileSysModule.cjs");
 const configs = fopen("config.json");
 const xss = require("xss");
 
