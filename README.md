@@ -20,4 +20,5 @@ getRandomHex(max)
 validadeApiKey(req,res,key)
 forbidden(res)
 unauthorized(res)
+discordLogs(title, message)
 ```
