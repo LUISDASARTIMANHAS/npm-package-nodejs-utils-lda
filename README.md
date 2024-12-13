@@ -1,6 +1,10 @@
 # npm-package-nodejs-utils
 Este projeto tem como fins de criar e abstrair módulos basicos e utilidades para o node js
 
+requires
+.env file
+config.json file
+
 ## Functions
 ```js
 fopen(filePath)
@@ -24,4 +28,24 @@ forbidden(res)
 unauthorized(res)
 discordLogs(title, message)
 autoLoader(app)
+spaceUsed(space, used)
+```
+
+
+## config.json
+```json
+{
+    "wsSystem":{
+        "portWS":2255,
+        "enabled":true,
+        "WSS":false
+    },
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "emailSystem":{
+        "service": "Gmail",
+        "host":null,
+        "port":null,
+        "ssl_tls":true
+    }
+}
 ```

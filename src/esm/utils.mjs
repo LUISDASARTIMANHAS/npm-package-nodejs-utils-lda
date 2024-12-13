@@ -121,6 +121,10 @@ function conversorSimEnao(value) {
   return "⚠Esta faltando algo ou não foi autorizado!";
 }
 
+function spaceUsed(space, used) {
+  const percentUsage = (used / space) * 100;
+  return percentUsage.toFixed(3);
+}
 
 function forbidden(res) {
   console.error(403);
@@ -146,4 +150,5 @@ export default {
   forbidden,
   formatDate,
   conversorSimEnao,
+  spaceUsed
 };

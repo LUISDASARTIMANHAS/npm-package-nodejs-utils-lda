@@ -23,6 +23,7 @@ const {
   forbidden,
   formatDate,
   conversorSimEnao,
+  spaceUsed
 } = require("./utils.cjs");
 
 module.exports = {
@@ -50,4 +51,5 @@ module.exports = {
   stringToBinary,
   binaryToString,
   autoLoader,
+  spaceUsed
 };

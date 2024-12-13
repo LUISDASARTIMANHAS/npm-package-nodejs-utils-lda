@@ -21,8 +21,7 @@ function ordenarUsuario(file) {
   fwriteBin(file, data);
 }
 
-
-function pesqUsuarioByEmail(file,email) {
+function pesqUsuarioByEmail(file, email) {
   const data = freadBin(file);
   let pos = 0;
 
@@ -47,7 +46,7 @@ function pesqUsuarioByEmail(file,email) {
   return -1; // Retorna -1 se não foram encontrados usuarios no vetor
 }
 
-function pesqUsuario(file,username) {
+function pesqUsuario(file, username) {
   const data = freadBin(file);
   let pos = 0;
 
@@ -85,7 +84,7 @@ function getRandomHex(max) {
 }
 
 function generateToken() {
-  let token = '';
+  let token = "";
   const maxLength = 32; // Precisamos de exatamente 32 caracteres
 
   while (token.length < maxLength) {
@@ -97,24 +96,24 @@ function generateToken() {
 }
 
 function formatDate(dateString) {
-  const options = { 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit', 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit', 
-    hour12: false 
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
   };
   const date = new Date(dateString);
-  return date.toLocaleString('pt-BR', options);
+  return date.toLocaleString("pt-BR", options);
 }
 
-function validadeApiKey(req,res,key){
+function validadeApiKey(req, res, key) {
   const keyHeader = req.headers["authorization"];
   const authApi = keyHeader == key;
-  
-  if(!authApi){
+
+  if (!authApi) {
     forbidden(res);
   }
 }
@@ -126,6 +125,10 @@ function conversorSimEnao(value) {
   return "⚠Esta faltando algo ou não foi autorizado!";
 }
 
+function spaceUsed(space, used) {
+  const percentUsage = (used / space) * 100;
+  return percentUsage.toFixed(3);
+}
 
 function forbidden(res) {
   console.error(403);
@@ -151,4 +154,5 @@ module.exports = {
   forbidden,
   formatDate,
   conversorSimEnao,
+  spaceUsed
 };

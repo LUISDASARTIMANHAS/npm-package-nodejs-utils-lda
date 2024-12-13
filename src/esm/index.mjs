@@ -22,6 +22,7 @@ import {
   forbidden,
   formatDate,
   conversorSimEnao,
+  spaceUsed
 } from "./utils.mjs";
 
 export default {
@@ -48,4 +49,5 @@ export default {
   conversorSimEnao,
   stringToBinary,
   binaryToString,
+  spaceUsed
 };
