@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const {
   fopen,
   fwrite,
@@ -6,7 +7,7 @@ const {
   fwriteBin,
 } = require("./autoFileSysModule.cjs");
 const routesDir = __dirname;
-const files2 = __dirname + "/src/";
+const files2 = routesDir + "/src/";
 const path_pages = files2 + "pages/";
 const forbiddenFilePath = path.join(path_pages, "forbidden.html");
 
@@ -133,7 +134,15 @@ function spaceUsed(space, used) {
 function forbidden(res) {
   console.error(403);
   res.status(403);
-  res.sendFile(forbiddenFilePath);
+
+  // Verifica se o arquivo forbidden.html existe
+  if (fs.existsSync(forbiddenFilePath)) {
+    res.sendFile(forbiddenFilePath);
+  } else {
+    // Usa outro arquivo caso não exista
+    const alternativeFilePath = path.join(routesDir,"..","pages", "forbidden.html");
+    res.sendFile(alternativeFilePath);
+  }
 }
 
 function unauthorized(res) {
@@ -154,5 +163,5 @@ module.exports = {
   forbidden,
   formatDate,
   conversorSimEnao,
-  spaceUsed
+  spaceUsed,
 };
