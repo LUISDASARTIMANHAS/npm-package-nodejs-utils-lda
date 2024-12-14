@@ -31,7 +31,7 @@ function fetchGet(url, header, callback) {
 
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          return response.json().then((errorData) => {
+          return response.text().then((errorData) => {
             throw new Error(
               `Erro na resposta do servidor: ${JSON.stringify(
                 errorData,
@@ -45,7 +45,7 @@ function fetchGet(url, header, callback) {
         // Verifica o tipo de conteúdo retornado
         if (contentType && contentType.includes("application/json")) {
           // Se for JSON, retorna o JSON
-          return response.text();
+          return response.json();
         } else {
           // Se não for JSON, retorna o conteúdo como texto
           return response.text();
@@ -68,7 +68,9 @@ function fetchGet(url, header, callback) {
 function fetchPost(url, payload, header, callback) {
   try {
     if (!url || !payload || !callback) {
-      throw new Error("NO ARGUMENTS TO FETCH! URL OR PAYLOAD OR CALLBACK IS NULL");
+      throw new Error(
+        "NO ARGUMENTS TO FETCH! URL OR PAYLOAD OR CALLBACK IS NULL"
+      );
     }
 
     const defaultContentType = {
@@ -100,12 +102,12 @@ function fetchPost(url, payload, header, callback) {
 
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          return response.json().then((errorData) => {
+          return response.text().then((errorData) => {
             throw new Error(JSON.stringify(errorData, null, 2));
           });
         }
 
-        // // Verifica o tipo de conteúdo retornado
+        // Verifica o tipo de conteúdo retornado
         if (contentType && contentType.includes("application/json")) {
           // Se for JSON, retorna o JSON
           return response.json();
@@ -152,20 +154,15 @@ function discordLogs(title, mensagem) {
   let altWebhookUrl;
 
   if (webhookUrl == null || webhookUrl == "") {
-    altWebhookUrl = "https://google.com"
-  }else{
-    altWebhookUrl = webhookUrl
+    altWebhookUrl = "https://google.com";
+  } else {
+    altWebhookUrl = webhookUrl;
   }
-  fetchPost(
-    altWebhookUrl,
-    preSet,
-    null,
-    (error, data) => {
-      if (error) {
-        console.error(error);
-      }
+  fetchPost(altWebhookUrl, preSet, null, (error, data) => {
+    if (error) {
+      console.error(error);
     }
-  );
+  });
 }
 
 module.exports = { fetchGet, fetchPost, discordLogs };

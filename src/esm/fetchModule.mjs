@@ -30,7 +30,7 @@ function fetchGet(url, header, callback) {
 
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          return response.json().then((errorData) => {
+          return response.text().then((errorData) => {
             throw new Error(
               `Erro na resposta do servidor: ${JSON.stringify(
                 errorData,
@@ -44,7 +44,7 @@ function fetchGet(url, header, callback) {
         // Verifica o tipo de conteúdo retornado
         if (contentType && contentType.includes("application/json")) {
           // Se for JSON, retorna o JSON
-          return response.text();
+          return response.json();
         } else {
           // Se não for JSON, retorna o conteúdo como texto
           return response.text();
@@ -98,12 +98,12 @@ function fetchPost(url, payload, header, callback) {
 
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          return response.json().then((errorData) => {
+          return response.text().then((errorData) => {
             throw new Error(JSON.stringify(errorData, null, 2));
           });
         }
 
-        // // Verifica o tipo de conteúdo retornado
+        // Verifica o tipo de conteúdo retornado
         if (contentType && contentType.includes("application/json")) {
           // Se for JSON, retorna o JSON
           return response.json();
