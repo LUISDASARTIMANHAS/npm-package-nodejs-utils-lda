@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const routesDir = __dirname;
+const rootDir = path.resolve(routesDir,"..","..","..","..");
 
 function fopen(filePath) {
   const database = fs.readFileSync(filePath, "utf8");
@@ -65,8 +66,9 @@ function freadBin(filePath) {
 
 // Carrega dinamicamente todos os módulos de rota
 function autoLoader(app) {
-  fs.readdirSync(routesDir).forEach((file) => {
-    const filePath = path.join(routesDir, file);
+  fs.readdirSync(rootDir).forEach((file) => {
+    const filePath = path.resolve(rootDir, file);
+    console.log(`File ${filePath} `);
 
     if (file.endsWith(".js") && file !== "server.js") {
       const route = require(filePath);
