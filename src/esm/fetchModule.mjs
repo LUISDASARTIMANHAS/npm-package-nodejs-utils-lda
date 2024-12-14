@@ -129,6 +129,7 @@ function fetchPost(url, payload, header, callback) {
 function discordLogs(title, mensagem) {
   const date = new Date();
   const ano = date.getFullYear();
+  const webhookUrl = process.env.DISCORD_LOGS_WEBHOOK_URL;
   const preSet = {
     content: "",
     embeds: [
@@ -146,8 +147,16 @@ function discordLogs(title, mensagem) {
     ],
     attachments: [],
   };
+  let altWebhookUrl;
+
+  if (webhookUrl == null || webhookUrl == "") {
+    altWebhookUrl = "https://google.com"
+  }else{
+    altWebhookUrl = webhookUrl
+  }
+
   fetchPost(
-    process.env.DISCORD_LOGS_WEBHOOK_URL,
+    altWebhookUrl,
     preSet,
     null,
     (error, data) => {
