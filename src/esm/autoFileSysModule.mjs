@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
+const rootDir = process.cwd();
 
 function fopen(filePath) {
   const database = readFileSync(filePath, "utf8");

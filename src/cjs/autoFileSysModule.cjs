@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const routesDir = __dirname;
-const rootDir = path.resolve(routesDir,"..","..","..","..");
+const rootDir = process.cwd();
 
 function fopen(filePath) {
   const database = fs.readFileSync(filePath, "utf8");
