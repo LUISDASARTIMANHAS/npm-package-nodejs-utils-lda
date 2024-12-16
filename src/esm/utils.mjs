@@ -1,9 +1,8 @@
 import { join } from "path";
 import { fopen, fwrite, freadBin, fwriteBin } from "./autoFileSysModule.mjs";
 const routesDir = __dirname;
-const files2 = __dirname + "/src/";
-const path_pages = files2 + "pages/";
-const forbiddenFilePath = join(path_pages, "forbidden.html");
+const forbiddenFilePath = path.resolve(path.join("src","pages","forbidden.html"));
+const notfoundFilePath = path.resolve(path.join("src","pages","not-found.html"));
 
 // Função para ordenar bases por usuario
 function ordenarUsuario(file) {
@@ -105,6 +104,13 @@ function formatDate(dateString) {
   return date.toLocaleString('pt-BR', options);
 }
 
+function sanitize(text){
+  if(text){  
+    return text.replace(/[^a-zA-Z0-9://\s]/g,"");
+  }
+  return null;
+}
+
 function validadeApiKey(req,res,key){
   const keyHeader = req.headers["authorization"];
   const authApi = keyHeader == key;
@@ -121,20 +127,28 @@ function conversorSimEnao(value) {
   return "⚠Esta faltando algo ou não foi autorizado!";
 }
 
-function spaceUsed(space, used) {
-  const percentUsage = (used / space) * 100;
-  return percentUsage.toFixed(3);
+
+function notfound(res) {
+  console.error(404);
+  res.status(404);
+  res.sendFile(notfoundFilePath);
 }
 
-function forbidden(res) {
+function forbidden(res,error) {
   console.error(403);
   res.status(403);
+  if(error){
+    return res.json(error);
+  }
   res.sendFile(forbiddenFilePath);
 }
 
-function unauthorized(res) {
+function unauthorized(res,error) {
   console.error(401);
   res.status(401);
+  if(error){
+    return res.json(error);
+  }
   res.sendStatus(401);
 }
 
@@ -148,7 +162,8 @@ export default {
   validadeApiKey,
   unauthorized,
   forbidden,
+  notfound,
   formatDate,
   conversorSimEnao,
-  spaceUsed
+  sanitize,
 };

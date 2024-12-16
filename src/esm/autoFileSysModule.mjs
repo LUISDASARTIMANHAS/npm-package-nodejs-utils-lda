@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
+const routesDir = __dirname;
 const rootDir = process.cwd();
 
 function fopen(filePath) {

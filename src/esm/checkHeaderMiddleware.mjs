@@ -1,13 +1,22 @@
-import { getRandomInt, getRandomBin, getRandomHex, validadeApiKey, unauthorized, forbidden, formatDate, conversorSimEnao } from "../../utils.js";
-import { fopen, fwrite, freadBin, fwriteBin } from "./autoFileSysModule.mjs";
-const configs = fopen("config.json");
+import { forbidden, conversorSimEnao, sanitize } from "./utils.cjs";
+import { fopen } from "./autoFileSysModule.cjs";
 import xss from "xss";
+const configs = fopen("config.json");
+const routesDir = __dirname;
+const rootDir = process.cwd();
+const pages = routesDir + "/src/pages";
+const css = routesDir + "/src/css";
 
 function checkHeaderMiddleware(app) {
+  app.static(css);
+  app.static(pages);
   // Middleware para configurar o tipo de conteúdo como JSON
   app.all("/api/*name", (req, res, next) => {
     if (!req.headers["authorization"]) {
-      forbidden(res);
+      forbidden(
+        res,
+        "Autorização de acesso minima faltante para essa rota! authorization is null!"
+      );
     }
     res.set("Content-Type", "application/json");
     next();
@@ -23,12 +32,7 @@ function checkHeaderMiddleware(app) {
       return regex.test(req.path);
     });
     const payload = JSON.stringify(req.body, null, 2);
-    const keys = [
-      "snve072509ç$",
-      "snve072509Ã§$",
-      "snve072509&Aplication",
-      "ROOT:keyBypass",
-    ];
+    const keys = ["ROOT:keyBypass"];
     const validKey = keys.some((key) => keyHeader === key);
     const auth = blockRoutesPresent && !validKey;
 
@@ -36,18 +40,21 @@ function checkHeaderMiddleware(app) {
     console.log("SISTEMA <CHECK> <OBTER>: " + req.url);
     console.log("SISTEMA <ORIGEM>: " + origin);
     console.log("SISTEMA <PAYLOAD>: " + payload);
-    keys.forEach((key) => {
-      const auth = keyHeader === key;
-      print(keyHeader, key, auth);
-    });
+
     for (const key in req.body) {
-      req.body[key] = xss(req.body[key]);
+      const payloadValues = req.body[key];
+      req.body[key] = xss(payloadValues);
+      req.body[key] = sanitize(payloadValues);
     }
     if (auth) {
       // Se estiver solicitando das rotas bloqueadas E não conter key, bloquea a solicitação
-      forbidden(res);
+      forbidden(
+        res,
+        "Autorização de acesso minima faltante para essa rota bloqueada. Minimum access authorization missing for this blocked route."
+      );
     } else {
       // Cabeçalho "solicitador" presente ou rota não bloqueada, permite o acesso
+      print(keyHeader, validKey, auth);
       next();
     }
   });

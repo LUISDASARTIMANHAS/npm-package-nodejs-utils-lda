@@ -2,6 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const routesDir = __dirname;
 const rootDir = process.cwd();
+const pages = routesDir + "/src/pages";
+const css = routesDir + "/src/css";
 
 function fopen(filePath) {
   const database = fs.readFileSync(filePath, "utf8");
@@ -66,6 +68,8 @@ function freadBin(filePath) {
 
 // Carrega dinamicamente todos os módulos de rota
 function autoLoader(app) {
+  app.static(css);
+  app.static(pages);
   fs.readdirSync(rootDir).forEach((file) => {
     const filePath = path.resolve(rootDir, file);
     console.log(`File ${filePath} `);

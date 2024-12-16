@@ -1,5 +1,4 @@
 const path = require("path");
-const fs = require("fs");
 const {
   fopen,
   fwrite,
@@ -7,9 +6,8 @@ const {
   fwriteBin,
 } = require("./autoFileSysModule.cjs");
 const routesDir = __dirname;
-const files2 = routesDir + "/src/";
-const path_pages = files2 + "pages/";
-const forbiddenFilePath = path.join(path_pages, "forbidden.html");
+const forbiddenFilePath = path.resolve(path.join("src","pages","forbidden.html"));
+const notfoundFilePath = path.resolve(path.join("src","pages","not-found.html"));
 
 // Função para ordenar bases por usuario
 function ordenarUsuario(file) {
@@ -22,7 +20,8 @@ function ordenarUsuario(file) {
   fwriteBin(file, data);
 }
 
-function pesqUsuarioByEmail(file, email) {
+
+function pesqUsuarioByEmail(file,email) {
   const data = freadBin(file);
   let pos = 0;
 
@@ -47,7 +46,7 @@ function pesqUsuarioByEmail(file, email) {
   return -1; // Retorna -1 se não foram encontrados usuarios no vetor
 }
 
-function pesqUsuario(file, username) {
+function pesqUsuario(file,username) {
   const data = freadBin(file);
   let pos = 0;
 
@@ -85,7 +84,7 @@ function getRandomHex(max) {
 }
 
 function generateToken() {
-  let token = "";
+  let token = '';
   const maxLength = 32; // Precisamos de exatamente 32 caracteres
 
   while (token.length < maxLength) {
@@ -97,24 +96,31 @@ function generateToken() {
 }
 
 function formatDate(dateString) {
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
+  const options = { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit', 
+    hour12: false 
   };
   const date = new Date(dateString);
-  return date.toLocaleString("pt-BR", options);
+  return date.toLocaleString('pt-BR', options);
 }
 
-function validadeApiKey(req, res, key) {
+function sanitize(text){
+  if(text){  
+    return text.replace(/[^a-zA-Z0-9://\s]/g,"");
+  }
+  return null;
+}
+
+function validadeApiKey(req,res,key){
   const keyHeader = req.headers["authorization"];
   const authApi = keyHeader == key;
-
-  if (!authApi) {
+  
+  if(!authApi){
     forbidden(res);
   }
 }
@@ -126,28 +132,28 @@ function conversorSimEnao(value) {
   return "⚠Esta faltando algo ou não foi autorizado!";
 }
 
-function spaceUsed(space, used) {
-  const percentUsage = (used / space) * 100;
-  return percentUsage.toFixed(3);
+
+function notfound(res) {
+  console.error(404);
+  res.status(404);
+  res.sendFile(notfoundFilePath);
 }
 
-function forbidden(res) {
+function forbidden(res,error) {
   console.error(403);
   res.status(403);
-
-  // Verifica se o arquivo forbidden.html existe
-  if (fs.existsSync(forbiddenFilePath)) {
-    res.sendFile(forbiddenFilePath);
-  } else {
-    // Usa outro arquivo caso não exista
-    const alternativeFilePath = path.join(routesDir,"..","pages", "forbidden.html");
-    res.sendFile(alternativeFilePath);
+  if(error){
+    return res.json(error);
   }
+  res.sendFile(forbiddenFilePath);
 }
 
-function unauthorized(res) {
+function unauthorized(res,error) {
   console.error(401);
   res.status(401);
+  if(error){
+    return res.json(error);
+  }
   res.sendStatus(401);
 }
 
@@ -161,7 +167,8 @@ module.exports = {
   validadeApiKey,
   unauthorized,
   forbidden,
+  notfound,
   formatDate,
   conversorSimEnao,
-  spaceUsed,
+  sanitize,
 };
