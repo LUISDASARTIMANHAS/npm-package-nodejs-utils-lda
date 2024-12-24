@@ -67,7 +67,9 @@ function fetchGet(url, header, callback) {
 function fetchPost(url, payload, header, callback) {
   try {
     if (!url || !payload || !callback) {
-      throw new Error("NO ARGUMENTS TO FETCH! URL OR PAYLOAD OR CALLBACK IS NULL");
+      throw new Error(
+        "NO ARGUMENTS TO FETCH! URL OR PAYLOAD OR CALLBACK IS NULL"
+      );
     }
     const defaultContentType = {
       "content-type": `application/json; charset=UTF-8`,
@@ -150,21 +152,16 @@ function discordLogs(title, mensagem) {
   let altWebhookUrl;
 
   if (webhookUrl == null || webhookUrl == "") {
-    altWebhookUrl = "https://google.com"
-  }else{
-    altWebhookUrl = webhookUrl
+    altWebhookUrl = "https://google.com";
+  } else {
+    altWebhookUrl = webhookUrl;
   }
 
-  fetchPost(
-    altWebhookUrl,
-    preSet,
-    null,
-    (error, data) => {
-      if (error) {
-        console.error(error);
-      }
+  fetchPost(altWebhookUrl, preSet, null, (error, data) => {
+    if (error) {
+      console.error(error);
     }
-  );
+  });
 }
 
 export default { fetchGet, fetchPost, discordLogs };

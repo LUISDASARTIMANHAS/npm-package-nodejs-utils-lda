@@ -16,7 +16,7 @@ binaryToString(binary, binaryLenght)
 checkHeaderMiddleware(app)
 sendMail(email, subject, text, callback)
 fetchGet(url, header, callback)
-fetchPost(url, payload, header, callback)
+fetchPost(url, payload, header, callback function(error,data))
 httpsSecurityMiddleware(req, res, next)
 getRandomInt(max)
 getRandomBin(max)
@@ -26,11 +26,11 @@ getRandomHex(max)
 validadeApiKey(req,res,key)
 forbidden(res)
 unauthorized(res)
+notfound(res)
 discordLogs(title, message)
 autoLoader(app)
 spaceUsed(space, used)
 ```
-
 
 ## config.json
 ```json
@@ -48,4 +48,24 @@ spaceUsed(space, used)
         "ssl_tls":true
     }
 }
+```
+
+## Usage
+
+````js
+import { fopen, fwrite, generateToken, fetchGet } from "meu-pacote";
+const filePath = "database.json"
+// Usando as funções
+const data = fopen(filePath);
+
+data.push("X");
+
+fwrite(filePath, data);
+const token = generateToken();
+fetchGet("https://example.com",null, (onError,data)=>{
+    if(onError){
+        res.send(error);
+    }
+    res.send(data);
+});
 ```

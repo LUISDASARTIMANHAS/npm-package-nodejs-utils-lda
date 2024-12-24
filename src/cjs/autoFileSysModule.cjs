@@ -1,3 +1,4 @@
+const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const routesDir = __dirname;
@@ -68,8 +69,8 @@ function freadBin(filePath) {
 
 // Carrega dinamicamente todos os módulos de rota
 function autoLoader(app) {
-  app.static(css);
-  app.static(pages);
+  app.use(express.static(css));
+  app.use(express.static(pages));
   fs.readdirSync(rootDir).forEach((file) => {
     const filePath = path.resolve(rootDir, file);
     console.log(`File ${filePath} `);
