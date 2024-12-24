@@ -1,3 +1,4 @@
+import { express } from "express";
 import { forbidden, conversorSimEnao, sanitize } from "./utils.cjs";
 import { fopen } from "./autoFileSysModule.cjs";
 import xss from "xss";
@@ -8,8 +9,8 @@ const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
 
 function checkHeaderMiddleware(app) {
-  app.static(css);
-  app.static(pages);
+  app.use(express.static(css));
+  app.use(express.static(pages));
   // Middleware para configurar o tipo de conteúdo como JSON
   app.all("/api/*name", (req, res, next) => {
     if (!req.headers["authorization"]) {

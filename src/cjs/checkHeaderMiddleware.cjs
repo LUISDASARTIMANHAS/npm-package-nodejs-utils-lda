@@ -1,3 +1,4 @@
+const express = require("express");
 const { forbidden, conversorSimEnao, sanitize } = require("./utils.cjs");
 const { fopen } = require("./autoFileSysModule.cjs");
 const configs = fopen("config.json");
@@ -8,8 +9,8 @@ const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
 
 function checkHeaderMiddleware(app) {
-  app.static(css);
-  app.static(pages);
+  app.use(express.static(css));
+  app.use(express.static(pages));
   // Middleware para configurar o tipo de conteúdo como JSON
   app.all("/api/*name", (req, res, next) => {
     if (!req.headers["authorization"]) {
