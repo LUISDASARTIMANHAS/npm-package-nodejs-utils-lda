@@ -7,39 +7,45 @@ config.json file
 
 ## Functions
 ```js
-fopen(filePath)
-fwrite(filePath, data)
-fwriteBin(filePath, data)
-stringToBinary(str, binaryLenght)
-freadBin(filePath)
-binaryToString(binary, binaryLenght)
-checkHeaderMiddleware(app)
-sendMail(email, subject, text, callback)
-fetchGet(url, header, callback)
-fetchPost(url, payload, header, callback function(error,data))
+fopen(filePath);
+fwrite(filePath, data);
+fwriteBin(filePath, data);
+stringToBinary(str, binaryLenght);
+freadBin(filePath);
+binaryToString(binary, binaryLenght);
+checkHeaderMiddleware(app);
+sendMail(email, subject, text, function(error,data));
+fetchGet(url, header, callback);
+fetchPost(url, payload, header, function(error,data));
 httpsSecurityMiddleware(req, res, next)
-getRandomInt(max)
-getRandomBin(max)
-getRandomHex(max)
-generateToken()
-getRandomHex(max)
-validadeApiKey(req,res,key)
-forbidden(res)
-unauthorized(res)
-notfound(res)
+getRandomInt(max);
+getRandomBin(max);
+getRandomHex(max);
+generateToken();
+validadeApiKey(req,res,key);
+forbidden(res);
+unauthorized(res);
+notfound(res);
 discordLogs(title, message)
-autoLoader(app)
-spaceUsed(space, used)
+autoLoader(app);
+spaceUsed(space, used);
+
+// user system
+insertUser(name,userdata);
+return userdata saved
+selectUser(ID);
+return userdata
+usersList();
+return users ID,name
+deleteUser(ID);
+alterUser(ID, name, newUserData);
+disableUser(ID);
+reactivateUser(ID);
 ```
 
 ## config.json
 ```json
 {
-    "wsSystem":{
-        "portWS":2255,
-        "enabled":true,
-        "WSS":false
-    },
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
     "emailSystem":{
         "service": "Gmail",
@@ -53,7 +59,7 @@ spaceUsed(space, used)
 ## Usage
 
 ````js
-import { fopen, fwrite, generateToken, fetchGet } from "meu-pacote";
+import { fopen, fwrite, generateToken, fetchGet } from "npm-package-nodejs-utils-lda";
 const filePath = "database.json"
 // Usando as funções
 const data = fopen(filePath);

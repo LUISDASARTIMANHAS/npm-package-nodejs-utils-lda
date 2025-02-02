@@ -7,6 +7,15 @@ const {
   binaryToString,
   autoLoader,
 } = require("./autoFileSysModule.cjs");
+const {
+  insertUser,
+  selectUser,
+  alterUser,
+  deleteUser,
+  disableUser,
+  reactivateUser,
+  ordenarUsuario
+} = require("./userSystem.cjs");
 const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
 const sendMail = require("./emailModule.cjs");
 const { fetchGet, fetchPost, discordLogs } = require("./fetchModule.cjs");
@@ -55,5 +64,12 @@ module.exports = {
   autoLoader,
   spaceUsed,
   notfound,
-  sanitize
+  sanitize,
+  insertUser,
+  selectUser,
+  alterUser,
+  deleteUser,
+  disableUser,
+  reactivateUser,
+  ordenarUsuario
 };

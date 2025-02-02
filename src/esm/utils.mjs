@@ -104,11 +104,11 @@ function formatDate(dateString) {
   return date.toLocaleString('pt-BR', options);
 }
 
-function sanitize(text){
-  if(text){  
-    return text.replace(/[^a-zA-Z0-9://\s]/g,"");
+function sanitize(text) {
+  if (typeof text === 'string') {
+    return text.replace(/[^a-zA-Z0-9://\s]/g, "");
   }
-  return null;
+  return null; // ou outra ação apropriada caso não seja uma string
 }
 
 function validadeApiKey(req,res,key){
