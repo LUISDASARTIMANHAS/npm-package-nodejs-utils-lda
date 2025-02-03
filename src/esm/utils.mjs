@@ -4,6 +4,34 @@ const routesDir = __dirname;
 const forbiddenFilePath = path.resolve(path.join("src","pages","forbidden.html"));
 const notfoundFilePath = path.resolve(path.join("src","pages","not-found.html"));
 
+
+// Verifica se o arquivo forbidden.html existe
+if (!fs.existsSync(forbiddenFilePath)) {
+  // usa o default da blibioteca
+  forbiddenFilePath = path.resolve(
+    path.join(
+      "node_modules",
+      "npm-package-nodejs-utils-lda",
+      "src",
+      "pages",
+      "forbidden.html"
+    )
+  );
+}
+// Verifica se o arquivo not-found.html existe
+if (!fs.existsSync(notfoundFilePath)) {
+  // usa o default da blibioteca
+  forbiddenFilePath = path.resolve(
+    path.join(
+      "node_modules",
+      "npm-package-nodejs-utils-lda",
+      "src",
+      "pages",
+      "not-found.html"
+    )
+  );
+}
+
 function pesqUsuarioByEmail(file,email) {
   const data = freadBin(file);
   let pos = 0;

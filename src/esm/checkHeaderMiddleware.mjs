@@ -11,7 +11,7 @@ const css = routesDir + "/src/css";
 // Verifica se o arquivo config.json existe
 if (!fs.existsSync("config.json")) {
   // Se não existir, cria a pasta
-  fs.mkdirSync("config.json");
+  fwrite("config.json",[]);
 }
 const configs = fopen("config.json");
 

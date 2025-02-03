@@ -1,7 +1,7 @@
 const fs = require("fs");
 const express = require("express");
 const { forbidden, conversorSimEnao, sanitize } = require("./utils.cjs");
-const { fopen } = require("./autoFileSysModule.cjs");
+const { fopen,fwrite } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
 const routesDir = __dirname;
 const rootDir = process.cwd();
@@ -11,7 +11,7 @@ const css = routesDir + "/src/css";
 // Verifica se o arquivo config.json existe
 if (!fs.existsSync("config.json")) {
   // Se não existir, cria a pasta
-  fs.mkdirSync("config.json");
+  fwrite("config.json",[]);
 }
 const configs = fopen("config.json");
 

@@ -5,8 +5,7 @@ import { fopen, fwrite } from "./autoFileSysModule.mjs";
 // Verifica se o arquivo config.json existe
 if (!fs.existsSync("config.json")) {
   // Se não existir, cria a pasta
-  fs.mkdirSync("config.json");
-  console.error(`Err: Not Found config.json! Creating Config.json...`);
+  fwrite("config.json",[]);
 }
 const configs = fopen("config.json");
 const configMail = {
