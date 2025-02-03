@@ -8,13 +8,20 @@ const routesDir = __dirname;
 const rootDir = process.cwd();
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
-const defaultPages = path.resolve(
-  path.join("node_modules", "npm-package-nodejs-utils-lda", "src", "pages")
+// isso deixara os arquivos estaticos na raiz usando app.use(express.static(defaultPages)) ex: /not-found.html
+const defaultPages = path.join(
+  "node_modules",
+  "npm-package-nodejs-utils-lda",
+  "src",
+  "pages"
 );
-const defaultCss = path.resolve(
-  path.join("node_modules", "npm-package-nodejs-utils-lda", "src", "css")
+// isso deixara os arquivos estaticos na raiz usando app.use(express.static(defaultCss)) ex: /not-found.css
+const defaultCss = path.join(
+  "node_modules",
+  "npm-package-nodejs-utils-lda",
+  "src",
+  "css"
 );
-
 // Verifica se o arquivo config.json existe
 if (!fs.existsSync("config.json")) {
   // Se não existir, cria a pasta
