@@ -10,10 +10,14 @@ const configMail = {
 };
 let transporter;
 
-if (!configs) {
-  console.error(`Err: Not Found config.json!`);
-  return null;
+// Verifica se o arquivo config.json existe
+if (!fs.existsSync("config.json")) {
+  // Se não existir, cria a pasta
+  fs.mkdirSync("config.json");
+console.error(`Err: Not Found config.json! Creating Config.json...`);
+return null;
 }
+
 
 if (createTransport({ service: configMail.service })) {
   // Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço

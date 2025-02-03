@@ -1,3 +1,4 @@
+const fs = require("fs");
 const {
   fopen,
   fwrite,
@@ -35,6 +36,23 @@ const {
   notfound,
   sanitize
 } = require("./utils.cjs");
+
+// Criando Arquivos pre requisitos
+// Verifica se o arquivo config.json existe
+if (!fs.existsSync("config.json")) {
+  // Se não existir, cria a pasta
+  fs.mkdirSync("config.json");
+}
+// Verifica se o arquivo .env existe
+if (!fs.existsSync(".env")) {
+  // Se não existir, cria a pasta
+  fs.mkdirSync(".env");
+}
+// Verifica se a pasta ./data existe
+if (!fs.existsSync("./data")) {
+  // Se não existir, cria a pasta
+  fs.mkdirSync("./data");
+}
 
 module.exports = {
   fopen,

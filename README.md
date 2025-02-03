@@ -4,6 +4,9 @@ Este projeto tem como fins de criar e abstrair módulos basicos e utilidades par
 requires
 .env file
 config.json file
+data folder
+
+automatic create requires folders and files.
 
 ## Functions
 ```js

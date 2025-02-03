@@ -8,10 +8,14 @@ const rootDir = process.cwd();
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
 
-if (!configs) {
-  console.error(`Err: Not Found config.json!`);
-  return null;
+// Verifica se o arquivo config.json existe
+if (!fs.existsSync("config.json")) {
+  // Se não existir, cria a pasta
+  fs.mkdirSync("config.json");
+console.error(`Err: Not Found config.json! Creating Config.json...`);
+return null;
 }
+
 
 function checkHeaderMiddleware(app) {
   app.use(express.static(css));
