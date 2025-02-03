@@ -1,4 +1,5 @@
-import { join } from "path";
+import fs from "fs";
+import path from "path";
 import { fopen, fwrite, freadBin, fwriteBin } from "./autoFileSysModule.mjs";
 const routesDir = __dirname;
 const forbiddenFilePath = path.resolve(path.join("src","pages","forbidden.html"));
@@ -7,8 +8,7 @@ const notfoundFilePath = path.resolve(path.join("src","pages","not-found.html"))
 
 // Verifica se o arquivo forbidden.html existe
 if (!fs.existsSync(forbiddenFilePath)) {
-  // usa o default da blibioteca
-  forbiddenFilePath = path.resolve(
+  const defaultForbiddenFilePath = path.resolve(
     path.join(
       "node_modules",
       "npm-package-nodejs-utils-lda",
@@ -17,11 +17,16 @@ if (!fs.existsSync(forbiddenFilePath)) {
       "forbidden.html"
     )
   );
+  console.error(
+    `Err: not found forbiddenFilePath: ${forbiddenFilePath} using: ${defaultForbiddenFilePath}`
+  );
+  // usa o default da blibioteca
+  forbiddenFilePath = defaultForbiddenFilePath;
 }
+
 // Verifica se o arquivo not-found.html existe
 if (!fs.existsSync(notfoundFilePath)) {
-  // usa o default da blibioteca
-  forbiddenFilePath = path.resolve(
+  const defaultNotfoundFilePath = path.resolve(
     path.join(
       "node_modules",
       "npm-package-nodejs-utils-lda",
@@ -30,6 +35,11 @@ if (!fs.existsSync(notfoundFilePath)) {
       "not-found.html"
     )
   );
+  console.error(
+    `Err: not found defaultNotfoundFilePath: ${notfoundFilePath} using: ${defaultNotfoundFilePath}`
+  );
+  // usa o default da blibioteca
+  notfoundFilePath = defaultNotfoundFilePath;
 }
 
 function pesqUsuarioByEmail(file,email) {

@@ -1,21 +1,32 @@
 const fs = require("fs");
 const express = require("express");
 const { forbidden, conversorSimEnao, sanitize } = require("./utils.cjs");
-const { fopen,fwrite } = require("./autoFileSysModule.cjs");
+const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
+const path = require("path");
 const routesDir = __dirname;
 const rootDir = process.cwd();
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
+const defaultPages = path.resolve(
+  path.join("node_modules", "npm-package-nodejs-utils-lda", "src", "pages")
+);
+const defaultCss = path.resolve(
+  path.join("node_modules", "npm-package-nodejs-utils-lda", "src", "css")
+);
 
 // Verifica se o arquivo config.json existe
 if (!fs.existsSync("config.json")) {
   // Se não existir, cria a pasta
-  fwrite("config.json",[]);
+  fwrite("config.json", []);
 }
 const configs = fopen("config.json");
 
 function checkHeaderMiddleware(app) {
+  // DEFAULT STATIC PAGES AND CSS
+  app.use(express.static(defaultCss));
+  app.use(express.static(defaultPages));
+
   app.use(express.static(css));
   app.use(express.static(pages));
   // Middleware para configurar o tipo de conteúdo como JSON

@@ -1,3 +1,4 @@
+const fs = require("fs");
 const path = require("path");
 const {
   fopen,
@@ -15,8 +16,7 @@ let notfoundFilePath = path.resolve(
 
 // Verifica se o arquivo forbidden.html existe
 if (!fs.existsSync(forbiddenFilePath)) {
-  // usa o default da blibioteca
-  forbiddenFilePath = path.resolve(
+  const defaultForbiddenFilePath = path.resolve(
     path.join(
       "node_modules",
       "npm-package-nodejs-utils-lda",
@@ -25,11 +25,16 @@ if (!fs.existsSync(forbiddenFilePath)) {
       "forbidden.html"
     )
   );
+  console.error(
+    `Err: not found forbiddenFilePath: ${forbiddenFilePath} using: ${defaultForbiddenFilePath}`
+  );
+  // usa o default da blibioteca
+  forbiddenFilePath = defaultForbiddenFilePath;
 }
+
 // Verifica se o arquivo not-found.html existe
 if (!fs.existsSync(notfoundFilePath)) {
-  // usa o default da blibioteca
-  forbiddenFilePath = path.resolve(
+  const defaultNotfoundFilePath = path.resolve(
     path.join(
       "node_modules",
       "npm-package-nodejs-utils-lda",
@@ -38,6 +43,11 @@ if (!fs.existsSync(notfoundFilePath)) {
       "not-found.html"
     )
   );
+  console.error(
+    `Err: not found defaultNotfoundFilePath: ${notfoundFilePath} using: ${defaultNotfoundFilePath}`
+  );
+  // usa o default da blibioteca
+  notfoundFilePath = defaultNotfoundFilePath;
 }
 
 function pesqUsuarioByEmail(file, email) {

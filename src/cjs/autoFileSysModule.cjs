@@ -5,6 +5,12 @@ const routesDir = __dirname;
 const rootDir = process.cwd();
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
+const defaultPages = path.resolve(
+  path.join("node_modules", "npm-package-nodejs-utils-lda", "src", "pages")
+);
+const defaultCss = path.resolve(
+  path.join("node_modules", "npm-package-nodejs-utils-lda", "src", "css")
+);
 
 function fopen(filePath) {
   const database = fs.readFileSync(filePath, "utf8");
@@ -69,6 +75,10 @@ function freadBin(filePath) {
 
 // Carrega dinamicamente todos os módulos de rota
 function autoLoader(app) {
+  // DEFAULT STATIC PAGES AND CSS
+  app.use(express.static(defaultCss));
+  app.use(express.static(defaultPages));
+
   app.use(express.static(css));
   app.use(express.static(pages));
   fs.readdirSync(rootDir).forEach((file) => {
