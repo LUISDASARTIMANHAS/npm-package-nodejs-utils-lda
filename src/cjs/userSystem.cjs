@@ -14,7 +14,10 @@ if (!fs.existsSync("./data")) {
 // Verifica se o arquivo users.bin existe
 if (!fs.existsSync(databaseUserPath)) {
   // Se não existir, cria o arquivo users.bin com um array vazio
-  fs.writeFileSync(databaseUserPath, "");
+  const defaultSchema = [
+
+  ]
+  fwriteBin(databaseUserPath, defaultSchema); // Cria um arquivo binário vazio
 }
 
 // user system
@@ -52,6 +55,8 @@ function insertUser(name, userData) {
 // Selecionar usuário pelo ID
 function selectUser(ID) {
   if (userIndexMap[ID] === undefined) {
+    console.error(`Err: userID ${ID} Not Found.`);
+    
     return `Erro: Usuário com ID ${ID} não encontrado.`;
   }
   const users = freadBin(databaseUserPath);
@@ -61,6 +66,7 @@ function selectUser(ID) {
 // Alterar usuário
 function alterUser(ID, name, newUserData) {
   if (userIndexMap[ID] === undefined) {
+    console.error(`Err: userID ${ID} Not Found.`);
     return `Erro: Usuário com ID ${ID} não encontrado.`;
   }
   // Verifica se o ID existe no mapa de índices
@@ -85,6 +91,7 @@ function alterUser(ID, name, newUserData) {
 // Deletar usuário pelo ID
 function deleteUser(ID) {
   if (userIndexMap[ID] === undefined) {
+    console.error(`Err: userID ${ID} Not Found.`);
     return `Erro: Usuário com ID ${ID} não encontrado.`;
   }
   const users = freadBin(databaseUserPath);
@@ -109,6 +116,7 @@ function deleteUser(ID) {
 // Desativar usuário pelo ID
 function disableUser(ID) {
   if (userIndexMap[ID] === undefined) {
+    console.error(`Err: userID ${ID} Not Found.`);
     return `Erro: Usuário com ID ${ID} não encontrado.`;
   }
   const users = freadBin(databaseUserPath);
@@ -127,6 +135,7 @@ function disableUser(ID) {
 // Reativar usuário
 function reactivateUser(ID) {
   if (userIndexMap[ID] === undefined) {
+    console.error(`Err: userID ${ID} Not Found.`);
     return `Erro: Usuário com ID ${ID} não encontrado.`;
   }
   const users = freadBin(databaseUserPath);
@@ -134,6 +143,7 @@ function reactivateUser(ID) {
   const username = users[userIndex].usuario;
 
   if (userIndexMap[ID] === undefined) {
+    console.error(`Err: userID ${ID} Not Found.`);
     return `Erro: Usuário com ID ${ID} não encontrado.`;
   }
   // Marca o usuário como ativo
@@ -146,11 +156,11 @@ function reactivateUser(ID) {
 }
 
 //  FUNÇÕES
-function carregarIndice() {
+async function carregarIndice() {
   const users = freadBin(databaseUserPath);
   userIndexMap = {}; // Reseta o mapa
 
-  users.forEach((user) => {
+  await users.forEach((user) => {
     userIndexMap[user.ID] = user.index;
   });
 }
