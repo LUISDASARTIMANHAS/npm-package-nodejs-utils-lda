@@ -151,7 +151,6 @@ module.exports = {
   getRandomBin,
   getRandomHex,
   generateToken,
-  ordenarUsuario,
   pesqUsuario,
   validadeApiKey,
   unauthorized,

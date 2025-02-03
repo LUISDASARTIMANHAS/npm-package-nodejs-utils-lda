@@ -152,7 +152,8 @@ function discordLogs(title, mensagem) {
   let altWebhookUrl;
 
   if (webhookUrl == null || webhookUrl == "") {
-    altWebhookUrl = "https://google.com";
+    console.error(`Err: Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`)
+    return null;
   } else {
     altWebhookUrl = webhookUrl;
   }

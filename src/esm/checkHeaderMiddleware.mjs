@@ -8,6 +8,11 @@ const rootDir = process.cwd();
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
 
+if (!configs) {
+  console.error(`Err: Not Found config.json!`)
+    return null;
+}
+
 function checkHeaderMiddleware(app) {
   app.use(express.static(css));
   app.use(express.static(pages));
