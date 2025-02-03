@@ -1,5 +1,13 @@
+const fs = require("fs");
 const nodemailer = require("nodemailer");
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
+
+// Verifica se o arquivo config.json existe
+if (!fs.existsSync("config.json")) {
+  // Se não existir, cria a pasta
+  fs.mkdirSync("config.json");
+}
+
 const configs = fopen("config.json");
 const configMail = {
   service: configs.emailSystem?.service || "Gmail",
@@ -9,14 +17,6 @@ const configMail = {
   user: configs.emailSystem?.user || "example@gmail.com",
 };
 let transporter;
-
-// Verifica se o arquivo config.json existe
-if (!fs.existsSync("config.json")) {
-    // Se não existir, cria a pasta
-    fs.mkdirSync("config.json");
-  console.error(`Err: Not Found config.json! Creating Config.json...`);
-  return null;
-}
 
 if (nodemailer.createTransport({ service: configMail.service })) {
   // Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço

@@ -1,7 +1,7 @@
+const fs = require("fs");
 const express = require("express");
 const { forbidden, conversorSimEnao, sanitize } = require("./utils.cjs");
 const { fopen } = require("./autoFileSysModule.cjs");
-const configs = fopen("config.json");
 const xss = require("xss");
 const routesDir = __dirname;
 const rootDir = process.cwd();
@@ -12,10 +12,8 @@ const css = routesDir + "/src/css";
 if (!fs.existsSync("config.json")) {
   // Se não existir, cria a pasta
   fs.mkdirSync("config.json");
-console.error(`Err: Not Found config.json! Creating Config.json...`);
-return null;
 }
-
+const configs = fopen("config.json");
 
 function checkHeaderMiddleware(app) {
   app.use(express.static(css));

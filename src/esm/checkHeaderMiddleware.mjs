@@ -1,8 +1,8 @@
+import fs from "fs";
 import { express } from "express";
 import { forbidden, conversorSimEnao, sanitize } from "./utils.cjs";
 import { fopen } from "./autoFileSysModule.cjs";
 import xss from "xss";
-const configs = fopen("config.json");
 const routesDir = __dirname;
 const rootDir = process.cwd();
 const pages = routesDir + "/src/pages";
@@ -12,9 +12,8 @@ const css = routesDir + "/src/css";
 if (!fs.existsSync("config.json")) {
   // Se não existir, cria a pasta
   fs.mkdirSync("config.json");
-console.error(`Err: Not Found config.json! Creating Config.json...`);
-return null;
 }
+const configs = fopen("config.json");
 
 
 function checkHeaderMiddleware(app) {
