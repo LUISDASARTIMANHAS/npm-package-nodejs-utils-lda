@@ -1,6 +1,6 @@
 {
   "name": "npm-package-nodejs-utils-lda",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "Este projeto tem como fins de criar e abstrair módulos basicos e utilidades para o node js",
   "exports": {
     ".": {
