@@ -4,18 +4,6 @@ const routesDir = __dirname;
 const forbiddenFilePath = path.resolve(path.join("src","pages","forbidden.html"));
 const notfoundFilePath = path.resolve(path.join("src","pages","not-found.html"));
 
-// Função para ordenar bases por usuario
-function ordenarUsuario(file) {
-  const data = freadBin(file);
-
-  // Ordena o array de usuarios com base no usuario, do maior para o menor
-  data.sort((a, b) => b.usuario - a.usuario);
-
-  // Salva o array ordenado de volta no arquivo
-  fwriteBin(file, data);
-}
-
-
 function pesqUsuarioByEmail(file,email) {
   const data = freadBin(file);
   let pos = 0;
@@ -157,7 +145,6 @@ export default {
   getRandomBin,
   getRandomHex,
   generateToken,
-  ordenarUsuario,
   pesqUsuario,
   validadeApiKey,
   unauthorized,

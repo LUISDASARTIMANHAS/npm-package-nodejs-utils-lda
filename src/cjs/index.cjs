@@ -25,7 +25,6 @@ const {
   getRandomBin,
   getRandomHex,
   generateToken,
-  ordenarUsuario,
   pesqUsuario,
   validadeApiKey,
   unauthorized,
@@ -70,6 +69,5 @@ module.exports = {
   alterUser,
   deleteUser,
   disableUser,
-  reactivateUser,
-  ordenarUsuario
+  reactivateUser
 };
