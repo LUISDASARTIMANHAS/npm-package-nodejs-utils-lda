@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { express } from "express";
-import { forbidden, conversorSimEnao, sanitize } from "./utils.cjs";
-import { fopen } from "./autoFileSysModule.cjs";
+import { forbidden, conversorSimEnao, sanitize } from "./utils.mjs";
+import { fopen } from "./autoFileSysModule.mjs";
 import xss from "xss";
 const routesDir = __dirname;
 const rootDir = process.cwd();
