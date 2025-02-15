@@ -140,7 +140,7 @@ const routesDir = __dirname;
 // const hostname = "::"; bind ipv4 e ipv6 pra fora
 const hostname = "::";
 const porta = process.env.PORTA;
-const dinamicPort = (porta || 8080);
+const dinamicPort = (porta || 4000);
 
 const date = new Date();
 const dia = date.getDate().toString().padStart(2, "0") - 1;

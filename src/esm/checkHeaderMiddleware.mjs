@@ -1,10 +1,15 @@
 import fs from "fs";
 import path from "path";
-import { express } from "express";
+import express from "express";
 import { forbidden, conversorSimEnao, sanitize } from "./utils.mjs";
-import { fopen } from "./autoFileSysModule.mjs";
+import { fopen, fwrite } from "./autoFileSysModule.mjs";
 import xss from "xss";
-const routesDir = __dirname;
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Obtém o caminho absoluto do arquivo atual
+const __filename = fileURLToPath(import.meta.url);
+const routesDir = dirname(__filename);
 const rootDir = process.cwd();
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";

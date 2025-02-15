@@ -1,5 +1,11 @@
 import { readFileSync, writeFileSync } from "fs";
-const routesDir = __dirname;
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Obtém o caminho absoluto do arquivo atual
+const __filename = fileURLToPath(import.meta.url);
+
+const routesDir = dirname(__filename);
 const rootDir = process.cwd();
 
 function fopen(filePath) {
@@ -50,20 +56,20 @@ function fwriteBin(filePath, data) {
   const jsonString = JSON.stringify(data);
   const binaryString = stringToBinary(jsonString);
 
-  fs.writeFileSync(filePath, binaryString, "utf8");
+  writeFileSync(filePath, binaryString, "utf8");
   return true;
 }
 
 // Leitura e conversão de volta para JSON
 function freadBin(filePath) {
-  const binaryString = fs.readFileSync(filePath, "utf8");
+  const binaryString = readFileSync(filePath, "utf8");
   const string = binaryToString(binaryString);
   const data = JSON.parse(string);
 
   return data;
 }
 
-export default {
+export {
   fopen,
   fwrite,
   freadBin,

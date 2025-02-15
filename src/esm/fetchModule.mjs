@@ -165,4 +165,4 @@ function discordLogs(title, mensagem) {
   });
 }
 
-export default { fetchGet, fetchPost, discordLogs };
+export { fetchGet, fetchPost, discordLogs };

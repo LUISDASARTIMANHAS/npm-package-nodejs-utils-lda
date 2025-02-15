@@ -1,10 +1,13 @@
 import fs from "fs";
 import path from "path";
 import { fopen, fwrite, freadBin, fwriteBin } from "./autoFileSysModule.mjs";
-const routesDir = __dirname;
-const forbiddenFilePath = path.resolve(path.join("src","pages","forbidden.html"));
-const notfoundFilePath = path.resolve(path.join("src","pages","not-found.html"));
 
+let forbiddenFilePath = path.resolve(
+  path.join("src", "pages", "forbidden.html")
+);
+let notfoundFilePath = path.resolve(
+  path.join("src", "pages", "not-found.html")
+);
 
 // Verifica se o arquivo forbidden.html existe
 if (!fs.existsSync(forbiddenFilePath)) {
@@ -42,7 +45,7 @@ if (!fs.existsSync(notfoundFilePath)) {
   notfoundFilePath = defaultNotfoundFilePath;
 }
 
-function pesqUsuarioByEmail(file,email) {
+function pesqUsuarioByEmail(file, email) {
   const data = freadBin(file);
   let pos = 0;
 
@@ -67,7 +70,7 @@ function pesqUsuarioByEmail(file,email) {
   return -1; // Retorna -1 se não foram encontrados usuarios no vetor
 }
 
-function pesqUsuario(file,username) {
+function pesqUsuario(file, username) {
   const data = freadBin(file);
   let pos = 0;
 
@@ -105,7 +108,7 @@ function getRandomHex(max) {
 }
 
 function generateToken() {
-  let token = '';
+  let token = "";
   const maxLength = 32; // Precisamos de exatamente 32 caracteres
 
   while (token.length < maxLength) {
@@ -117,31 +120,31 @@ function generateToken() {
 }
 
 function formatDate(dateString) {
-  const options = { 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit', 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit', 
-    hour12: false 
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
   };
   const date = new Date(dateString);
-  return date.toLocaleString('pt-BR', options);
+  return date.toLocaleString("pt-BR", options);
 }
 
 function sanitize(text) {
-  if (typeof text === 'string') {
+  if (typeof text === "string") {
     return text.replace(/[^a-zA-Z0-9://\s]/g, "");
   }
   return null; // ou outra ação apropriada caso não seja uma string
 }
 
-function validadeApiKey(req,res,key){
+function validadeApiKey(req, res, key) {
   const keyHeader = req.headers["authorization"];
   const authApi = keyHeader == key;
-  
-  if(!authApi){
+
+  if (!authApi) {
     forbidden(res);
   }
 }
@@ -153,32 +156,31 @@ function conversorSimEnao(value) {
   return "⚠Esta faltando algo ou não foi autorizado!";
 }
 
-
 function notfound(res) {
   console.error(404);
   res.status(404);
   res.sendFile(notfoundFilePath);
 }
 
-function forbidden(res,error) {
+function forbidden(res, error) {
   console.error(403);
   res.status(403);
-  if(error){
+  if (error) {
     return res.json(error);
   }
   res.sendFile(forbiddenFilePath);
 }
 
-function unauthorized(res,error) {
+function unauthorized(res, error) {
   console.error(401);
   res.status(401);
-  if(error){
+  if (error) {
     return res.json(error);
   }
   res.sendStatus(401);
 }
 
-export default {
+export {
   getRandomInt,
   getRandomBin,
   getRandomHex,

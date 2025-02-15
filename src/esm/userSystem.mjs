@@ -1,12 +1,16 @@
-import {path} from"path";
+import path from"path";
 import { v4 as uuidv4 } from "uuid";
-import { freadBin, fwriteBin } from "./autoFileSysModule.cjs";
+import { freadBin, fwriteBin } from "./autoFileSysModule.mjs";
 import fs from "fs";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+// Obtém o caminho absoluto do arquivo atual
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-const databaseDir = path.join(__dirname, "data");
+const routesDir = dirname(__filename);
+
+const databaseDir = path.join(routesDir, "data");
 const databaseUserPath = path.join(databaseDir, "users.bin");
 let userIndexMap = {};
 
@@ -174,7 +178,7 @@ function ordenarUsuario() {
   fwriteBin(databaseUserPath, data);
 }
 
-export default {
+export {
   insertUser,
   selectUser,
   alterUser,

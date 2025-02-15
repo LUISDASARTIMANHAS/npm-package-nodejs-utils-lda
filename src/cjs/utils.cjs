@@ -1,10 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const {
-  fopen,
-  fwrite,
-  freadBin,
-  fwriteBin,
+  freadBin
 } = require("./autoFileSysModule.cjs");
 const routesDir = __dirname;
 let forbiddenFilePath = path.resolve(
