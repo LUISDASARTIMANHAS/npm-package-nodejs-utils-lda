@@ -46,6 +46,16 @@ disableUser(ID);
 reactivateUser(ID);
 ```
 
+<!-- mongo DB -->
+```js
+mongoConnect(connectionString)
+
+// SET 'MONGO_CONNECTION_STRING' VARIABLE IN .ENV FILE FOR SECURE AND AUTOMATIC CONNECTION
+mongoConnect()
+
+return mongoClient or connection
+```
+
 ## config.json
 ```json
 {

@@ -14,8 +14,9 @@ const {
   deleteUser,
   disableUser,
   reactivateUser,
-  ordenarUsuario
+  ordenarUsuario,
 } = require("./userSystem.cjs");
+const mongoConnect = require("./mongodb.cjs");
 const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
 const sendMail = require("./emailModule.cjs");
 const { fetchGet, fetchPost, discordLogs } = require("./fetchModule.cjs");
@@ -33,7 +34,7 @@ const {
   conversorSimEnao,
   spaceUsed,
   notfound,
-  sanitize
+  sanitize,
 } = require("./utils.cjs");
 
 module.exports = {
@@ -69,5 +70,6 @@ module.exports = {
   alterUser,
   deleteUser,
   disableUser,
-  reactivateUser
+  reactivateUser,
+  mongoConnect,
 };
