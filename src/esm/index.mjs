@@ -6,7 +6,7 @@ import {
   stringToBinary,
   binaryToString,
 } from "./autoFileSysModule.mjs";
-import mongoConnect from "./mongodb.mjs";
+import { mongoConnect, select, insert } from "./mongodb.mjs";
 import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import sendMail from "./emailModule.mjs";
 import { fetchGet, fetchPost, discordLogs } from "./fetchModule.mjs";
@@ -67,5 +67,5 @@ export {
   disableUser,
   reactivateUser,
   ordenarUsuario,
-  mongoConnect
+  mongoConnect,
 };

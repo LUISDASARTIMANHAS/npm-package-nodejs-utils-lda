@@ -1,1 +1,1 @@
-npm unpublish npm-package-nodejs-utils-lda --force
+npm unpublish npm-package-nodejs-utils-lda@1.0.26

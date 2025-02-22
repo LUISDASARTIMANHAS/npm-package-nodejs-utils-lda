@@ -1,6 +1,6 @@
 require("dotenv/config");
 const { MongoClient } = require("mongodb");
-const { discordLogs } = require("npm-package-nodejs-utils-lda");
+const { discordLogs } = require("./fetchModule.cjs");
 
 async function mongoConnect(connectionString) {
   let mongoClient, srv;
@@ -34,4 +34,22 @@ async function mongoConnect(connectionString) {
   }
 }
 
-module.exports = mongoConnect;
+async function select(connection, database, table) {
+  // - Obtém o banco de dados "database" fornecido da conexão.
+  const db = connection.db(database);
+  // - Obtém a coleção "collection" fornecida do banco de dados.
+  const colecao = db.collection(table);
+  // - Realiza uma consulta para encontrar todos os documentos da coleção e retorna os resultados como um array.
+  return colecao.find().toArray();
+}
+
+async function insert(connection, database, table, data) {
+  // - Obtém o banco de dados "database" fornecido da conexão.
+  const db = connection.db(database);
+  // - Obtém a coleção "table" fornecido do banco de dados.
+  const colecao = db.collection(table);
+  // - Insere um novo documento (data) na coleção (table) e retorna um objeto com informações sobre a inserção.
+  return colecao.insertOne(data);
+}
+
+module.exports = { mongoConnect, select, insert };
