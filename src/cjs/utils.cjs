@@ -144,10 +144,10 @@ function sanitize(text) {
 
 function validadeApiKey(req, res, key) {
   const keyHeader = req.headers["authorization"];
-  const authApi = keyHeader == key;
+  const authApi = keyHeader && key.includes(keyHeader);;
 
   if (!authApi) {
-    forbidden(res);
+    forbidden(res,"invalid or missing api key!");
   }
 }
 
