@@ -10,7 +10,7 @@
   },
   "homepage": "https://github.com/LUISDASARTIMANHAS/npm-package-nodejs-utils",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -36,5 +36,8 @@
     "path": "^0.12.7",
     "uuid": "^11.0.5",
     "xss": "^1.0.15"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
