@@ -1,13 +1,8 @@
 const fs = require("fs");
 const nodemailer = require("nodemailer");
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
-
-// Verifica se o arquivo config.json existe
-if (!fs.existsSync("config.json")) {
-  // Se não existir, cria a pasta
-  fwrite("config.json",[]);
-}
-
+const { configExist } = require("./utils.cjs");
+configExist();
 const configs = fopen("config.json");
 const configMail = {
   service: configs.emailSystem?.service || "Gmail",

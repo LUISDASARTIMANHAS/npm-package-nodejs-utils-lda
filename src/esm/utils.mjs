@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { fopen, fwrite, freadBin, fwriteBin } from "./autoFileSysModule.mjs";
+import { fwrite } from "./autoFileSysModule.mjs";
 
 let forbiddenFilePath = path.resolve(
   path.join("src", "pages", "forbidden.html")
@@ -45,81 +45,45 @@ if (!fs.existsSync(notfoundFilePath)) {
   notfoundFilePath = defaultNotfoundFilePath;
 }
 
-function pesqUsuarioByEmail(file, email) {
-  const data = freadBin(file);
-  let pos = 0;
-
-  for (pos = 0; pos < data.length; pos++) {
-    var currentDB = data[pos];
-    const currentEmail = currentDB.email;
-
-    // Verifica se e o email
-    const authEmail = currentEmail == email;
-
-    console.log("-----SISTEMA----");
-    console.log("TAMANHO: " + data.length);
-    console.log("POSIÇÃO: " + pos);
-    console.log("Pesquisando...");
-    console.log("e-mail : " + email + " == " + currentEmail);
-
-    // Verifica se o nome,usuário e email são verdadeiros
-    if (authEmail) {
-      return pos;
-    }
+export function configExist() {
+  // Verifica se o arquivo config.json existe
+  if (!fs.existsSync("config.json")) {
+    // Se não existir, cria o arquivo
+    fwrite("config.json", {});
   }
-  return -1; // Retorna -1 se não foram encontrados usuarios no vetor
 }
 
-function pesqUsuario(file, username) {
-  const data = freadBin(file);
-  let pos = 0;
-
-  for (pos = 0; pos < data.length; pos++) {
-    var currentDB = data[pos];
-    const currentUser = currentDB.usuario;
-
-    // Verifica se e o usuario
-    const authNome = currentUser == username;
-
-    console.log("-----SISTEMA----");
-    console.log("TAMANHO: " + data.length);
-    console.log("POSIÇÃO: " + pos);
-    console.log("Pesquisando...");
-    console.log("User: " + username + " == " + currentUser);
-
-    // Verifica se o nome,usuário e email são verdadeiros
-    if (authNome) {
-      return pos;
-    }
-  }
-  return -1; // Retorna -1 se não foram encontrados usuarios no vetor
-}
-
-function getRandomInt(max) {
+export function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
-function getRandomBin(max) {
+export function getRandomBin(max) {
   return Math.floor(Math.random() * max).toString(2);
 }
 
-function getRandomHex(max) {
+export function getRandomHex(max) {
   return Math.floor(Math.random() * max).toString(16);
 }
 
-function generateToken() {
+export function generateToken() {
   let token = "";
-  const maxLength = 32; // Precisamos de exatamente 32 caracteres
+  let tentativas = 0;
+  const maxLength = 32;
 
   while (token.length < maxLength) {
-    let hex = getRandomHex(256); // Gera um valor hexadecimal
-    token += hex; // Adiciona o valor ao token
+    // Gera um valor hexadecimal
+    let hex = getRandomHex(256);
+    // Adiciona o valor ao token
+    token += hex;
+    tentativas++;
   }
+  console.log(`Generated Token in ${tentativas} attempts`);
 
-  return token.substring(0, maxLength); // Garante que o token tenha exatamente 32 caracteres
+  // Garante que o token tenha exatamente 32 caracteres
+  return token.substring(0, maxLength);
 }
 
-function formatDate(dateString) {
+export function formatDate(dateString) {
   const options = {
     year: "numeric",
     month: "2-digit",
@@ -133,36 +97,36 @@ function formatDate(dateString) {
   return date.toLocaleString("pt-BR", options);
 }
 
-function sanitize(text) {
+export function sanitize(text) {
   if (typeof text === "string") {
     return text.replace(/[^a-zA-Z0-9://\s]/g, "");
   }
   return null; // ou outra ação apropriada caso não seja uma string
 }
 
-function validadeApiKey(req, res, key) {
+export function validadeApiKey(req, res, key) {
   const keyHeader = req.headers["authorization"];
-  const authApi = keyHeader && key.includes(keyHeader);;
+  const authApi = keyHeader && key.includes(keyHeader);
 
   if (!authApi) {
-    forbidden(res,"invalid or missing api key!");
+    forbidden(res, "invalid or missing api key!");
   }
 }
 
-function conversorSimEnao(value) {
+export function conversorSimEnao(value) {
   if (value) {
     return "✔Voce foi autorizado, esta tudo correto";
   }
   return "⚠Esta faltando algo ou não foi autorizado!";
 }
 
-function notfound(res) {
+export function notfound(res) {
   console.error(404);
   res.status(404);
   res.sendFile(notfoundFilePath);
 }
 
-function forbidden(res, error) {
+export function forbidden(res, error) {
   console.error(403);
   res.status(403);
   if (error) {
@@ -171,7 +135,7 @@ function forbidden(res, error) {
   res.sendFile(forbiddenFilePath);
 }
 
-function unauthorized(res, error) {
+export function unauthorized(res, error) {
   console.error(401);
   res.status(401);
   if (error) {
@@ -180,17 +144,11 @@ function unauthorized(res, error) {
   res.sendStatus(401);
 }
 
-export {
-  getRandomInt,
-  getRandomBin,
-  getRandomHex,
-  generateToken,
-  pesqUsuario,
-  validadeApiKey,
-  unauthorized,
-  forbidden,
-  notfound,
-  formatDate,
-  conversorSimEnao,
-  sanitize,
-};
+export function serverTry(res, callback) {
+  try {
+    callback();
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+}

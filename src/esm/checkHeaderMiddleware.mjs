@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import express from "express";
-import { forbidden, sanitize } from "./utils.mjs";
+import { configExist, forbidden, sanitize } from "./utils.mjs";
 import { fopen, fwrite } from "./autoFileSysModule.mjs";
 import xss from "xss";
 import { fileURLToPath } from "url";
@@ -30,12 +30,7 @@ const defaultCss = path.join(
   "css"
 );
 
-// Verifica se o arquivo config.json existe
-if (!fs.existsSync("config.json")) {
-  // Se não existir, cria o arquivo
-  fwrite("config.json", {});
-}
-
+configExist();
 checkConfigIntegrity();
 
 function checkHeaderMiddleware(app) {

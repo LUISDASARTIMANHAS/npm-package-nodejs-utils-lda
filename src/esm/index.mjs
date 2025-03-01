@@ -24,6 +24,7 @@ import {
   formatDate,
   conversorSimEnao,
   sanitize,
+  serverTry,
 } from "./utils.mjs";
 import {
   insertUser,
@@ -68,4 +69,5 @@ export {
   reactivateUser,
   ordenarUsuario,
   mongoConnect,
+  serverTry,
 };

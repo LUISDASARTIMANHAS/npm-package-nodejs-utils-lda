@@ -1,12 +1,9 @@
 import fs from "fs";
 import { createTransport } from "nodemailer";
 import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { configExist } from "./utils.mjs";
 
-// Verifica se o arquivo config.json existe
-if (!fs.existsSync("config.json")) {
-  // Se não existir, cria a pasta
-  fwrite("config.json",[]);
-}
+configExist();
 const configs = fopen("config.json");
 const configMail = {
   service: configs.emailSystem?.service || "Gmail",

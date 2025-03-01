@@ -32,8 +32,11 @@ notfound(res);
 discordLogs(title, message)
 autoLoader(app);
 spaceUsed(space, used);
+serverTry(res,callback)
+```
 
-// user system
+# user system
+```js
 insertUser(name,userdata);
 return userdata saved
 selectUser(ID);

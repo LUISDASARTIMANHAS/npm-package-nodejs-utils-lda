@@ -1,8 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const {
-  freadBin
-} = require("./autoFileSysModule.cjs");
+const { fwrite } = require("./autoFileSysModule.cjs");
 const routesDir = __dirname;
 let forbiddenFilePath = path.resolve(
   path.join("src", "pages", "forbidden.html")
@@ -47,54 +45,12 @@ if (!fs.existsSync(notfoundFilePath)) {
   notfoundFilePath = defaultNotfoundFilePath;
 }
 
-function pesqUsuarioByEmail(file, email) {
-  const data = freadBin(file);
-  let pos = 0;
-
-  for (pos = 0; pos < data.length; pos++) {
-    var currentDB = data[pos];
-    const currentEmail = currentDB.email;
-
-    // Verifica se e o email
-    const authEmail = currentEmail == email;
-
-    console.log("-----SISTEMA----");
-    console.log("TAMANHO: " + data.length);
-    console.log("POSIÇÃO: " + pos);
-    console.log("Pesquisando...");
-    console.log("e-mail : " + email + " == " + currentEmail);
-
-    // Verifica se o nome,usuário e email são verdadeiros
-    if (authEmail) {
-      return pos;
-    }
+function configExist() {
+  // Verifica se o arquivo config.json existe
+  if (!fs.existsSync("config.json")) {
+    // Se não existir, cria o arquivo
+    fwrite("config.json", {});
   }
-  return -1; // Retorna -1 se não foram encontrados usuarios no vetor
-}
-
-function pesqUsuario(file, username) {
-  const data = freadBin(file);
-  let pos = 0;
-
-  for (pos = 0; pos < data.length; pos++) {
-    var currentDB = data[pos];
-    const currentUser = currentDB.usuario;
-
-    // Verifica se e o usuario
-    const authNome = currentUser == username;
-
-    console.log("-----SISTEMA----");
-    console.log("TAMANHO: " + data.length);
-    console.log("POSIÇÃO: " + pos);
-    console.log("Pesquisando...");
-    console.log("User: " + username + " == " + currentUser);
-
-    // Verifica se o nome,usuário e email são verdadeiros
-    if (authNome) {
-      return pos;
-    }
-  }
-  return -1; // Retorna -1 se não foram encontrados usuarios no vetor
 }
 
 function getRandomInt(max) {
@@ -111,14 +67,20 @@ function getRandomHex(max) {
 
 function generateToken() {
   let token = "";
-  const maxLength = 32; // Precisamos de exatamente 32 caracteres
+  let tentativas = 0;
+  const maxLength = 32;
 
   while (token.length < maxLength) {
-    let hex = getRandomHex(256); // Gera um valor hexadecimal
-    token += hex; // Adiciona o valor ao token
+    // Gera um valor hexadecimal
+    let hex = getRandomHex(256);
+    // Adiciona o valor ao token
+    token += hex;
+    tentativas++
   }
+  console.log(`Generated Token in ${tentativas} attempts`);
 
-  return token.substring(0, maxLength); // Garante que o token tenha exatamente 32 caracteres
+  // Garante que o token tenha exatamente 32 caracteres
+  return token.substring(0, maxLength);
 }
 
 function formatDate(dateString) {
@@ -182,6 +144,15 @@ function unauthorized(res, error) {
   res.sendStatus(401);
 }
 
+function serverTry(res,callback) {
+  try {
+    callback();
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+}
+
 module.exports = {
   getRandomInt,
   getRandomBin,
@@ -195,4 +166,6 @@ module.exports = {
   formatDate,
   conversorSimEnao,
   sanitize,
+  serverTry,
+  configExist
 };

@@ -35,6 +35,7 @@ const {
   spaceUsed,
   notfound,
   sanitize,
+  serverTry,
 } = require("./utils.cjs");
 
 module.exports = {
@@ -74,4 +75,5 @@ module.exports = {
   mongoConnect,
   select,
   insert,
+  serverTry,
 };

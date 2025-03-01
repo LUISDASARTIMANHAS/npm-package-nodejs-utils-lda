@@ -1,22 +1,18 @@
+const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 const cors = require("cors");
 const helmet = require("helmet");
+const { configExist } = require("./utils.cjs");
+const configs = fopen("config.json");
+
+configExist();
+checkConfigIntegrity();
 
 function httpsSecurityMiddleware(req, res, next) {
   console.log("executando https security");
   const corsOptions = {
-    origin: [
-      /^https:\/\/.+/
-    ],
-    methods: "GET,PUT,POST,DELETE",
-    allowedHeaders: [
-      "Content-Type",
-      "Access-Control-Allow-Origin",
-      "authorization",
-      "id",
-      "key",
-      "urlParams",
-      "cache-control",
-    ],
+    origin: configs.origin,
+    methods:configs.methods,
+    allowedHeaders: configs.allowedHeaders,
     optionsSuccessStatus: 204,
   };
   const hstsOptions = {
@@ -38,6 +34,30 @@ function httpsSecurityMiddleware(req, res, next) {
     // Chamando o middleware helmet
     helmet.hsts(hstsOptions)(req, res, next);
   });
+}
+
+function checkConfigIntegrity() {
+  // obtem config.json
+  const configs = fopen("config.json");
+  if (!configs.origin) {
+    configs.origin = [/^https:\/\/.+/];
+  }
+  if (!configs.methods) {
+    configs.methods = "GET,PUT,POST,DELETE";
+  }
+  if (!configs.allowedHeaders) {
+    configs.allowedHeaders = [
+      "Content-Type",
+      "Access-Control-Allow-Origin",
+      "authorization",
+      "id",
+      "key",
+      "urlParams",
+      "cache-control",
+    ];
+  }
+  // salva novamente
+  fwrite("config.json", configs);
 }
 
 module.exports = httpsSecurityMiddleware;
