@@ -1,1 +1,1 @@
-npm publish --tag latest
+npm publish
