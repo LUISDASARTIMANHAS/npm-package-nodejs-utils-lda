@@ -1,7 +1,6 @@
-import fs from "fs";
 import path from "path";
 import express from "express";
-import { configExist, forbidden, sanitize } from "./utils.mjs";
+import { configExist, forbidden } from "./utils.mjs";
 import { fopen, fwrite } from "./autoFileSysModule.mjs";
 import xss from "xss";
 import { fileURLToPath } from "url";
@@ -70,8 +69,6 @@ function checkHeaderMiddleware(app) {
       for (const key in req.body) {
         const payloadValues = req.body[key];
         req.body[key] = xss(payloadValues);
-        // *** PRECISA CORRIGIR A FALHA DO PONTO ***
-        // req.body[key] = sanitize(payloadValues);
       }
       next();
     }

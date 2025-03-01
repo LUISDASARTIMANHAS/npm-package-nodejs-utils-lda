@@ -3,8 +3,6 @@ const express = require("express");
 const {
   forbidden,
   validadeApiKey,
-  conversorSimEnao,
-  sanitize,
 } = require("./utils.cjs");
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
@@ -12,7 +10,6 @@ const path = require("path");
 const { env } = require("process");
 const dotenv = require("dotenv");
 const routesDir = __dirname;
-const rootDir = process.cwd();
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
 // isso deixara os arquivos estaticos na raiz usando app.use(express.static(defaultPages)) ex: /not-found.html
@@ -61,7 +58,6 @@ function checkHeaderMiddleware(app) {
 
   app.all("/*name", (req, res, next) => {
     const origin = req.headers.referer || req.headers.referrer;
-    const keyHeader = req.headers["authorization"];
     const blockRoutesPresent = isBlockedRoute(req);
     const payload = JSON.stringify(req.body, null, 2);
 
@@ -78,8 +74,6 @@ function checkHeaderMiddleware(app) {
       for (const key in req.body) {
         const payloadValues = req.body[key];
         req.body[key] = xss(payloadValues);
-        // *** PRECISA CORRIGIR A FALHA DO PONTO ***
-        // req.body[key] = sanitize(payloadValues);
       }
       next();
     }

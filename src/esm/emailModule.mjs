@@ -2,18 +2,11 @@ import fs from "fs";
 import { createTransport } from "nodemailer";
 import { fopen, fwrite } from "./autoFileSysModule.mjs";
 import { configExist } from "./utils.mjs";
-
 configExist();
-const configs = fopen("config.json");
-const configMail = {
-  service: configs.emailSystem?.service || "Gmail",
-  host: configs.emailSystem?.host || "smtp.gmail.com",
-  port: configs.emailSystem?.port || 25,
-  ssl_tls: configs.emailSystem?.ssl_tls || true,
-  user: configs.emailSystem?.user || "example@gmail.com",
-};
+const configMail = fopen("config.json").emailSystem;
 let transporter;
 
+checkConfigIntegrity();
 
 if (createTransport({ service: configMail.service })) {
   // Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço
@@ -57,6 +50,29 @@ function sendMail(email, subject, text, callback) {
   } catch (error) {
     console.error("SERVIDOR <sendMail>: Erro ao criar email: ", error);
     callback(error, null);
+  }
+}
+
+
+function checkConfigIntegrity() {
+  // obtem config.json
+  const configs = fopen("config.json");
+  const emailConfig = configs.emailSystem;
+
+  if (
+    !emailConfig.service ||
+    !emailConfig.host ||
+    !emailConfig.port ||
+    !emailConfig.ssl_tls ||
+    !emailConfig.user
+  ) {
+    configs.emailSystem.service ?? "Gmail";
+    configs.emailSystem.host ?? "smtp.gmail.com";
+    configs.emailSystem.port ?? 25;
+    configs.emailSystem.ssl_tls ?? true;
+    configs.emailSystem.user ?? "example@gmail.com";
+    // salva novamente
+    fwrite("config.json", configs);
   }
 }
 
