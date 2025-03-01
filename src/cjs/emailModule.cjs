@@ -54,10 +54,16 @@ function sendMail(email, subject, text, callback) {
 }
 
 function checkConfigIntegrity() {
-  // obtem config.json
+  // Obter config.json
   const configs = fopen("config.json");
+  // Verificar se a chave emailSystem existe antes de acessá-la
+  if (!configs.emailSystem) {
+    // Cria emailSystem caso não exista
+    configs.emailSystem = {};
+  }
   const emailConfig = configs.emailSystem;
 
+  // Verificar e atribuir valores padrão, se necessário
   if (
     !emailConfig.service ||
     !emailConfig.host ||
@@ -65,12 +71,17 @@ function checkConfigIntegrity() {
     !emailConfig.ssl_tls ||
     !emailConfig.user
   ) {
-    configs.emailSystem.service ?? "Gmail";
-    configs.emailSystem.host ?? "smtp.gmail.com";
-    configs.emailSystem.port ?? 25;
-    configs.emailSystem.ssl_tls ?? true;
-    configs.emailSystem.user ?? "example@gmail.com";
-    // salva novamente
+    // Verifica cada propriedade individualmente e adiciona valores padrão se faltar
+    configs.emailSystem.service = configs.emailSystem.service || "Gmail";
+    configs.emailSystem.host = configs.emailSystem.host || "smtp.gmail.com";
+    configs.emailSystem.port = configs.emailSystem.port || 25;
+    configs.emailSystem.ssl_tls =
+      configs.emailSystem.ssl_tls !== undefined
+        ? configs.emailSystem.ssl_tls
+        : true;
+    configs.emailSystem.user = configs.emailSystem.user || "example@gmail.com";
+
+    // Salva novamente as configurações no arquivo config.json
     fwrite("config.json", configs);
   }
 }
