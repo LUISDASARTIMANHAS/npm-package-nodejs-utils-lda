@@ -40,7 +40,7 @@ function checkConfigIntegrity() {
   // obtem config.json
   const configs = fopen("config.json");
   if (!configs.origin) {
-    configs.origin = [/^https:\/\/.+/];
+    configs.origin = ["/^https:\/\/.+/"];
   }
   if (!configs.methods) {
     configs.methods = "GET,PUT,POST,DELETE";

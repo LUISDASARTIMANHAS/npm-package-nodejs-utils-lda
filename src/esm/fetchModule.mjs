@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import setEmbed from "./discordEmbed.mjs";
 
 const headersDefault = {
   "x-forwarded-proto": "https,http,http",
@@ -6,7 +7,7 @@ const headersDefault = {
   "accept-encoding": "gzip",
 };
 
-function fetchGet(url, header, callback) {
+export function fetchGet(url, header, callback) {
   try {
     if (!url || !callback) {
       throw new Error("NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL");
@@ -64,7 +65,7 @@ function fetchGet(url, header, callback) {
   }
 }
 
-function fetchPost(url, payload, header, callback) {
+export function fetchPost(url, payload, header, callback) {
   try {
     if (!url || !payload || !callback) {
       throw new Error(
@@ -128,36 +129,35 @@ function fetchPost(url, payload, header, callback) {
   }
 }
 
-function discordLogs(title, mensagem) {
+export function discordLogs(title, mensagem, footerText) {
+  checkConfigIntegrity();
+  const configs = fopen("config.json").discordLogs;
   const date = new Date();
   const ano = date.getFullYear();
   const webhookUrl = process.env.DISCORD_LOGS_WEBHOOK_URL;
   const preSet = {
     content: "",
     embeds: [
-      {
-        title: `SERVIDOR/${title}`,
-        description: "SERVIDOR #01: " + mensagem,
-        color: parseInt("FF00FF", 16),
-        timestamp: date, // Adiciona um timestamp atual
-        footer: {
-          text: `₢Todos os Direitos Reservados - PINGOBRAS S.A - ${ano}`,
-          icon_url:
-            "https://cdn.discordapp.com/attachments/952004420265205810/1188643212378787940/pingobras-logo-fundo.png?ex=6682a481&is=66815301&hm=cc9c387ac2aad7fa8040738f47ae0ab43e2b77027d188e272a147b1829e3a53f&",
-        },
-      },
+      setEmbed(
+        title,
+        mensagem,
+        configs.color,
+        footerText || configs.footerText,
+        configs.footerUrl
+      ),
     ],
     attachments: [],
   };
   let altWebhookUrl;
 
   if (webhookUrl == null || webhookUrl == "") {
-    console.error(`Err: Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`)
+    console.error(
+      `Err: Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`
+    );
     return null;
   } else {
     altWebhookUrl = webhookUrl;
   }
-
   fetchPost(altWebhookUrl, preSet, null, (error, data) => {
     if (error) {
       console.error(error);
@@ -165,4 +165,32 @@ function discordLogs(title, mensagem) {
   });
 }
 
-export { fetchGet, fetchPost, discordLogs };
+function checkConfigIntegrity() {
+  // obtem config.json
+  const configs = fopen("config.json");
+  // Verificar se a chave discordLogs existe antes de acessá-la
+  if (!configs.discordLogs) {
+    // Cria discordLogs caso não exista
+    configs.discordLogs = {};
+  }
+  if (!configs.headersDefault) {
+    // Cria headersDefault caso não exista
+    configs.headersDefault = {};
+  }
+  const discordLogsConfig = configs.discordLogs;
+
+  // Verificar e atribuir valores padrão, se necessário
+  if (
+    !discordLogsConfig.color ||
+    !discordLogsConfig.footerText ||
+    !discordLogsConfig.footerUrl
+  ) {
+    configs.discordLogs.color = configs.discordLogs.color || "FF00FF";
+    configs.discordLogs.footerText = configs.discordLogs.footerText || null;
+    configs.discordLogs.footerUrl =
+      configs.discordLogs.footerUrl ||
+      "https://cdn.discordapp.com/attachments/952004420265205810/1188643212378787940/pingobras-logo-fundo.png?ex=6682a481&is=66815301&hm=cc9c387ac2aad7fa8040738f47ae0ab43e2b77027d188e272a147b1829e3a53f&";
+    // salva novamente
+    fwrite("config.json", configs);
+  }
+}

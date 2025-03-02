@@ -3,6 +3,7 @@ const express = require("express");
 const {
   forbidden,
   validadeApiKey,
+  configExist,
 } = require("./utils.cjs");
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
@@ -30,11 +31,7 @@ const defaultCss = path.join(
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();
 
-// Verifica se o arquivo config.json existe
-if (!fs.existsSync("config.json")) {
-  // Se não existir, cria a pasta
-  fwrite("config.json", {});
-}
+configExist();
 
 checkConfigIntegrity();
 
