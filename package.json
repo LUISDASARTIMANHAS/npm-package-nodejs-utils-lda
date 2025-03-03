@@ -30,7 +30,7 @@
     "express": "^5.0.1",
     "helmet": "^8.0.0",
     "mongodb": "^6.13.1",
-    "node-fetch": "2.7.0",
+    "node-fetch": "3.3.2",
     "nodemailer": "^6.9.16",
     "os": "^0.1.2",
     "path": "^0.12.7",
