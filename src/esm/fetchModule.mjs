@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import setEmbed from "./discordEmbed.mjs";
 import { pipeline } from "stream";
 import { promisify } from "util";
+import { fopen, fwrite } from "./autoFileSysModule.mjs";
 const streamPipeline = promisify(pipeline);
 
 const headersDefault = {

@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const { configExist } = require("./utils.cjs");
 const { default: setEmbed } = require("./discordEmbed.cjs");
-const { fopen } = require("./autoFileSysModule.cjs");
+const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 const { pipeline } = require("stream");
 const { promisify } = require("util");
 const streamPipeline = promisify(pipeline);
