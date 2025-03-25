@@ -1,6 +1,6 @@
 const fetch = require("node-fetch");
 const { configExist } = require("./utils.cjs");
-const { default: setEmbed } = require("./discordEmbed.cjs");
+const { setEmbed } = require("./discordEmbed.cjs");
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 
 configExist();
