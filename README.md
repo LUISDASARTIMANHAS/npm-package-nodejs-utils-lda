@@ -19,6 +19,7 @@ binaryToString(binary, binaryLenght);
 checkHeaderMiddleware(app);
 sendMail(email, subject, text, function(error,data));
 fetchGet(url, header, callback);
+fetchDownloadStream(url, callback);
 fetchPost(url, payload, header, function(error,data));
 httpsSecurityMiddleware(req, res, next)
 getRandomInt(max);
@@ -96,4 +97,24 @@ fetchGet("https://example.com",null, (onError,data)=>{
     }
     res.send(data);
 });
+
+
+app.get("/baixar", (req, res) => {
+  const fileUrl = "https://exemplo.com/arquivo.zip"; // URL do arquivo
+
+  fetchDownloadStream(fileUrl, (err, fileStream) => {
+    if (err) {
+      return res.status(500).send("Erro ao baixar o arquivo.");
+    }
+
+    // Define o cabeçalho para download
+    res.setHeader("Content-Disposition", 'attachment; filename="arquivo.zip"');
+    res.setHeader("Content-Type", "application/octet-stream");
+
+    // Envia o stream do arquivo para o cliente
+    fileStream.pipe(res);
+  });
+});
+
+
 ```

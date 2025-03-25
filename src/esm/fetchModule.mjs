@@ -1,9 +1,6 @@
 import fetch from "node-fetch";
 import setEmbed from "./discordEmbed.mjs";
-import { pipeline } from "stream";
-import { promisify } from "util";
 import { fopen, fwrite } from "./autoFileSysModule.mjs";
-const streamPipeline = promisify(pipeline);
 
 const headersDefault = {
   "x-forwarded-proto": "https,http,http",
@@ -11,33 +8,37 @@ const headersDefault = {
   "accept-encoding": "gzip",
 };
 
-export function fetchDownloadStream(url, filePath, callback) {
+/**
+ * Faz o download de um arquivo e salva localmente
+ * @param {string} url - URL do arquivo para download.
+ * @param {function} callback - Função de retorno (err, filestream).
+ */
+export function fetchDownloadStream(url, callback) {
   try {
-    if (!url || !filePath || !callback) {
-      throw new Error("NO ARGUMENTS TO FETCH! URL, FILEPATH OR CALLBACK IS NULL");
+    if (!url || !callback) {
+      throw new Error("NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL");
     }
 
     console.log("Iniciando download:", url);
 
     fetch(url)
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error(`Erro ao baixar: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `Erro ao baixar: ${response.status} ${response.statusText}`
+          );
         }
 
-        const fileStream = fs.createWriteStream(filePath);
-        return streamPipeline(response.body, fileStream);
+        console.log("Download concluído.");
+        callback(null, response.body); // Retorna o stream do arquivo
       })
-      .then(() => {
-        console.log("Download concluído:", filePath);
-        callback(null, filePath);
-      })
-      .catch(err => {
+      .catch((err) => {
         console.error("Erro no download:", err);
         callback(err, null);
       });
   } catch (err) {
     console.error("FATAL ERROR:", err);
+    callback(err, null);
   }
 }
 
