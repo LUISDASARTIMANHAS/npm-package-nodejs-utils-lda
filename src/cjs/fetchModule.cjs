@@ -2,6 +2,9 @@ const fetch = require("node-fetch");
 const { configExist } = require("./utils.cjs");
 const { default: setEmbed } = require("./discordEmbed.cjs");
 const { fopen } = require("./autoFileSysModule.cjs");
+const { pipeline } = require("stream");
+const { promisify } = require("util");
+const streamPipeline = promisify(pipeline);
 
 configExist();
 
@@ -10,6 +13,47 @@ const headersDefault = {
   "x-forwarded-port": "443,80,80",
   "accept-encoding": "gzip",
 };
+
+/**
+ * Faz o download de um arquivo e salva localmente
+ * @param {string} url - URL do arquivo para download.
+ * @param {string} filePath - Caminho onde o arquivo será salvo.
+ * @param {function} callback - Função de retorno (err, path).
+ */
+function fetchDownloadStream(url, filePath, callback) {
+  try {
+    if (!url || !filePath || !callback) {
+      throw new Error(
+        "NO ARGUMENTS TO FETCH! URL, FILEPATH OR CALLBACK IS NULL"
+      );
+    }
+
+    console.log("Iniciando download:", url);
+
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Erro ao baixar: ${response.status} ${response.statusText}`
+          );
+        }
+
+        // Cria o arquivo e escreve os dados da resposta nele
+        const fileStream = fs.createWriteStream(filePath);
+        return streamPipeline(response.body, fileStream);
+      })
+      .then(() => {
+        console.log("Download concluído:", filePath);
+        callback(null, filePath);
+      })
+      .catch((err) => {
+        console.error("Erro no download:", err);
+        callback(err, null);
+      });
+  } catch (err) {
+    console.error("FATAL ERROR:", err);
+  }
+}
 
 function fetchGet(url, header, callback) {
   try {
@@ -197,4 +241,4 @@ function checkConfigIntegrity() {
   }
 }
 
-module.exports = { fetchGet, fetchPost, discordLogs };
+module.exports = { fetchGet, fetchDownloadStream, fetchPost, discordLogs };

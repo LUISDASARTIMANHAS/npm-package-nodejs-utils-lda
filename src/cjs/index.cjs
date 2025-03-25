@@ -19,7 +19,12 @@ const {
 const { mongoConnect, select, insert } = require("./mongodb.cjs");
 const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
 const sendMail = require("./emailModule.cjs");
-const { fetchGet, fetchPost, discordLogs } = require("./fetchModule.cjs");
+const {
+  fetchGet,
+  fetchDownloadStream,
+  fetchPost,
+  discordLogs,
+} = require("./fetchModule.cjs");
 const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
 const {
   getRandomInt,
@@ -45,6 +50,7 @@ module.exports = {
   checkHeaderMiddleware,
   sendMail,
   fetchGet,
+  fetchDownloadStream,
   fetchPost,
   discordLogs,
   httpsSecurityMiddleware,

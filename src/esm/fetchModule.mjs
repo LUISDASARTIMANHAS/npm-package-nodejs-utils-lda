@@ -1,11 +1,44 @@
 import fetch from "node-fetch";
 import setEmbed from "./discordEmbed.mjs";
+import { pipeline } from "stream";
+import { promisify } from "util";
+const streamPipeline = promisify(pipeline);
 
 const headersDefault = {
   "x-forwarded-proto": "https,http,http",
   "x-forwarded-port": "443,80,80",
   "accept-encoding": "gzip",
 };
+
+export function fetchDownloadStream(url, filePath, callback) {
+  try {
+    if (!url || !filePath || !callback) {
+      throw new Error("NO ARGUMENTS TO FETCH! URL, FILEPATH OR CALLBACK IS NULL");
+    }
+
+    console.log("Iniciando download:", url);
+
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro ao baixar: ${response.status} ${response.statusText}`);
+        }
+
+        const fileStream = fs.createWriteStream(filePath);
+        return streamPipeline(response.body, fileStream);
+      })
+      .then(() => {
+        console.log("Download concluído:", filePath);
+        callback(null, filePath);
+      })
+      .catch(err => {
+        console.error("Erro no download:", err);
+        callback(err, null);
+      });
+  } catch (err) {
+    console.error("FATAL ERROR:", err);
+  }
+}
 
 export function fetchGet(url, header, callback) {
   try {
