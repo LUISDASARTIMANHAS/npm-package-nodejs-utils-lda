@@ -17,6 +17,7 @@ const {
   ordenarUsuario,
 } = require("./userSystem.cjs");
 const { mongoConnect, select, insert } = require("./mongodb.cjs");
+const sendFileToDiscord = require("./sendFileToDiscord.cjs");
 const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
 const sendMail = require("./emailModule.cjs");
 const {
@@ -80,4 +81,5 @@ module.exports = {
   select,
   insert,
   serverTry,
+  sendFileToDiscord
 };

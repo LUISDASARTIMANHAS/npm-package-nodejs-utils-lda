@@ -8,6 +8,7 @@ import {
 } from "./autoFileSysModule.mjs";
 import { mongoConnect, select, insert } from "./mongodb.mjs";
 import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
+import sendFileToDiscord from "./sendFileToDiscord.mjs";
 import sendMail from "./emailModule.mjs";
 import { fetchGet,fetchDownloadStream, fetchPost, discordLogs } from "./fetchModule.mjs";
 import httpsSecurityMiddleware from "./httpsSecurity.mjs";
@@ -69,4 +70,5 @@ export {
   reactivateUser,
   mongoConnect,
   serverTry,
+  sendFileToDiscord,
 };

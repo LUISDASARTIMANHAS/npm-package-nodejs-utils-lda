@@ -34,6 +34,7 @@ discordLogs(title, message)
 autoLoader(app);
 spaceUsed(space, used);
 serverTry(res,callback)
+sendFileToDiscord(file, webhookUrl);
 ```
 
 # user system
