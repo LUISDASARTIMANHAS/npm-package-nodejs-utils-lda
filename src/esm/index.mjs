@@ -8,6 +8,7 @@ import {
 } from "./autoFileSysModule.mjs";
 import { mongoConnect, select, insert } from "./mongodb.mjs";
 import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
+import setCacheHeaders from "./cacheSys.mjs";
 import sendFileToDiscord from "./sendFileToDiscord.mjs";
 import sendMail from "./emailModule.mjs";
 import { fetchGet,fetchDownloadStream, fetchPost, discordLogs } from "./fetchModule.mjs";
@@ -71,4 +72,5 @@ export {
   mongoConnect,
   serverTry,
   sendFileToDiscord,
+  setCacheHeaders
 };
