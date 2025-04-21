@@ -109,7 +109,7 @@ function validadeApiKey(req, res, key) {
   const authApi = keyHeader && key.includes(keyHeader);;
 
   if (!authApi) {
-    forbidden(res,"invalid or missing api key!");
+    forbidden(res,"Acesso negado para API Chave invalida para essa API! invalid or missing api key!");
   }
 }
 

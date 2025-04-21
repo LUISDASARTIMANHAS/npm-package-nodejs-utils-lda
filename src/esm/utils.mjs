@@ -106,10 +106,10 @@ export function sanitize(text) {
 
 export function validadeApiKey(req, res, key) {
   const keyHeader = req.headers["authorization"];
-  const authApi = keyHeader && key.includes(keyHeader);
+  const authApi = keyHeader && key.includes(keyHeader);;
 
   if (!authApi) {
-    forbidden(res, "invalid or missing api key!");
+    forbidden(res,"Acesso negado para API Chave invalida para essa API! invalid or missing api key!");
   }
 }
 
