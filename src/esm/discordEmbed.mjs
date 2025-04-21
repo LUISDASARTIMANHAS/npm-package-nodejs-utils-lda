@@ -1,4 +1,5 @@
 import { fopen, fwrite } from "./autoFileSysModule.mjs"
+import fs from "fs"
 
 function configExist() {
   // Verifica se o arquivo config.json existe

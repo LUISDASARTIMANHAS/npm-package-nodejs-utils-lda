@@ -1,4 +1,5 @@
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
+const fs = require("fs");
 
 function configExist() {
   // Verifica se o arquivo config.json existe
