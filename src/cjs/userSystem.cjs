@@ -14,9 +14,7 @@ if (!fs.existsSync("./data")) {
 // Verifica se o arquivo users.bin existe
 if (!fs.existsSync(databaseUserPath)) {
   // Se não existir, cria o arquivo users.bin com um array vazio
-  const defaultSchema = [
-
-  ]
+  const defaultSchema = [];
   fwriteBin(databaseUserPath, defaultSchema); // Cria um arquivo binário vazio
 }
 
@@ -56,7 +54,7 @@ function insertUser(name, userData) {
 function selectUser(ID) {
   if (userIndexMap[ID] === undefined) {
     console.error(`Err: userID ${ID} Not Found.`);
-    
+
     return `Erro: Usuário com ID ${ID} não encontrado.`;
   }
   const users = freadBin(databaseUserPath);
@@ -181,5 +179,5 @@ module.exports = {
   deleteUser,
   disableUser,
   reactivateUser,
-  ordenarUsuario
+  ordenarUsuario,
 };

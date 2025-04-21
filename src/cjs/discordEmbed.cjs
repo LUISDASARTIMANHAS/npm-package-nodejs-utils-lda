@@ -1,13 +1,6 @@
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
-const fs = require("fs");
+const { configExist } = require("./utils.cjs");
 
-function configExist() {
-  // Verifica se o arquivo config.json existe
-  if (!fs.existsSync("config.json")) {
-    // Se não existir, cria o arquivo
-    fwrite("config.json", {});
-  }
-}
 configExist();
 
 function setEmbed(title, description, colorHex, footerText, footerURL) {

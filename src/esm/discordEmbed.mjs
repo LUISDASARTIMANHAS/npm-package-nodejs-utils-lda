@@ -1,13 +1,6 @@
 import { fopen, fwrite } from "./autoFileSysModule.mjs"
-import fs from "fs"
+import { configExist } from "./utils.mjs";
 
-function configExist() {
-  // Verifica se o arquivo config.json existe
-  if (!fs.existsSync("config.json")) {
-    // Se não existir, cria o arquivo
-    fwrite("config.json", {});
-  }
-}
 configExist();
 
 function setEmbed(title, description, colorHex, footerText, footerURL) {
