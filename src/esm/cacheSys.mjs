@@ -7,7 +7,7 @@ config();
 configExist();
 checkConfigIntegrity();
 
-const setCacheHeaders = (req, res, next) => {
+function setCacheHeaders(req, res, next){
   const configs = fopen("config.json");
   if (req.headers["x-disable-cache"] === "true") {
     console.log(

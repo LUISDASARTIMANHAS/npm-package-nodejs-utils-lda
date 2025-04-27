@@ -1,1 +1,0 @@
-start "SERVER CSJ" /realtime /min npm run dev

@@ -1,1 +1,0 @@
-start "SERVER MSJ" /realtime /min npm run dev
