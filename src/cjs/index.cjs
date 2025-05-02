@@ -6,6 +6,7 @@ const {
   stringToBinary,
   binaryToString,
   autoLoader,
+  log
 } = require("./autoFileSysModule.cjs");
 const {
   insertUser,
@@ -83,5 +84,6 @@ module.exports = {
   insert,
   serverTry,
   sendFileToDiscord,
-  setCacheHeaders
+  setCacheHeaders,
+  log
 };

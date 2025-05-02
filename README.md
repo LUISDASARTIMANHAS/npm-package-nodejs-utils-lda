@@ -36,6 +36,7 @@ autoLoader(app);
 spaceUsed(space, used);
 serverTry(res,callback)
 sendFileToDiscord(file, webhookUrl);
+log(message, filepath = "logs.txt", maxLength = 100);
 ```
 
 # user system
@@ -66,19 +67,6 @@ return all data of selected table
 insert(connection, database, table, data)
 
 return mongoClient or connection
-```
-
-## config.json
-```json
-{
-    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-    "emailSystem":{
-        "service": "Gmail",
-        "host":null,
-        "port":null,
-        "ssl_tls":true
-    }
-}
 ```
 
 ## Usage

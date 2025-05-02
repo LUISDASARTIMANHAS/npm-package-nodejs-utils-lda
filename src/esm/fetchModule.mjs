@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import setEmbed from "./discordEmbed.mjs";
-import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
 
 const headersDefault = {
   "x-forwarded-proto": "https,http,http",
@@ -87,8 +87,8 @@ export function fetchGet(url, header, callback) {
         }
       })
       .then((data) => {
-        console.log("FETCH GET RECEBIDO! OK 200");
-        console.log("Dados recebidos:", data);
+        log("FETCH GET RECEBIDO! OK 200");
+        log("Dados recebidos:", data);
         callback(null, data);
       })
       .catch((error) => {
@@ -151,8 +151,8 @@ export function fetchPost(url, payload, header, callback) {
         }
       })
       .then((data) => {
-        console.log("FETCH POST ENVIADO! OK 200");
-        console.log("Dados recebidos:", data);
+        log("FETCH POST ENVIADO! OK 200");
+        log("Dados recebidos:", data);
         callback(null, data);
       })
       .catch((error) => {

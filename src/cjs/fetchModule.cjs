@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const { configExist } = require("./utils.cjs");
 const setEmbed = require("./discordEmbed.cjs");
-const { fopen, fwrite } = require("./autoFileSysModule.cjs");
+const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 
 configExist();
 
@@ -91,8 +91,8 @@ function fetchGet(url, header, callback) {
         }
       })
       .then((data) => {
-        console.log("FETCH GET RECEBIDO! OK 200");
-        console.log("Dados recebidos:", data);
+        log("FETCH GET RECEBIDO! OK 200");
+        log("Dados recebidos:", data);
         callback(null, data);
       })
       .catch((error) => {
@@ -156,8 +156,8 @@ function fetchPost(url, payload, header, callback) {
         }
       })
       .then((data) => {
-        console.log("FETCH POST ENVIADO! OK 200");
-        console.log("Dados recebidos:", data);
+        log("FETCH POST ENVIADO! OK 200");
+        log("Dados recebidos:", data);
         callback(null, data);
       })
       .catch((error) => {

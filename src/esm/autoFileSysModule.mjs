@@ -99,6 +99,25 @@ function freadBin(filePath) {
   }
 }
 
+/**
+ * Escreve e imprime uma mensagem de log.
+ * @param {string} message - Mensagem a ser registrada.
+ * @param {string} [filepath="logs.txt"] - Caminho do arquivo de log.
+ * @param {number} [maxLength=100] - Tamanho máximo da mensagem.
+ */
+function log(message, filepath = "logs.txt", maxLength = 100) {
+  if (typeof message !== "string") message = String(message);
+  if (message.length > maxLength) {
+    message = message.slice(0, maxLength) + "… [TRUNCADO]";
+  }
+
+  const oldContent = fopen(filepath);
+  const newContent = oldContent + message + "\n";
+  fwrite(filepath, newContent);
+  console.log(message);
+}
+
+
 export {
   fopen,
   fwrite,
@@ -106,4 +125,5 @@ export {
   fwriteBin,
   stringToBinary,
   binaryToString,
+  log
 };

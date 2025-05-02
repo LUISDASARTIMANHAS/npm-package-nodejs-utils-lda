@@ -58,7 +58,7 @@ function DespublicarVersao {
         Write-Host "Você escolheu despublicar a versão: $versionToDelete"
 
         # Confirmar despublicação
-        $confirm = Read-Host "Tem certeza que deseja despublicar esta versão? (s/n)" -ForegroundColor yellow
+        $confirm = Read-Host "Tem certeza que deseja despublicar esta versão? (s/n)"
 
         if ($confirm -eq "s") {
             Write-Host "Despublicando a versão $versionToDelete..." -ForegroundColor Yellow 

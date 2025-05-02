@@ -1,4 +1,4 @@
-const { fopen, fwrite } = require("./autoFileSysModule.cjs");
+const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const cors = require("cors");
 const helmet = require("helmet");
 const { configExist } = require("./utils.cjs");
@@ -50,6 +50,7 @@ function isUserAgentBlocked(userAgent, blockedAgents) {
 }
 
 function logBlockedUserAgent(userAgent, req) {
+  log(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`,"UAfirewall.txt",100)
   console.warn(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`);
 }
 

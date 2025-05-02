@@ -72,5 +72,6 @@ export {
   mongoConnect,
   serverTry,
   sendFileToDiscord,
-  setCacheHeaders
+  setCacheHeaders,
+  log
 };

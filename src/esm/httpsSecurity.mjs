@@ -1,4 +1,4 @@
-import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
 import cors from "cors";
 import helmet from "helmet";
 import { configExist } from "./utils.mjs";
@@ -50,6 +50,7 @@ function isUserAgentBlocked(userAgent, blockedAgents) {
 }
 
 function logBlockedUserAgent(userAgent, req) {
+  log(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`,"UAfirewall.txt");
   console.warn(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`);
 }
 
