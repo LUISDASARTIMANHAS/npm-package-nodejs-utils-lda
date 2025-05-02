@@ -2,7 +2,7 @@
 function Check-Admin {
     $isAdmin = (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Host "O script não está sendo executado como Administrador. Tentando reiniciar com privilégios de Administrador..."
+        Write-Host "O script não está sendo executado como Administrador. Tentando reiniciar com privilégios de Administrador..." -ForegroundColor yellow
         
         # Obter o caminho completo do script atual
         $scriptPath = $MyInvocation.MyCommand.Path
@@ -16,7 +16,7 @@ function Check-Admin {
             Start-Process powershell -ArgumentList $arguments -Verb runAs
             exit
         } else {
-            Write-Host "Erro: Não foi possível obter o caminho do script."
+            Write-Host "Erro: Não foi possível obter o caminho do script." -ForegroundColor red
             exit
         }
     }
@@ -32,9 +32,9 @@ function DespublicarVersao {
 
     # Verificar se a resposta foi obtida com sucesso
     if ($response) {
-        Write-Host "Sucesso ao obter dados da API."
+        Write-Host "Sucesso ao obter dados da API." -ForegroundColor green
     } else {
-        Write-Host "Erro ao obter dados da API."
+        Write-Host "Erro ao obter dados da API." -ForegroundColor red
         exit
     }
 
@@ -45,7 +45,7 @@ function DespublicarVersao {
 
     # Exibir as versões para o usuário
     foreach ($version in $versions) {
-        Write-Host "$counter - $version"
+        Write-Host "$counter - $version" -ForegroundColor blue
         $counter++
     }
 
@@ -58,13 +58,16 @@ function DespublicarVersao {
         Write-Host "Você escolheu despublicar a versão: $versionToDelete"
 
         # Confirmar despublicação
-        $confirm = Read-Host "Tem certeza que deseja despublicar esta versão? (s/n)"
+        $confirm = Read-Host "Tem certeza que deseja despublicar esta versão? (s/n)" -ForegroundColor yellow
 
         if ($confirm -eq "s") {
-            Write-Host "Despublicando a versão $versionToDelete..."
-            
+            Write-Host "Despublicando a versão $versionToDelete..." -ForegroundColor Yellow 
+            Write-Host "Command: npm unpublish $packageName@$versionToDelete" -ForegroundColor red 
+
             # Descomente a linha abaixo para executar o comando de despublicação
-            # npm unpublish $packageName@$versionToDelete
+             npm unpublish $packageName@$versionToDelete
+            Write-Host "Versão Despublicada!" -ForegroundColor red 
+            pause
         } else {
             Write-Host "Despublicação cancelada."
         }
@@ -81,7 +84,10 @@ do {
     DespublicarVersao
     
     # Perguntar se o usuário deseja despublicar outra versão
-    $continue = Read-Host "Deseja despublicar outra versão? (s/n)"
+    # $continue = Read-Host "Deseja despublicar outra versão? (s/n)"
+    $continue = "s"
+    clear
 } while ($continue -eq "s")
 
-Write-Host "Saindo do script..."
+Write-Host "Saindo do script..." -ForegroundColor red
+exit
