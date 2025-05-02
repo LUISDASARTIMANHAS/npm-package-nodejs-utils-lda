@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const { configExist } = require("./utils.cjs");
 const setEmbed = require("./discordEmbed.cjs");
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
-
+const logPath = "server-requests.txt";
 configExist();
 
 const headersDefault = {
@@ -22,7 +22,7 @@ function fetchDownloadStream(url, callback) {
       throw new Error("NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL");
     }
 
-    console.log("Iniciando download:", url);
+    log(`Iniciando download: ${url}`, logPath);
 
     fetch(url)
       .then((response) => {
@@ -32,7 +32,7 @@ function fetchDownloadStream(url, callback) {
           );
         }
 
-        console.log("Download concluído.");
+        log("Download concluído.", logPath);
         callback(null, response.body); // Retorna o stream do arquivo
       })
       .catch((err) => {
@@ -57,16 +57,15 @@ function fetchGet(url, header, callback) {
       headers: newHeaders,
     };
 
-    console.log("FETCH GET:", url);
+    log(`FETCH GET: ${url}`, logPath);
     fetch(url, requestOptions)
       .then((response) => {
-        console.log(
-          "Status da resposta:",
-          response.status,
-          response.statusText
+        log(
+          `Status da resposta: ${response.status} - ${response.statusText}`,
+          logPath
         );
         const contentType = response.headers.get("content-type");
-        console.log("Tipo de conteúdo:", contentType);
+        log(`Tipo de conteúdo: ${contentType}`,logPath);
 
         // Verifica se houve erro na resposta
         if (!response.ok) {
@@ -91,8 +90,8 @@ function fetchGet(url, header, callback) {
         }
       })
       .then((data) => {
-        log("FETCH GET RECEBIDO! OK 200");
-        log("Dados recebidos:", data);
+        log("FETCH GET RECEBIDO! OK 200",logPath);
+        log(`Dados recebidos: ${data}`,logPath);
         callback(null, data);
       })
       .catch((error) => {
@@ -124,20 +123,16 @@ function fetchPost(url, payload, header, callback) {
     };
 
     if (newHeaders["content-type"] == "application/json; charset=UTF-8") {
-      console.log("Convertendo payload para JSON!");
+      log("Convertendo payload para JSON!",logPath);
       requestOptions.body = JSON.stringify(payload);
     }
 
-    console.log("FETCH POST", url);
+    log(`FETCH POST ${url}`,logPath);
     fetch(url, requestOptions)
       .then((response) => {
-        console.log(
-          "Status da resposta:",
-          response.status,
-          response.statusText
-        );
+        log(`Status da resposta: ${response.status}, ${response.statusText}`,logPath);
         const contentType = response.headers.get("content-type");
-        console.log("Tipo de conteúdo:", contentType);
+        log(`Tipo de conteúdo: ${contentType}`,logPath);
 
         // Verifica se houve erro na resposta
         if (!response.ok) {
@@ -156,8 +151,8 @@ function fetchPost(url, payload, header, callback) {
         }
       })
       .then((data) => {
-        log("FETCH POST ENVIADO! OK 200");
-        log("Dados recebidos:", data);
+        log("FETCH POST ENVIADO! OK 200",logPath);
+        log(`Dados recebidos: ${data}`,logPath);
         callback(null, data);
       })
       .catch((error) => {

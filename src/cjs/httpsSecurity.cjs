@@ -2,6 +2,7 @@ const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const cors = require("cors");
 const helmet = require("helmet");
 const { configExist } = require("./utils.cjs");
+const logPath = "HTTPSfirewall.txt";
 
 configExist();
 checkConfigIntegrity();
@@ -50,8 +51,7 @@ function isUserAgentBlocked(userAgent, blockedAgents) {
 }
 
 function logBlockedUserAgent(userAgent, req) {
-  log(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`,"UAfirewall.txt",100)
-  console.warn(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`);
+  log(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`,logPath);
 }
 
 function configureCorsHeaders(res, corsOptions) {

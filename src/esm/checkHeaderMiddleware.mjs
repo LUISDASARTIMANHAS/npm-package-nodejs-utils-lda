@@ -1,7 +1,7 @@
 import path from "path";
 import express from "express";
 import { configExist, forbidden } from "./utils.mjs";
-import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
 import xss from "xss";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -61,10 +61,10 @@ function checkHeaderMiddleware(app) {
     if (blockRoutesPresent) {
       return validadeApiKey(req, res, keys);
     } else {
-      console.log("-------------------------");
-      console.log("SISTEMA <CHECK> <OBTER>: " + req.url);
-      console.log("SISTEMA <ORIGEM>: " + origin);
-      console.log("SISTEMA <PAYLOAD>: " + payload);
+      log("-------------------------",logPath);
+      log(`SISTEMA <CHECK> <OBTER>: ${req.url}`,logPath);
+      log(`SISTEMA <ORIGEM>: ${origin}`,logPath);
+      log(`SISTEMA <PAYLOAD>: ${payload}`,logPath);
 
       for (const key in req.body) {
         const payloadValues = req.body[key];

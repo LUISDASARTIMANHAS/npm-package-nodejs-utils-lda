@@ -122,13 +122,13 @@ function autoLoader(app) {
   app.use(express.static(pages));
   fs.readdirSync(rootDir).forEach((file) => {
     const filePath = path.resolve(rootDir, file);
-    console.log(`File ${filePath} `);
+    log(`File ${filePath} `);
 
     if (file.endsWith(".js") && file !== "server.js") {
       const route = require(filePath);
 
       app.use(route);
-      console.log(`File ${file} loaded auto!`);
+      log(`File ${file} loaded auto!`);
     }
   });
 }

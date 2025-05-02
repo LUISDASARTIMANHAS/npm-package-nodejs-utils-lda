@@ -1,6 +1,6 @@
 import fs from "fs";
 import { createTransport } from "nodemailer";
-import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
 import { configExist } from "./utils.mjs";
 configExist();
 const configMail = fopen("config.json").emailSystem;
@@ -40,10 +40,10 @@ function sendMail(email, subject, text, callback) {
     };
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log("SERVIDOR <sendMail>: Erro ao enviar o e-mail:", error);
+        log(`SERVIDOR <sendMail>: Erro ao enviar o e-mail: ${error}`);
         callback(error, null);
       } else {
-        console.log("SERVIDOR <sendMail>: E-mail enviado:", info.response);
+        log(`SERVIDOR <sendMail>: E-mail enviado: ${info.response}`);
         callback(null, info);
       }
     });

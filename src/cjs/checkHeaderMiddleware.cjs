@@ -5,7 +5,7 @@ const {
   validadeApiKey,
   configExist,
 } = require("./utils.cjs");
-const { fopen, fwrite } = require("./autoFileSysModule.cjs");
+const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
 const path = require("path");
 const { env } = require("process");
@@ -13,6 +13,7 @@ const dotenv = require("dotenv");
 const routesDir = __dirname;
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
+const logPath = "headerSys.txt";
 // isso deixara os arquivos estaticos na raiz usando app.use(express.static(defaultPages)) ex: /not-found.html
 const defaultPages = path.join(
   "node_modules",
@@ -63,10 +64,10 @@ function checkHeaderMiddleware(app) {
     if (blockRoutesPresent) {
       return validadeApiKey(req, res, keys);
     } else {
-      console.log("-------------------------");
-      console.log("SISTEMA <CHECK> <OBTER>: " + req.url);
-      console.log("SISTEMA <ORIGEM>: " + origin);
-      console.log("SISTEMA <PAYLOAD>: " + payload);
+      log("-------------------------",logPath);
+      log(`SISTEMA <CHECK> <OBTER>: ${req.url}`,logPath);
+      log(`SISTEMA <PAYLOAD>: ${payload}`,logPath);
+      log(`SISTEMA <ORIGEM>: ${origin}`,logPath);
 
       for (const key in req.body) {
         const payloadValues = req.body[key];
