@@ -9,16 +9,36 @@ const routesDir = dirname(__filename);
 const rootDir = process.cwd();
 
 function fopen(filePath) {
-  const database = readFileSync(filePath, "utf8");
-  const data = JSON.parse(database);
+  if (!fs.existsSync(filePath)) {
+    // Se for JSON, cria com objeto vazio; se for .txt, cria como string vazia
+    const defaultValue = filePath.endsWith(".json") ? {} : "";
+    fwrite(filePath, defaultValue);
+  }
 
-  return data;
+  const content = fs.readFileSync(filePath, "utf8");
+
+  // Se for JSON, tenta parsear
+  if (filePath.endsWith(".json")) {
+    try {
+      return JSON.parse(content);
+    } catch (e) {
+      console.error("Error parsing JSON:", filePath);
+      return {};
+    }
+  }
+
+  // Para txt ou outros, retorna como string
+  return content;
 }
 
 function fwrite(filePath, data) {
-  const formatData = JSON.stringify(data, null, 2);
+  let formatData = data;
 
-  writeFileSync(filePath, formatData, "utf8");
+  if (filePath.endsWith(".json")) {
+    formatData = JSON.stringify(data, null, 2);
+  }
+
+  fs.writeFileSync(filePath, formatData, "utf8");
   return true;
 }
 
@@ -62,11 +82,21 @@ function fwriteBin(filePath, data) {
 
 // Leitura e conversão de volta para JSON
 function freadBin(filePath) {
-  const binaryString = readFileSync(filePath, "utf8");
-  const string = binaryToString(binaryString);
-  const data = JSON.parse(string);
+  if (!fs.existsSync(filePath)) {
+    // cria arquivo binário vazio com "{}" por padrão
+    fwriteBin(filePath, {});
+  }
 
-  return data;
+  const binaryString = fs.readFileSync(filePath, "utf8");
+  const string = binaryToString(binaryString);
+
+  try {
+    const data = JSON.parse(string);
+    return data;
+  } catch (e) {
+    console.error("Error decoding binary as JSON:", e);
+    return {};
+  }
 }
 
 export {

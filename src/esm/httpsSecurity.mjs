@@ -1,52 +1,79 @@
-import cors from "cors";
-import { hsts } from "helmet";
 import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import cors from "cors";
+import helmet from "helmet";
 import { configExist } from "./utils.mjs";
-const configs = fopen("config.json");
 
 configExist();
 checkConfigIntegrity();
 
-function httpsSecurityMiddleware(req, res, next) {
-  console.log("executando https security");
-  const ALLOWED_USER_AGENTS = configs.ALLOWED_USER_AGENTS;
-  const corsOptions = {
+async function httpsSecurityMiddleware(req, res, next) {
+  const configs = fopen("config.json");
+  const userAgent = req.get("user-agent") || "";
+
+  if (await checkUserAgent(req, res, userAgent)) return;
+
+  const corsOptions = makeCorsOptions(configs);
+  const hstsOptions = makeHstsOptions();
+
+  cors(corsOptions)(req, res, () => {
+    if (req.method === "OPTIONS") {
+      configureCorsHeaders(res, corsOptions);
+    }
+    helmet.hsts(hstsOptions)(req, res, next);
+  });
+}
+
+async function checkUserAgent(req, res, userAgent) {
+  const configs = fopen("config.json");
+  const { ALLOWED_USER_AGENTS, BLOCKED_USER_AGENTS } = configs;
+
+  // Verifica se o User-Agent é permitido ou bloqueado
+  const isAllowed = isUserAgentAllowed(userAgent, ALLOWED_USER_AGENTS);
+  const isBlocked = isUserAgentBlocked(userAgent, BLOCKED_USER_AGENTS);
+
+  if (!isAllowed || isBlocked) {
+    logBlockedUserAgent(userAgent, req);
+    res.status(403).send("User-Agent not authorized.");
+    return true;  // Bloqueado
+  }
+  return false;  // Permitido
+}
+
+// FUNÇÕES BASICAS DE SUBPROCESSOS
+
+function isUserAgentAllowed(userAgent, allowedAgents) {
+  return allowedAgents.some(ua => userAgent.includes(ua));
+}
+
+function isUserAgentBlocked(userAgent, blockedAgents) {
+  return blockedAgents.some(blocked => userAgent.includes(blocked));
+}
+
+function logBlockedUserAgent(userAgent, req) {
+  console.warn(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`);
+}
+
+function configureCorsHeaders(res, corsOptions) {
+  res.set("Access-Control-Allow-Origin", corsOptions.origin);
+  res.set("Access-Control-Allow-Methods", corsOptions.methods);
+  res.set("Access-Control-Allow-Headers", corsOptions.allowedHeaders);
+}
+
+function makeCorsOptions(configs) {
+  return {
     origin: configs.ORIGIN,
     methods: configs.METHODS,
     allowedHeaders: configs.ALLOWED_HEADERS,
     optionsSuccessStatus: 204,
   };
-  const hstsOptions = {
+}
+
+function makeHstsOptions() {
+  return {
     maxAge: 365 * 24 * 60 * 60,
     includeSubDomains: true,
     preload: true,
   };
-  // Verificação do User-Agent
-  const userAgent = req.get("user-agent") || "";
-  const isAllowedUserAgent = ALLOWED_USER_AGENTS.some((ua) =>
-    userAgent.includes(ua)
-  );
-
-  if (!isAllowedUserAgent) {
-    console.warn(
-      `Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`
-    );
-    return res.status(403).send("User-Agent not authorized.");
-  }
-
-  // Chamando o middleware cors
-  cors(corsOptions)(req, res, () => {
-    // Configurar cabeçalhos de resposta para OPTIONS
-    if (req.method === "OPTIONS") {
-      console.log("SISTEMA OPTIONS CORS");
-      res.set("Access-Control-Allow-Origin", corsOptions.origin);
-      res.set("Access-Control-Allow-Methods", corsOptions.methods);
-      res.set("Access-Control-Allow-Headers", corsOptions.allowedHeaders);
-    }
-
-    // Chamando o middleware helmet
-    helmet.hsts(hstsOptions)(req, res, next);
-  });
 }
 
 function checkConfigIntegrity() {
@@ -78,6 +105,16 @@ function checkConfigIntegrity() {
       "custom/1.0",
     ];
   }
+  if (!configs.BLOCKED_USER_AGENTS) {
+    configs.BLOCKED_USER_AGENTS = [
+      "CensysInspect",
+      "Shodan",
+      "curl",
+      "python-requests",
+      "nmap",
+    ];
+  }
+
   // salva novamente
   fwrite("config.json", configs);
 }
