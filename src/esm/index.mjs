@@ -25,6 +25,7 @@ import {
   formatDate,
   conversorSimEnao,
   sanitize,
+  SanitizeXSS,
   serverTry,
 } from "./utils.mjs";
 import {
@@ -62,6 +63,7 @@ export {
   formatDate,
   conversorSimEnao,
   sanitize,
+  SanitizeXSS,
   insertUser,
   selectUser,
   alterUser,

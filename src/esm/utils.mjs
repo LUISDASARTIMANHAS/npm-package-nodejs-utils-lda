@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fwrite } from "./autoFileSysModule.mjs";
+import xss from "xss";
 
 let forbiddenFilePath = path.resolve(
   path.join("src", "pages", "forbidden.html")
@@ -104,12 +105,23 @@ export function sanitize(text) {
   return null; // ou outra ação apropriada caso não seja uma string
 }
 
+export function SanitizeXSS(object) {
+  for (const key in object) {
+    const values = object[key];
+    object[key] = xss(values);
+  }
+}
+
+
 export function validadeApiKey(req, res, key) {
   const keyHeader = req.headers["authorization"];
-  const authApi = keyHeader && key.includes(keyHeader);;
+  const authApi = keyHeader && key.includes(keyHeader);
 
   if (!authApi) {
-    forbidden(res,"Acesso negado para API Chave invalida para essa API! invalid or missing api key!");
+    forbidden(
+      res,
+      "Acesso negado para API Chave invalida para essa API! invalid or missing api key!"
+    );
   }
 }
 

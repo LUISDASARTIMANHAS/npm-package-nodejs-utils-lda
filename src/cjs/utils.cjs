@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { fwrite } = require("./autoFileSysModule.cjs");
+const xss = require("xss");
 const routesDir = __dirname;
 let forbiddenFilePath = path.resolve(
   path.join("src", "pages", "forbidden.html")
@@ -104,6 +105,13 @@ function sanitize(text) {
   return null; // ou outra ação apropriada caso não seja uma string
 }
 
+function SanitizeXSS(object) {
+  for (const key in object) {
+    const values = object[key];
+    object[key] = xss(values);
+  }
+}
+
 function validadeApiKey(req, res, key) {
   const keyHeader = req.headers["authorization"];
   const authApi = keyHeader && key.includes(keyHeader);;
@@ -165,6 +173,7 @@ module.exports = {
   formatDate,
   conversorSimEnao,
   sanitize,
+  SanitizeXSS,
   serverTry,
   configExist
 };

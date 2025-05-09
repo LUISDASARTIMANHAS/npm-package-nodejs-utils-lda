@@ -1,12 +1,11 @@
-const fs = require("fs");
 const express = require("express");
 const {
   forbidden,
   validadeApiKey,
   configExist,
+  SanitizeXSS,
 } = require("./utils.cjs");
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
-const xss = require("xss");
 const path = require("path");
 const { env } = require("process");
 const dotenv = require("dotenv");
@@ -65,14 +64,11 @@ function checkHeaderMiddleware(app) {
       return validadeApiKey(req, res, keys);
     } else {
       log("-------------------------",logPath);
-      log(`SISTEMA <CHECK> <OBTER>: ${req.url}`,logPath);
-      log(`SISTEMA <PAYLOAD>: ${payload}`,logPath);
-      log(`SISTEMA <ORIGEM>: ${origin}`,logPath);
+      log(`SYSTEM <CHECK> <GET>: ${req.url}`,logPath);
+      log(`SYSTEM <PAYLOAD>: ${payload}`,logPath);
+      log(`SYSTEM <ORIGEM>: ${origin}`,logPath);
 
-      for (const key in req.body) {
-        const payloadValues = req.body[key];
-        req.body[key] = xss(payloadValues);
-      }
+      SanitizeXSS(req.body);
       next();
     }
   });
@@ -87,20 +83,22 @@ function isBlockedRoute(req) {
     return regex.test(req.path);
   });
 }
-
 function getKeys() {
-  // Definir chaves padrão que são esperadas para autenticação
+  // Chaves padrão usadas caso nenhuma seja encontrada no .env
   const defaultKeys = ["ROOT:keyBypass"];
-  const envKeys = Object.entries(env);
+  // Obter as entradas do objeto 'env'
+  const environmentEntries = Object.entries(env);
+  // Filtrar apenas as chaves que começam com 'KEY_'
+  const keyEntries = environmentEntries.filter(([key, _]) => key.startsWith("KEY_"));
+  // Extrair apenas os valores das chaves filtradas
+  const extractedKeys = keyEntries.map(([_, value]) => value);
 
-  // Filtrar as chaves do processo .env para incluir apenas aquelas que são apropriadas
-  const keys = envKeys.reduce(
-    (keys, [key, value]) => (key.startsWith("KEY_") ? [...keys, value] : keys),
-    []
-  );
+  // Verificar se há alguma chave extraída, senão retorna as padrão
+  const finalKeys = extractedKeys.length > 0 ? extractedKeys : defaultKeys;
 
-  return defaultKeys.concat(keys);
+  return finalKeys;
 }
+
 
 function checkConfigIntegrity() {
   // obtem config.json

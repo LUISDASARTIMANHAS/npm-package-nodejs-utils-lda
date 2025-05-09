@@ -42,6 +42,7 @@ const {
   spaceUsed,
   notfound,
   sanitize,
+  SanitizeXSS,
   serverTry,
 } = require("./utils.cjs");
 
@@ -72,6 +73,7 @@ module.exports = {
   spaceUsed,
   notfound,
   sanitize,
+  SanitizeXSS,
   insertUser,
   selectUser,
   alterUser,
