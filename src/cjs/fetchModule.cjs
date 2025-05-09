@@ -57,8 +57,9 @@ function fetchGet(url, header, callback) {
         }
         return parseFetchResponse(response);
       })
-      .then((data) => {
-        log("FETCH GET RECEBIDO! OK 200", logPath);
+      .then((data,status) => {
+        data.status = status;
+        log(`FETCH GET RECEBIDO! OK ${status}`, logPath);
         log(`Dados recebidos: ${data}`, logPath);
         callback(null, data);
       })
@@ -92,8 +93,9 @@ function fetchPostJson(url, payload, header, callback) {
 
         return parseFetchResponse(response);
       })
-      .then((data) => {
-        log("FETCH POST ENVIADO! OK 200", logPath);
+      .then((data,status) => {
+        data.status = status;
+        log(`FETCH POST ENVIADO! OK ${status}`, logPath);
         log(`Dados recebidos: ${data}`, logPath);
         callback(null, data);
       })
@@ -133,8 +135,9 @@ function fetchPost(url, payload, header, callback) {
 
         return parseFetchResponse(response);
       })
-      .then((data) => {
-        log("FETCH POST ENVIADO! OK 200", logPath);
+      .then((data,status) => {
+        data.status = status;
+        log(`FETCH POST ENVIADO! OK ${status}`, logPath);
         log(`Dados recebidos: ${data}`, logPath);
         callback(null, data);
       })

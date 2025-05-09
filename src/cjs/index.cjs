@@ -26,6 +26,7 @@ const {
   fetchGet,
   fetchDownloadStream,
   fetchPost,
+  fetchPostJson,
   discordLogs,
 } = require("./fetchModule.cjs");
 const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
@@ -56,6 +57,7 @@ module.exports = {
   fetchGet,
   fetchDownloadStream,
   fetchPost,
+  fetchPostJson,
   discordLogs,
   httpsSecurityMiddleware,
   getRandomInt,

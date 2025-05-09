@@ -21,6 +21,8 @@ sendMail(email, subject, text, function(error,data));
 fetchGet(url, header, callback);
 fetchDownloadStream(url, callback);
 fetchPost(url, payload, header, function(error,data));
+// only JSON
+fetchPostJson(url, payload, header, callback);
 httpsSecurityMiddleware(req, res, next);
 setCacheHeaders(req, res, next);
 getRandomInt(max);

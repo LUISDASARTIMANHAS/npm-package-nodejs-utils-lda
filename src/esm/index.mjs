@@ -11,7 +11,7 @@ import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import setCacheHeaders from "./cacheSys.mjs";
 import sendFileToDiscord from "./sendFileToDiscord.mjs";
 import sendMail from "./emailModule.mjs";
-import { fetchGet,fetchDownloadStream, fetchPost, discordLogs } from "./fetchModule.mjs";
+import { fetchGet,fetchDownloadStream, fetchPost, fetchPostJson, discordLogs } from "./fetchModule.mjs";
 import httpsSecurityMiddleware from "./httpsSecurity.mjs";
 import {
   getRandomInt,
@@ -50,6 +50,7 @@ export {
   fetchGet,
   fetchDownloadStream,
   fetchPost,
+  fetchPostJson,
   discordLogs,
   httpsSecurityMiddleware,
   getRandomInt,
