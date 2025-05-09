@@ -5,39 +5,33 @@ const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const logPath = "server-requests.txt";
 configExist();
 
-const headersDefault = {
-  "x-forwarded-proto": "https,http,http",
-  "x-forwarded-port": "443,80,80",
-  "accept-encoding": "gzip",
-};
-
 /**
  * Faz o download de um arquivo e salva localmente
  * @param {string} url - URL do arquivo para download.
  * @param {function} callback - Função de retorno (err, filestream).
  */
-function fetchDownloadStream(url, callback) {
+function fetchDownloadStream(url,header, callback) {
   try {
-    if (!url || !callback) {
-      throw new Error("NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL");
-    }
-
+    checkArgs(url, callback);
+    const headers = buildHeaders(header);
+    const requestOptions = {
+      method: "GET",
+      headers: headers,
+    };
     log(`Iniciando download: ${url}`, logPath);
 
     fetch(url)
       .then((response) => {
+        requestStatus(response);
         if (!response.ok) {
-          throw new Error(
-            `Erro ao baixar: ${response.status} ${response.statusText}`
-          );
+          requestError(response);
         }
 
         log("Download concluído.", logPath);
         callback(null, response.body); // Retorna o stream do arquivo
       })
-      .catch((err) => {
-        console.error("Erro no download:", err);
-        callback(err, null);
+      .catch((error) => {
+        onError(url, error, callback);
       });
   } catch (err) {
     console.error("FATAL ERROR:", err);
@@ -47,117 +41,105 @@ function fetchDownloadStream(url, callback) {
 
 function fetchGet(url, header, callback) {
   try {
-    if (!url || !callback) {
-      throw new Error("NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL");
-    }
-
-    const newHeaders = Object.assign(headersDefault, header);
+    checkArgs(url, callback);
+    const headers = buildHeaders(header);
     const requestOptions = {
       method: "GET",
-      headers: newHeaders,
+      headers: headers,
     };
 
     log(`FETCH GET: ${url}`, logPath);
     fetch(url, requestOptions)
       .then((response) => {
-        log(
-          `Status da resposta: ${response.status} - ${response.statusText}`,
-          logPath
-        );
-        const contentType = response.headers.get("content-type");
-        log(`Tipo de conteúdo: ${contentType}`,logPath);
-
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          return response.text().then((errorData) => {
-            throw new Error(
-              `Erro na resposta do servidor: ${JSON.stringify(
-                errorData,
-                null,
-                2
-              )}`
-            );
-          });
+          requestError(response);
         }
-
-        // Verifica o tipo de conteúdo retornado
-        if (contentType && contentType.includes("application/json")) {
-          // Se for JSON, retorna o JSON
-          return response.json();
-        } else {
-          // Se não for JSON, retorna o conteúdo como texto
-          return response.text();
-        }
+        return parseFetchResponse(response);
       })
       .then((data) => {
-        log("FETCH GET RECEBIDO! OK 200",logPath);
-        log(`Dados recebidos: ${data}`,logPath);
+        log("FETCH GET RECEBIDO! OK 200", logPath);
+        log(`Dados recebidos: ${data}`, logPath);
         callback(null, data);
       })
       .catch((error) => {
-        console.error(`Erro ao fazer a requisição para ${url}: ${error}`);
-        callback(error, null);
+        onError(url, error, callback);
       });
   } catch (err) {
     console.error("FATAL ERROR: " + err);
   }
 }
 
-function fetchPost(url, payload, header, callback) {
+function fetchPostJson(url, payload, header, callback) {
   try {
-    if (!url || !payload || !callback) {
-      throw new Error(
-        "NO ARGUMENTS TO FETCH! URL OR PAYLOAD OR CALLBACK IS NULL"
-      );
-    }
+    checkArgs(url, callback);
 
-    const defaultContentType = {
-      "content-type": `application/json; charset=UTF-8`,
-    };
-    var newHeaders = headersDefault;
-    newHeaders = Object.assign(headersDefault, header || defaultContentType);
+    const headers = buildHeaders(header, true);
+
     const requestOptions = {
       method: "POST",
-      headers: newHeaders,
-      body: payload,
+      headers: headers,
+      body: JSON.stringify(payload),
     };
 
-    if (newHeaders["content-type"] == "application/json; charset=UTF-8") {
-      log("Convertendo payload para JSON!",logPath);
-      requestOptions.body = JSON.stringify(payload);
-    }
-
-    log(`FETCH POST ${url}`,logPath);
+    log(`FETCH POST JSON ${url}`, logPath);
     fetch(url, requestOptions)
       .then((response) => {
-        log(`Status da resposta: ${response.status}, ${response.statusText}`,logPath);
-        const contentType = response.headers.get("content-type");
-        log(`Tipo de conteúdo: ${contentType}`,logPath);
-
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          return response.text().then((errorData) => {
-            throw new Error(JSON.stringify(errorData, null, 2));
-          });
+          requestError(response);
         }
 
-        // Verifica o tipo de conteúdo retornado
-        if (contentType && contentType.includes("application/json")) {
-          // Se for JSON, retorna o JSON
-          return response.json();
-        } else {
-          // Se não for JSON, retorna o conteúdo como texto
-          return response.text();
-        }
+        return parseFetchResponse(response);
       })
       .then((data) => {
-        log("FETCH POST ENVIADO! OK 200",logPath);
-        log(`Dados recebidos: ${data}`,logPath);
+        log("FETCH POST ENVIADO! OK 200", logPath);
+        log(`Dados recebidos: ${data}`, logPath);
         callback(null, data);
       })
       .catch((error) => {
-        console.error(`Erro ao fazer a requisição para ${url}: ${error}`);
-        callback(error, null);
+        onError(url, error, callback);
+      });
+  } catch (err) {
+    console.error("FATAL ERROR: " + err);
+  }
+}
+
+
+function fetchPost(url, payload, header, callback) {
+  try {
+    checkArgs(url, callback);
+
+    const headers = buildHeaders(header, true);
+
+    const requestOptions = {
+      method: "POST",
+      headers: headers,
+      body: payload,
+    };
+
+    if (headers["content-type"] === "application/json; charset=UTF-8") {
+      log("Convertendo payload para JSON!", logPath);
+      requestOptions.body = JSON.stringify(payload);
+    }
+
+    log(`FETCH POST ${url}`, logPath);
+    fetch(url, requestOptions)
+      .then((response) => {
+        // Verifica se houve erro na resposta
+        if (!response.ok) {
+          requestError(response);
+        }
+
+        return parseFetchResponse(response);
+      })
+      .then((data) => {
+        log("FETCH POST ENVIADO! OK 200", logPath);
+        log(`Dados recebidos: ${data}`, logPath);
+        callback(null, data);
+      })
+      .catch((error) => {
+        onError(url, error, callback);
       });
   } catch (err) {
     console.error("FATAL ERROR: " + err);
@@ -200,6 +182,69 @@ function discordLogs(title, mensagem, footerText) {
   });
 }
 
+// FUNÇÕES BASICAS MODULARES
+function checkArgs(url, callback) {
+  if (!url || !callback) {
+    throw new Error("NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL");
+  }
+}
+
+function buildHeaders(extraHeaders = {}, includeContentType = false) {
+  const headersDefault = {
+    "x-forwarded-proto": "https,http,http",
+    "x-forwarded-port": "443,80,80",
+    "accept-encoding": "gzip",
+  };
+
+  const defaultContentType = {
+    "content-type": "application/json; charset=UTF-8",
+  };
+
+  // Constrói os headers finais, adicionando Content-Type se necessário
+  return Object.assign(
+    {},
+    headersDefault,
+    includeContentType ? defaultContentType : {},
+    extraHeaders
+  );
+}
+
+
+function requestStatus(response) {
+  const status = response.status;
+  const contentType = response.headers.get("content-type");
+
+  log(`Status da resposta: ${status} - ${response.statusText}`);
+  log(`Tipo de conteúdo: ${contentType}`);
+}
+
+function parseFetchResponse(response) {
+  const status = response.status;
+  const contentType = response.headers.get("content-type");
+
+  requestStatus(response);
+
+  // Verifica o tipo de conteúdo retornado
+  if (contentType && contentType.includes("application/json")) {
+    // Se for JSON, retorna o JSON
+    return response.json().then((data) => ({ data, status }));
+  } else {
+    // Se não for JSON, retorna o conteúdo como texto
+    return response.text().then((data) => ({ data, status }));
+  }
+}
+
+function requestError(response) {
+  return response.text().then((errorData) => {
+    throw new Error(JSON.stringify(errorData, null, 2));
+  });
+}
+
+function onError(url, error, callback) {
+  console.error(`Erro ao fazer a requisição para ${url}: ${error}`);
+  callback(error, null);
+}
+
 function checkConfigIntegrity() {
   // obtem config.json
   const configs = fopen("config.json");
@@ -226,4 +271,4 @@ function checkConfigIntegrity() {
   }
 }
 
-module.exports = { fetchGet, fetchDownloadStream, fetchPost, discordLogs };
+module.exports = { fetchGet, fetchDownloadStream, fetchPost,fetchPostJson, discordLogs };
