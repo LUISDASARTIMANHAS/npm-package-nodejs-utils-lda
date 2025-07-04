@@ -110,4 +110,48 @@ app.get("/baixar", (req, res) => {
 });
 
 
-```
+# WSChat
+
+## With Express (recommended)
+
+If you already have an Express server, just pass the app instance to WSChat:
+
+````js
+import express from "express";
+import WSChat from "./WSchat.lib.mjs"; // or require() for CommonJS
+
+const app = express();
+
+const server = WSChat(app, {
+  welcomeMessage: "Hello! Welcome to the chat."
+});
+
+server.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
+````
+
+This creates the HTTP + WebSocket server using the same Express server.
+
+## Without Express (standalone WebSocket server)
+
+If you want to run WSChat alone, without Express:
+
+````js
+import WSChat from "./WSchat.lib.mjs";
+
+WSChat(null, { port: 8080 }); // starts HTTP + WS server on port 8080
+````
+
+---
+
+## Options
+
+The second argument is an optional object with the following properties:
+
+````js
+{
+  port: 8080,               // Number - Port to listen on if WSChat creates its own HTTP server (default 8080)
+  welcomeMessage: "Welcome to WSChat!" // String - Message sent to clients immediately after connection
+}
+````

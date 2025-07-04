@@ -8,6 +8,7 @@ const {
   autoLoader,
   log
 } = require("./autoFileSysModule.cjs");
+const WSChat = require("./WSChat.cjs");
 const {
   insertUser,
   selectUser,
@@ -89,5 +90,6 @@ module.exports = {
   serverTry,
   sendFileToDiscord,
   setCacheHeaders,
-  log
+  log,
+  WSChat
 };

@@ -6,6 +6,7 @@ import {
   stringToBinary,
   binaryToString,
 } from "./autoFileSysModule.mjs";
+import WSChat from "./WSChat.mjs";
 import { mongoConnect, select, insert } from "./mongodb.mjs";
 import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import setCacheHeaders from "./cacheSys.mjs";
@@ -76,5 +77,6 @@ export {
   serverTry,
   sendFileToDiscord,
   setCacheHeaders,
-  log
+  log,
+  WSChat
 };
