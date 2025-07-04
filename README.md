@@ -7,6 +7,7 @@ config.json file
 data folder
 
 automatic create requires folders and files.
+automatic generation of AES + RSA KEYS FOR ENCRYPTION
 
 ## Functions
 ```js
