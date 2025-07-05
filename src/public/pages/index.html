@@ -4,90 +4,65 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=0.7" />
     <link rel="icon" href="/imgs/servidor-icon.png" />
-    <link rel="stylesheet" href="../assets/bootstrap@5.3.7.css">
+    <link rel="stylesheet" href="/assets/bootstrap@5.3.7.css" />
 
     <seo>
       <meta name="description" content=" SERVER ONLINE!" />
       <meta name="robots" content="index,follow" />
       <meta property="og:title" content="SERVER" />
       <meta property="og:type" content="article" />
-      <meta property="og:description" content=" PINGOBRAS SG " />
+      <meta property="og:description" content=" SERVER " />
       <meta property="og:image" content="./imgs/servidor-icon.png" />
       <meta name="twitter:card" content="summary" />
     </seo>
 
     <title>SERVER</title>
   </head>
-  <body>
-    <nav class="navbar bg-dark navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+   <body>
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <a class="navbar-brand" href="#">SERVER</a>
         <button
           class="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
+          <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
+              <a class="nav-link active" href="#">Início</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Features</a>
+              <a class="nav-link" href="#">Documentação</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Pricing</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+              <a class="nav-link" href="#">Contato</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
-    <div class="site-altura">
-      <div class="conteudo" role="main">
-        <main>
-          <h2>Bem-vindo(a) ao servidor!</h2>
-          <p>
-            Esta é uma página inicial simples do servidor. para informar como a
-            API funciona e para que o usuario saiba que o servidor esta online!
-          </p>
 
-          <div class="server-status">
-            <h2>Status do Servidor</h2>
-            <p>O servidor está: <span verde>Online</span></p>
-          </div>
+    <div class="card server-card shadow">
+      <div class="card-body">
+        <h2 class="card-title">🎉 Bem-vindo ao servidor!</h2>
+        <p class="card-text">
+          Esta é uma página inicial simples do servidor. Aqui você encontra informações básicas sobre a API e confirma que o servidor está <strong>online</strong>.
+        </p>
 
-          <br />
+        <h4>Status do Servidor:</h4>
+        <p class="text-success fw-bold">🟢 Online</p>
 
-          <p>
-            Os dados serão retornados em formato JSON, que é amplamente
-            utilizado para troca de informações na web.
-          </p>
-          <p>
-            Você também pode adicionar parâmetros à URL para filtrar os
-            resultados por data, autor ou categoria. Consulte a documentação
-            para obter mais detalhes.
-          </p>
-        </main>
+        <p>
+          Os dados são retornados em formato JSON, padrão para aplicações modernas.
+        </p>
+        <p>
+          Você pode usar parâmetros como data, autor ou categoria. Consulte a <a href="#">documentação</a> para mais detalhes.
+        </p>
       </div>
     </div>
-    <script src="../assets/bootstrap@5.3.7.js"></script>
-    <autoscripts>
-      <script src="https://luisdasartimanhas.github.io/PINGOBRAS/src/js/load-scripts.js"></script>
-    </autoscripts>
-    <host>
-      <script
-        src="https://luisdasartimanhas.github.io/PINGOBRAS/src/js/load-host.js"
-        defer
-      ></script>
-    </host>
   </body>
 </html>
