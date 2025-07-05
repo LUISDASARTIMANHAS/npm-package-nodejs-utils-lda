@@ -1,23 +1,13 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const routesDir = __dirname;
 const rootDir = process.cwd();
-const pages = routesDir + "/src/pages";
-const css = routesDir + "/src/css";
-// isso deixara os arquivos estaticos na raiz usando app.use(express.static(defaultPages)) ex: /not-found.html
-const defaultPages = path.join(
+// isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
+const publicItens = path.join(
   "node_modules",
   "npm-package-nodejs-utils-lda",
   "src",
-  "pages"
-);
-// isso deixara os arquivos estaticos na raiz usando app.use(express.static(defaultCss)) ex: /not-found.css
-const defaultCss = path.join(
-  "node_modules",
-  "npm-package-nodejs-utils-lda",
-  "src",
-  "css"
+  "public"
 );
 
 function fopen(filePath) {
@@ -114,12 +104,8 @@ function freadBin(filePath) {
 
 // Carrega dinamicamente todos os módulos de rota
 function autoLoader(app) {
-  // DEFAULT STATIC PAGES AND CSS
-  app.use(express.static(defaultCss));
-  app.use(express.static(defaultPages));
-
-  app.use(express.static(css));
-  app.use(express.static(pages));
+   // DEFAULT STATIC PUBLIC ITENS
+  app.use(express.static(publicItens));
   fs.readdirSync(rootDir).forEach((file) => {
     const filePath = path.resolve(rootDir, file);
     log(`File ${filePath} `);

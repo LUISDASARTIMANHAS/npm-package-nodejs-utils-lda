@@ -2,48 +2,38 @@ const fs = require("fs");
 const path = require("path");
 const { fwrite } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
-const routesDir = __dirname;
-let forbiddenFilePath = path.resolve(
-  path.join("src", "pages", "forbidden.html")
+const modulePath = path.resolve(
+  path.join(
+    "node_modules",
+    "npm-package-nodejs-utils-lda",
+    "src",
+    "public",
+    "pages"
+  )
 );
-let notfoundFilePath = path.resolve(
-  path.join("src", "pages", "not-found.html")
-);
+// arquivos que o servidor do usuario poderia ter
+let forbiddenFilePath = verifyHostedFiles("forbidden");
+let notfoundFilePath = verifyHostedFiles("not-found");
+let landingFilePath = verifyHostedFiles("index");
 
-// Verifica se o arquivo forbidden.html existe
-if (!fs.existsSync(forbiddenFilePath)) {
-  const defaultForbiddenFilePath = path.resolve(
-    path.join(
-      "node_modules",
-      "npm-package-nodejs-utils-lda",
-      "src",
-      "pages",
-      "forbidden.html"
-    )
+function verifyHostedFiles(filePathName) {
+  let filePath = path.resolve(
+    path.join("src", "pages", `${filePathName}.html`)
   );
-  console.error(
-    `Err: not found forbiddenFilePath: ${forbiddenFilePath} using: ${defaultForbiddenFilePath}`
-  );
-  // usa o default da blibioteca
-  forbiddenFilePath = defaultForbiddenFilePath;
-}
+  // Verifica se o arquivo .html existe
+  if (!fs.existsSync(filePath)) {
+    const defaultForbiddenFilePath = path.join(
+      modulePath,
+      `${filePathName}.html`
+    );
 
-// Verifica se o arquivo not-found.html existe
-if (!fs.existsSync(notfoundFilePath)) {
-  const defaultNotfoundFilePath = path.resolve(
-    path.join(
-      "node_modules",
-      "npm-package-nodejs-utils-lda",
-      "src",
-      "pages",
-      "not-found.html"
-    )
-  );
-  console.error(
-    `Err: not found defaultNotfoundFilePath: ${notfoundFilePath} using: ${defaultNotfoundFilePath}`
-  );
-  // usa o default da blibioteca
-  notfoundFilePath = defaultNotfoundFilePath;
+    console.error(
+      `Err: not found: ${filePath} using: ${defaultForbiddenFilePath}`
+    );
+    // usa o default da blibioteca
+    filePath = defaultForbiddenFilePath;
+  }
+  return filePath;
 }
 
 function configExist() {
@@ -76,7 +66,7 @@ function generateToken() {
     let hex = getRandomHex(256);
     // Adiciona o valor ao token
     token += hex;
-    tentativas++
+    tentativas++;
   }
   console.log(`Generated Token in ${tentativas} attempts`);
 
@@ -114,10 +104,13 @@ function SanitizeXSS(object) {
 
 function validadeApiKey(req, res, key) {
   const keyHeader = req.headers["authorization"];
-  const authApi = keyHeader && key.includes(keyHeader);;
+  const authApi = keyHeader && key.includes(keyHeader);
 
   if (!authApi) {
-    forbidden(res,"Acesso negado para API Chave invalida para essa API! invalid or missing api key!");
+    forbidden(
+      res,
+      "Acesso negado para API Chave invalida para essa API! invalid or missing api key!"
+    );
   }
 }
 
@@ -129,13 +122,13 @@ function conversorSimEnao(value) {
 }
 
 function notfound(res) {
-  console.error(404);
+  console.error("notfound 404");
   res.status(404);
   res.sendFile(notfoundFilePath);
 }
 
 function forbidden(res, error) {
-  console.error(403);
+  console.error("forbidden 403");
   res.status(403);
   if (error) {
     return res.json(error);
@@ -143,8 +136,13 @@ function forbidden(res, error) {
   res.sendFile(forbiddenFilePath);
 }
 
+function landingPage(res) {
+  res.status(200);
+  res.sendFile(landingFilePath);
+}
+
 function unauthorized(res, error) {
-  console.error(401);
+  console.error("unauthorized 401");
   res.status(401);
   if (error) {
     return res.json(error);
@@ -152,7 +150,7 @@ function unauthorized(res, error) {
   res.sendStatus(401);
 }
 
-function serverTry(res,callback) {
+function serverTry(res, callback) {
   try {
     callback();
   } catch (err) {
@@ -170,10 +168,11 @@ module.exports = {
   unauthorized,
   forbidden,
   notfound,
+  landingPage,
   formatDate,
   conversorSimEnao,
   sanitize,
   SanitizeXSS,
   serverTry,
-  configExist
+  configExist,
 };

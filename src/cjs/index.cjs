@@ -8,7 +8,7 @@ const {
   autoLoader,
   log
 } = require("./autoFileSysModule.cjs");
-const WSChat = require("./WSChat.cjs");
+const WSChat = require("./WSCHAT/WSChat.cjs");
 const {
   insertUser,
   selectUser,
@@ -39,6 +39,7 @@ const {
   validadeApiKey,
   unauthorized,
   forbidden,
+  landingPage,
   formatDate,
   conversorSimEnao,
   spaceUsed,
@@ -68,6 +69,7 @@ module.exports = {
   validadeApiKey,
   unauthorized,
   forbidden,
+  landingPage,
   formatDate,
   conversorSimEnao,
   stringToBinary,

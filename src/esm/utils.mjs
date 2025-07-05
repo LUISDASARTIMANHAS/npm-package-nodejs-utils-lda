@@ -2,49 +2,40 @@ import fs from "fs";
 import path from "path";
 import { fwrite } from "./autoFileSysModule.mjs";
 import xss from "xss";
-
-let forbiddenFilePath = path.resolve(
-  path.join("src", "pages", "forbidden.html")
+const modulePath = path.resolve(
+  path.join(
+    "node_modules",
+    "npm-package-nodejs-utils-lda",
+    "src",
+    "public",
+    "pages"
+  )
 );
-let notfoundFilePath = path.resolve(
-  path.join("src", "pages", "not-found.html")
-);
+// arquivos que o servidor do usuario poderia ter
+let forbiddenFilePath = verifyHostedFiles("forbidden");
+let notfoundFilePath = verifyHostedFiles("not-found");
+let landingFilePath = verifyHostedFiles("index");
 
-// Verifica se o arquivo forbidden.html existe
-if (!fs.existsSync(forbiddenFilePath)) {
-  const defaultForbiddenFilePath = path.resolve(
-    path.join(
-      "node_modules",
-      "npm-package-nodejs-utils-lda",
-      "src",
-      "pages",
-      "forbidden.html"
-    )
+function verifyHostedFiles(filePathName) {
+  let filePath = path.resolve(
+    path.join("src", "pages", `${filePathName}.html`)
   );
-  console.error(
-    `Err: not found forbiddenFilePath: ${forbiddenFilePath} using: ${defaultForbiddenFilePath}`
-  );
-  // usa o default da blibioteca
-  forbiddenFilePath = defaultForbiddenFilePath;
+  // Verifica se o arquivo .html existe
+  if (!fs.existsSync(filePath)) {
+    const defaultForbiddenFilePath = path.join(
+      modulePath,
+      `${filePathName}.html`
+    );
+
+    console.error(
+      `Err: not found: ${filePath} using: ${defaultForbiddenFilePath}`
+    );
+    // usa o default da blibioteca
+    filePath = defaultForbiddenFilePath;
+  }
+  return filePath;
 }
 
-// Verifica se o arquivo not-found.html existe
-if (!fs.existsSync(notfoundFilePath)) {
-  const defaultNotfoundFilePath = path.resolve(
-    path.join(
-      "node_modules",
-      "npm-package-nodejs-utils-lda",
-      "src",
-      "pages",
-      "not-found.html"
-    )
-  );
-  console.error(
-    `Err: not found defaultNotfoundFilePath: ${notfoundFilePath} using: ${defaultNotfoundFilePath}`
-  );
-  // usa o default da blibioteca
-  notfoundFilePath = defaultNotfoundFilePath;
-}
 
 export function configExist() {
   // Verifica se o arquivo config.json existe
@@ -154,6 +145,11 @@ export function unauthorized(res, error) {
     return res.json(error);
   }
   res.sendStatus(401);
+}
+
+export function landingPage(res) {
+  res.status(200);
+  res.sendFile(landingFilePath);
 }
 
 export function serverTry(res, callback) {

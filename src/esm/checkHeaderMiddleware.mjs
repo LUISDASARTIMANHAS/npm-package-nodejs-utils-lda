@@ -13,29 +13,20 @@ const __filename = fileURLToPath(import.meta.url);
 const routesDir = dirname(__filename);
 const pages = routesDir + "/src/pages";
 const css = routesDir + "/src/css";
-// isso deixara os arquivos estaticos na raiz usando app.use(express.static(defaultPages)) ex: /not-found.html
-const defaultPages = path.join(
+// isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
+const publicItens = path.join(
   "node_modules",
   "npm-package-nodejs-utils-lda",
   "src",
-  "pages"
-);
-// isso deixara os arquivos estaticos na raiz usando app.use(express.static(defaultCss)) ex: /not-found.css
-const defaultCss = path.join(
-  "node_modules",
-  "npm-package-nodejs-utils-lda",
-  "src",
-  "css"
+  "public"
 );
 
 configExist();
 checkConfigIntegrity();
 
 function checkHeaderMiddleware(app) {
-  // DEFAULT STATIC PAGES AND CSS
-  [defaultCss, defaultPages, css, pages].forEach((dir) =>
-    app.use(express.static(dir))
-  );
+  // DEFAULT STATIC PUBLIC ITENS
+    app.use(express.static(publicItens))
 
   // Middleware para configurar o tipo de conteúdo como JSON
   app.all("/api/*name", (req, res, next) => {
