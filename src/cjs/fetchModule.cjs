@@ -24,7 +24,8 @@ function fetchDownloadStream(url,header, callback) {
       .then((response) => {
         requestStatus(response);
         if (!response.ok) {
-          requestError(response);
+          // retorna a exceção
+          return requestError(response);
         }
 
         log("Download concluído.", logPath);
@@ -53,7 +54,8 @@ function fetchGet(url, header, callback) {
       .then((response) => {
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          requestError(response);
+          // retorna a exceção
+          return requestError(response);
         }
         return parseFetchResponse(response);
       })
@@ -88,7 +90,8 @@ function fetchPostJson(url, payload, header, callback) {
       .then((response) => {
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          requestError(response);
+          // retorna a exceção
+          return requestError(response);
         }
 
         return parseFetchResponse(response);
@@ -130,7 +133,7 @@ function fetchPost(url, payload, header, callback) {
       .then((response) => {
         // Verifica se houve erro na resposta
         if (!response.ok) {
-          requestError(response);
+          return requestError(response);
         }
 
         return parseFetchResponse(response);
