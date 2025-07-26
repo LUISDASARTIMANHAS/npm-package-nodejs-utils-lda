@@ -8,45 +8,53 @@ configExist();
 /**
  * Faz o download de um arquivo e salva localmente
  * @param {string} url - URL do arquivo para download.
- * @param {function} callback - Função de retorno (err, filestream).
+ * @param {function} callback - Função de retorno (err, filestream,return headers).
  */
-function fetchDownloadStream(url,header, callback) {
+function fetchDownloadStream(url, sendHeader, callback) {
   try {
     checkArgs(url, callback);
-    const headers = buildHeaders(header);
+
     const requestOptions = {
       method: "GET",
-      headers: headers,
+      headers: buildHeaders(sendHeader,true),
     };
-    log(`Iniciando download: ${url}`, logPath);
 
-    fetch(url)
-      .then((response) => {
-        requestStatus(response);
-        if (!response.ok) {
-          // retorna a exceção
-          return requestError(response);
+    log("Download Iniciado.", logPath);
+    fetch(url, requestOptions)
+      .then(async (response) => {
+        if (!(response.status === 200 || response.status === 206)) {
+          const errText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errText}`);
         }
 
+        // Seu log aqui, quando a resposta foi bem sucedida e recebemos o stream
         log("Download concluído.", logPath);
-        callback(null, response.body); // Retorna o stream do arquivo
+
+        const importantHeaders = {
+          "content-length": response.headers.get("content-length"),
+          "content-range": response.headers.get("content-range"),
+          "accept-ranges": response.headers.get("accept-ranges"),
+          "content-type": response.headers.get("content-type"),
+        };
+
+        callback(null, response.body, importantHeaders);
       })
       .catch((error) => {
-        onError(url, error, callback);
+        console.error(`Erro na requisição fetch: ${error.message}`);
+        callback(error, null);
       });
   } catch (err) {
-    console.error("FATAL ERROR:", err);
+    console.error(`Erro fatal em fetchDownloadStream: ${err.message}`);
     callback(err, null);
   }
 }
 
-function fetchGet(url, header, callback) {
+function fetchGet(url, sendHeader, callback) {
   try {
     checkArgs(url, callback);
-    const headers = buildHeaders(header);
     const requestOptions = {
       method: "GET",
-      headers: headers,
+      headers: buildHeaders(sendHeader),
     };
 
     log(`FETCH GET: ${url}`, logPath);
@@ -59,7 +67,7 @@ function fetchGet(url, header, callback) {
         }
         return parseFetchResponse(response);
       })
-      .then((data,status) => {
+      .then((data, status) => {
         data.status = status;
         log(`FETCH GET RECEBIDO! OK ${status}`, logPath);
         log(`Dados recebidos: ${data}`, logPath);
@@ -73,11 +81,11 @@ function fetchGet(url, header, callback) {
   }
 }
 
-function fetchPostJson(url, payload, header, callback) {
+function fetchPostJson(url, payload, sendHeader, callback) {
   try {
     checkArgs(url, callback);
 
-    const headers = buildHeaders(header, true);
+    const headers = buildHeaders(sendHeader, true);
 
     const requestOptions = {
       method: "POST",
@@ -96,7 +104,7 @@ function fetchPostJson(url, payload, header, callback) {
 
         return parseFetchResponse(response);
       })
-      .then((data,status) => {
+      .then((data, status) => {
         data.status = status;
         log(`FETCH POST ENVIADO! OK ${status}`, logPath);
         log(`Dados recebidos: ${data}`, logPath);
@@ -110,12 +118,11 @@ function fetchPostJson(url, payload, header, callback) {
   }
 }
 
-
-function fetchPost(url, payload, header, callback) {
+function fetchPost(url, payload, sendHeader, callback) {
   try {
     checkArgs(url, callback);
 
-    const headers = buildHeaders(header, true);
+    const headers = buildHeaders(sendHeader, true);
 
     const requestOptions = {
       method: "POST",
@@ -138,7 +145,7 @@ function fetchPost(url, payload, header, callback) {
 
         return parseFetchResponse(response);
       })
-      .then((data,status) => {
+      .then((data, status) => {
         data.status = status;
         log(`FETCH POST ENVIADO! OK ${status}`, logPath);
         log(`Dados recebidos: ${data}`, logPath);
@@ -215,7 +222,6 @@ function buildHeaders(extraHeaders = {}, includeContentType = false) {
   );
 }
 
-
 function requestStatus(response) {
   const status = response.status;
   const contentType = response.headers.get("content-type");
@@ -277,4 +283,10 @@ function checkConfigIntegrity() {
   }
 }
 
-module.exports = { fetchGet, fetchDownloadStream, fetchPost,fetchPostJson, discordLogs };
+module.exports = {
+  fetchGet,
+  fetchDownloadStream,
+  fetchPost,
+  fetchPostJson,
+  discordLogs
+};

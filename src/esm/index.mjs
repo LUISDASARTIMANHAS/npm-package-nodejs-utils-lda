@@ -13,6 +13,12 @@ import setCacheHeaders from "./cacheSys.mjs";
 import sendFileToDiscord from "./sendFileToDiscord.mjs";
 import sendMail from "./emailModule.mjs";
 import { fetchGet,fetchDownloadStream, fetchPost, fetchPostJson, discordLogs } from "./fetchModule.mjs";
+import {
+  fetchDownloadStreamAsync,
+  fetchGetAsync,
+  fetchPostAsync,
+  fetchPostJsonAsync,
+} from "./fetchModuleAsync.mjs"
 import httpsSecurityMiddleware from "./httpsSecurity.mjs";
 import {
   getRandomInt,
@@ -80,5 +86,9 @@ export {
   sendFileToDiscord,
   setCacheHeaders,
   log,
-  WSChat
+  WSChat,
+  fetchDownloadStreamAsync,
+  fetchGetAsync,
+  fetchPostAsync,
+  fetchPostJsonAsync,
 };

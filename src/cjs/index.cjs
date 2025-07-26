@@ -30,6 +30,12 @@ const {
   fetchPostJson,
   discordLogs,
 } = require("./fetchModule.cjs");
+const {
+  fetchDownloadStreamAsync,
+  fetchGetAsync,
+  fetchPostAsync,
+  fetchPostJsonAsync,
+} = require("./fetchModuleAsync.cjs")
 const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
 const {
   getRandomInt,
@@ -93,5 +99,9 @@ module.exports = {
   sendFileToDiscord,
   setCacheHeaders,
   log,
-  WSChat
+  WSChat,
+  fetchDownloadStreamAsync,
+  fetchGetAsync,
+  fetchPostAsync,
+  fetchPostJsonAsync,
 };

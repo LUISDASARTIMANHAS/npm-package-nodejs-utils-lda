@@ -160,3 +160,27 @@ export function serverTry(res, callback) {
     console.error(err);
   }
 }
+
+export function requestStatus(response) {
+  const status = response.status;
+  const contentType = response.headers.get("content-type");
+
+  log(`Status da resposta: ${status} - ${response.statusText}`);
+  log(`Tipo de conteúdo: ${contentType}`);
+}
+
+export function parseFetchResponse(response) {
+  const status = response.status;
+  const contentType = response.headers.get("content-type");
+
+  requestStatus(response);
+
+  // Verifica o tipo de conteúdo retornado
+  if (contentType && contentType.includes("application/json")) {
+    // Se for JSON, retorna o JSON
+    return response.json().then((data) => ({ data, status }));
+  } else {
+    // Se não for JSON, retorna o conteúdo como texto
+    return response.text().then((data) => ({ data, status }));
+  }
+}
