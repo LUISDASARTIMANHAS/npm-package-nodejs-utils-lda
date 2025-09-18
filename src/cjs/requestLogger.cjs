@@ -5,7 +5,7 @@ const { configExist } = require("./utils.cjs");
 // configExist();
 checkConfigIntegrity();
 
-function requestLogger(req, res, next) {
+async function requestLogger(req, res, next) {
   const configs = fopen("config.json");
   if (!configs.requestLogger.enabled) return next();
 
@@ -26,7 +26,7 @@ function requestLogger(req, res, next) {
   console.log("Headers:", JSON.stringify(req.headers, null, 2));
   console.log("------------------------\n");
 
-  log(
+  await log(
     `REQ [${new Date().toISOString()}] IP=${ip}, URL=${
       req.originalUrl
     }, UA=${userAgent}`,
