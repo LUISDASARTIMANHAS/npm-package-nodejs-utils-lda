@@ -44,4 +44,4 @@ function checkConfigIntegrity() {
   fwrite("config.json", configs);
 }
 
-module.exports = {requestLogger};
+module.exports = requestLogger;

@@ -2,10 +2,6 @@ const fs = require("fs");
 const path = require("path");
 const { fwrite, autoLoader } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
-const {requestLogger} = require("./requestLogger.cjs");
-const {setCacheHeaders} = require("./cacheSys.cjs");
-const {httpsSecurityMiddleware} = require("./httpsSecurity.cjs");
-const { checkHeaderMiddleware } = require("./checkHeaderMiddleware.cjs");
 const modulePath = path.resolve(
   path.join(
     "node_modules",
@@ -181,6 +177,10 @@ function parseFetchResponse(response) {
 
 // utils.js ou no seu pacote
 function applyAutoMiddlewares(app) {
+  const requestLogger = require("./requestLogger.cjs");
+  const setCacheHeaders = require("./cacheSys.cjs");
+  const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
+  const  checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
   // Middlewares já aplicados ao app
   app.use(requestLogger);
   app.use(setCacheHeaders);
