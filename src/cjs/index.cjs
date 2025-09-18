@@ -53,38 +53,9 @@ const {
   sanitize,
   SanitizeXSS,
   serverTry,
+  applyAutoMiddlewares,
 } = require("./utils.cjs");
 const { requestLogger } = require("./requestLogger.cjs");
-
-// ---------------- PATCH AUTOMÁTICO DO EXPRESS ----------------
-try {
-  const express = require("express");
-  const originalExpress = express;
-
-  function patchedExpress(...args) {
-    const app = originalExpress(...args);
-    // registra automaticamente
-
-    // middlewares gerais
-    app.use(express.urlencoded({ extended: true }));
-    app.use(express.json());
-    app.use(setCacheHeaders);
-    app.use(httpsSecurityMiddleware);
-
-    // request logger centralizado
-    app.use(requestLogger);
-
-    // carrega rotas dinâmicas
-    autoLoader(app);
-    return app;
-  }
-
-  Object.assign(patchedExpress, originalExpress); // mantém métodos do express
-  module.exports = patchedExpress;
-} catch (err) {
-  console.warn("Express não encontrado. RequestLogger não ativo.");
-  module.exports = requestLogger; // fallback simples
-}
 
 module.exports = {
   fopen,
@@ -135,4 +106,7 @@ module.exports = {
   fetchGetAsync,
   fetchPostAsync,
   fetchPostJsonAsync,
+  requestLogger,
+  applyAutoMiddlewares,
 };
+// ---------------- FIM DO PATCH AUTOMÁTICO DO EXPRESS ----------------

@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 // Obtém o caminho absoluto do arquivo atual
 const __filename = fileURLToPath(import.meta.url);
@@ -106,17 +106,25 @@ function freadBin(filePath) {
  * @param {number} [maxLength=100] - Tamanho máximo da mensagem.
  */
 function log(message, filepath = "logs.txt", maxLength = 100) {
+  const logsDir = path.join("logs"); // pasta logs
+  const filepath = path.join(logsDir, filename);
+
+  // Verifica se a pasta existe, se não, cria
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+
   if (typeof message !== "string") message = String(message);
   if (message.length > maxLength) {
-    message = message.slice(0, maxLength) + "… [TRUNCADO]";
+    message = `${message.slice(0, maxLength)}… [TRUNCADO]`;
   }
+  message = `\t[npm-package-nodejs-utils-lda] ${message}`;
 
   const oldContent = fopen(filepath);
   const newContent = oldContent + message + "\n";
   fwrite(filepath, newContent);
   console.log(message);
 }
-
 
 export {
   fopen,
@@ -125,5 +133,5 @@ export {
   fwriteBin,
   stringToBinary,
   binaryToString,
-  log
+  log,
 };

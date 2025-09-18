@@ -35,6 +35,7 @@ import {
   sanitize,
   SanitizeXSS,
   serverTry,
+  applyAutoMiddlewares,
 } from "./utils.mjs";
 import {
   insertUser,
@@ -45,6 +46,7 @@ import {
   reactivateUser,
   ordenarUsuario,
 } from "./userSystem.mjs";
+import { requestLogger } from "./requestLogger.mjs";
 
 export {
   fopen,
@@ -91,4 +93,6 @@ export {
   fetchGetAsync,
   fetchPostAsync,
   fetchPostJsonAsync,
+  requestLogger,
+  applyAutoMiddlewares,
 };

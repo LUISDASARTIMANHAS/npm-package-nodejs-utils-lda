@@ -28,7 +28,7 @@ function verifyHostedFiles(filePathName) {
     );
 
     console.error(
-      `Err: not found: ${filePath} using: ${defaultForbiddenFilePath}`
+      `\n[npm-package-nodejs-utils-lda] WARN: not found: ${filePath} using: ${defaultForbiddenFilePath}\n`
     );
     // usa o default da blibioteca
     filePath = defaultForbiddenFilePath;
@@ -184,3 +184,17 @@ export function parseFetchResponse(response) {
     return response.text().then((data) => ({ data, status }));
   }
 }
+
+export function applyAutoMiddlewares(app) {
+  // Middlewares já aplicados ao app
+  app.use(requestLogger);
+  app.use(setCacheHeaders);
+  app.use(httpsSecurityMiddleware);
+  checkHeaderMiddleware(app);
+  autoLoader(app);
+
+  console.log(
+    "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n"
+  );
+}
+

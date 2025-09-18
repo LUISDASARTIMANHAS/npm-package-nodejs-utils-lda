@@ -1,7 +1,8 @@
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const { configExist } = require("./utils.cjs");
 
-configExist(); // garante que config.json existe
+// garante que config.json existe
+// configExist();
 checkConfigIntegrity();
 
 function requestLogger(req, res, next) {

@@ -175,7 +175,7 @@ export function discordLogs(title, mensagem, footerText) {
 
   if (webhookUrl == null || webhookUrl == "") {
     console.error(
-      `Err: Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`
+      `[npm-package-nodejs-utils-lda] WARN: Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`
     );
     return null;
   } else {

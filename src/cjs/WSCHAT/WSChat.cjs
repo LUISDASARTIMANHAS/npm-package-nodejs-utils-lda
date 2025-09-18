@@ -55,8 +55,8 @@ function WSChat(appOrNull, options = {}) {
     server.listen(porta || 0, () => {
       const addr = server.address();
       const port = addr.port;
-      console.log(`🟢 WSChat running at http://localhost:${port}/chat`);
-      console.log(`WSChat Connections Mode: ws://localhost:${port}/`);
+      console.log(`\n \t🟢 WSChat running at http://localhost:${port}/chat`);
+      console.log(`\n \tWSChat Connections Mode: ws://localhost:${port}/`);
     });
   }
 

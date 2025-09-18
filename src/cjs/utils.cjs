@@ -1,7 +1,13 @@
 const fs = require("fs");
 const path = require("path");
-const { fwrite } = require("./autoFileSysModule.cjs");
+const { fwrite, autoLoader } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
+const {
+  checkHeaderMiddleware,
+  httpsSecurityMiddleware,
+  setCacheHeaders,
+} = require("npm-package-nodejs-utils-lda");
+const { requestLogger } = require("./requestLogger.cjs");
 const modulePath = path.resolve(
   path.join(
     "node_modules",
@@ -28,7 +34,7 @@ function verifyHostedFiles(filePathName) {
     );
 
     console.error(
-      `Err: not found: ${filePath} using: ${defaultForbiddenFilePath}`
+      `\n[npm-package-nodejs-utils-lda] WARN: not found: ${filePath} using: ${defaultForbiddenFilePath}\n`
     );
     // usa o default da blibioteca
     filePath = defaultForbiddenFilePath;
@@ -184,6 +190,20 @@ function parseFetchResponse(response) {
   }
 }
 
+// utils.js ou no seu pacote
+function applyAutoMiddlewares(app) {
+  // Middlewares já aplicados ao app
+  // app.use(requestLogger);
+  app.use(setCacheHeaders);
+  app.use(httpsSecurityMiddleware);
+  checkHeaderMiddleware(app);
+  autoLoader(app);
+
+  console.log(
+    "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n"
+  );
+}
+
 module.exports = {
   getRandomInt,
   getRandomBin,
@@ -202,4 +222,5 @@ module.exports = {
   configExist,
   requestStatus,
   parseFetchResponse,
+  applyAutoMiddlewares,
 };
