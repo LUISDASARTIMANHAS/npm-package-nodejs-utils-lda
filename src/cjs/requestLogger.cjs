@@ -2,7 +2,7 @@ const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const { configExist } = require("./configHelper.cjs");
 
 // garante que config.json existe
-// configExist();
+configExist();
 checkConfigIntegrity();
 
 async function requestLogger(req, res, next) {

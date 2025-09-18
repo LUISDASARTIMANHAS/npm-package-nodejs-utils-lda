@@ -1,7 +1,8 @@
 const fetch = require("node-fetch");
-const { configExist, parseFetchResponse } = require("./utils.cjs");
+const { parseFetchResponse } = require("./utils.cjs");
 const setEmbed = require("./discordEmbed.cjs");
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
+const { configExist } = require("./configHelper.cjs");
 const logPath = "server-requests.txt";
 configExist();
 

@@ -1,11 +1,12 @@
 import path from "path";
 import express from "express";
-import { configExist, forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
+import {forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
 import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { env } from "process";
 import { config } from "dotenv";
+import { configExist } from "./configHelper.mjs";
 config();
 
 // Obtém o caminho absoluto do arquivo atual

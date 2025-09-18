@@ -2,13 +2,13 @@ const express = require("express");
 const {
   forbidden,
   validadeApiKey,
-  configExist,
   SanitizeXSS,
 } = require("./utils.cjs");
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const path = require("path");
 const { env } = require("process");
 const dotenv = require("dotenv");
+const { configExist } = require("./configHelper.cjs");
 const logPath = "headerSys.txt";
 // isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
 const publicItens = path.join(

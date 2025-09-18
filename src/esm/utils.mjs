@@ -36,15 +36,6 @@ function verifyHostedFiles(filePathName) {
   return filePath;
 }
 
-
-export function configExist() {
-  // Verifica se o arquivo config.json existe
-  if (!fs.existsSync("config.json")) {
-    // Se não existir, cria o arquivo
-    fwrite("config.json", {});
-  }
-}
-
 export function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
