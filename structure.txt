@@ -1,0 +1,75 @@
+npm-package-nodejs-utils-lda
+├── LICENSE
+├── README.md
+├── jsconfig.json
+├── package-lock.json
+├── package.json
+├── renovate.json
+├── src
+│   ├── cjs
+│   │   ├── WSCHAT
+│   │   │   ├── WSChat.cjs
+│   │   │   ├── arp.cjs
+│   │   │   ├── handlemessages.cjs
+│   │   │   ├── onCommandSendTo.cjs
+│   │   │   └── wsUtils.cjs
+│   │   ├── autoFileSysModule.cjs
+│   │   ├── autoFileSysModuleCjs.test.js
+│   │   ├── cacheSys.cjs
+│   │   ├── checkHeaderMiddleware.cjs
+│   │   ├── discordEmbed.cjs
+│   │   ├── emailModule.cjs
+│   │   ├── fetchModule.cjs
+│   │   ├── fetchModuleAsync.cjs
+│   │   ├── generateKeys.cjs
+│   │   ├── httpsSecurity.cjs
+│   │   ├── index.cjs
+│   │   ├── mongodb.cjs
+│   │   ├── sendFileToDiscord.cjs
+│   │   ├── setuproutes.cjs
+│   │   ├── userSystem.cjs
+│   │   └── utils.cjs
+│   ├── css
+│   │   ├── forbidden.css
+│   │   └── not-found.css
+│   ├── esm
+│   │   ├── WSCHAT
+│   │   │   ├── WSChat.mjs
+│   │   │   ├── arp.mjs
+│   │   │   ├── handlemessages.mjs
+│   │   │   ├── onCommandSendTo.mjs
+│   │   │   └── wsUtils.mjs
+│   │   ├── autoFileSysModule.mjs
+│   │   ├── cacheSys.mjs
+│   │   ├── checkHeaderMiddleware.mjs
+│   │   ├── discordEmbed.mjs
+│   │   ├── emailModule.mjs
+│   │   ├── fetchModule.mjs
+│   │   ├── fetchModuleAsync.mjs
+│   │   ├── generateKeys.mjs
+│   │   ├── httpsSecurity.mjs
+│   │   ├── index.mjs
+│   │   ├── mongodb.mjs
+│   │   ├── sendFileToDiscord.mjs
+│   │   ├── userSystem.mjs
+│   │   └── utils.mjs
+│   ├── public
+│   │   ├── assets
+│   │   │   ├── 403-error.gif
+│   │   │   ├── 404.gif
+│   │   │   ├── bootstrap@5.3.7.css
+│   │   │   ├── bootstrap@5.3.7.js
+│   │   │   ├── server.png
+│   │   │   └── servidor-icon.png
+│   │   └── pages
+│   │       ├── WSChat.html
+│   │       ├── forbidden.html
+│   │       ├── index.html
+│   │       └── not-found.html
+│   └── scripts
+│       ├── npm-start.cmd
+│       ├── publish.cmd
+│       ├── unpublish.cmd
+│       ├── unpublish2.ps1
+│       └── updated.cmd
+└── structure.txt

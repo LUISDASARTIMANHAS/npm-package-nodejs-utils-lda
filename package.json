@@ -10,7 +10,8 @@
   },
   "homepage": "https://github.com/LUISDASARTIMANHAS/npm-package-nodejs-utils",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "structure": "npx tree -a -I \"node_modules|.git\" > structure.txt"
   },
   "repository": {
     "type": "git",
