@@ -1,7 +1,7 @@
 import fs from "fs";
 import { createTransport } from "nodemailer";
 import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
-import { configExist } from "./utils.mjs";
+import { configExist } from "./configHelper.mjs";
 configExist();
 const configMail = fopen("config.json").emailSystem;
 let transporter;

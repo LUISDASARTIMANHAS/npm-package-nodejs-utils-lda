@@ -1,5 +1,5 @@
 import { fopen, fwrite } from "./autoFileSysModule.mjs"
-import { configExist } from "./utils.mjs";
+import { configExist } from "./configHelper.mjs";
 
 configExist();
 

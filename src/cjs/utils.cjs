@@ -40,15 +40,6 @@ function verifyHostedFiles(filePathName) {
   return filePath;
 }
 
-function configExist() {
-  // Verifica se o arquivo config.json existe
-  if (!fs.existsSync("config.json")) {
-    // Se não existir, cria o arquivo
-    fwrite("config.json", {});
-  }
-}
-configExist();
-
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
@@ -217,7 +208,6 @@ module.exports = {
   sanitize,
   SanitizeXSS,
   serverTry,
-  configExist,
   requestStatus,
   parseFetchResponse,
   applyAutoMiddlewares,

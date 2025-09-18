@@ -1,7 +1,7 @@
 import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
 import cors from "cors";
 import helmet from "helmet";
-import { configExist } from "./utils.mjs";
+import { configExist } from "./configHelper.mjs";
 const logPath = "HTTPSfirewall.txt";
 
 configExist();

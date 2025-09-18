@@ -1,6 +1,6 @@
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const dotenv = require("dotenv");
-const { configExist } = require("./utils.cjs");
+const { configExist } = require("./configHelper.cjs");
 const logPath = "cache.txt";
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();

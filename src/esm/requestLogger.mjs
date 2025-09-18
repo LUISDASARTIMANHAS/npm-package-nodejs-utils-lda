@@ -1,6 +1,6 @@
 // requestLogger.mjs
-import { fopen, fwrite, log } from "./autoFileSysModule.cjs";
-import { configExist } from "./utils.cjs";
+import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
+import { configExist } from "./configHelper.mjs";
 
 // Garante que config.json existe
 configExist();

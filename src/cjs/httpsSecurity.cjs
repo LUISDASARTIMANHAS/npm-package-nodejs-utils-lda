@@ -1,7 +1,7 @@
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const cors = require("cors");
 const helmet = require("helmet");
-const { configExist } = require("./utils.cjs");
+const { configExist } = require("./configHelper.cjs");
 const logPath = "HTTPSfirewall.txt";
 
 configExist();

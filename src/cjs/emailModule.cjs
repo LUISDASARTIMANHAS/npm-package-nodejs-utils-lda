@@ -1,7 +1,7 @@
 const fs = require("fs");
 const nodemailer = require("nodemailer");
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
-const { configExist } = require("./utils.cjs");
+const { configExist } = require("./configHelper.cjs");
 configExist();
 const configMail = fopen("config.json").emailSystem;
 let transporter;
