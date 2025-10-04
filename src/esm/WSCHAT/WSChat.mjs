@@ -2,7 +2,7 @@
 import { createServer } from "http";
 import { resolve, join } from "path";
 import { readFile } from "fs";
-import { Server } from "ws";
+import { WebSocket } from "ws";
 import handleMessage from "./handlemessages.mjs";
 import { broadcast } from "./wsUtils.mjs";
 
@@ -64,7 +64,7 @@ function WSChat(appOrNull, options = {}) {
 }
 
 function WSServer(server, options) {
-  const wss = new Server({ server });
+  const wss = new WebSocket.Server({ server });
   const clientes = new Set();
 
   startInactivityChecker(wss, clientes);

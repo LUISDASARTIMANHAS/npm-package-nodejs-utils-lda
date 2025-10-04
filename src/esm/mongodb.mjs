@@ -2,7 +2,7 @@ import "dotenv/config";
 import { MongoClient } from "mongodb";
 import { discordLogs } from "./fetchModule.mjs";
 
-export default async function mongoConnect(connectionString) {
+export async function mongoConnect(connectionString) {
   let mongoClient, srv;
 
   if (!connectionString) {
