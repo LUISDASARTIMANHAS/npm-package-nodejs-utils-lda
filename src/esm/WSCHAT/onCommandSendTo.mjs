@@ -1,4 +1,4 @@
-import { sendTo } from "./wsUtils.cjs";
+import { sendTo } from "./wsUtils.mjs";
 
 export function onCommandSendTo(cliente, msg, clientes) {
   const withoutCommand = msg.slice(4).trim();

@@ -1,6 +1,6 @@
-const onCommandSendTo = require("./onCommandSendTo.mjs");
-const onCommandArp = require("./arp.mjs");
-const { broadcast, sendTo } = require("./wsUtils.mjs");
+import {onCommandSendTo} from "./onCommandSendTo.mjs";
+import {onCommandArp} from "./arp.mjs";
+import { broadcast, sendTo } from "./wsUtils.mjs";
 
 // handleMessage.js
 function handleMessage(cliente, data, clientes) {

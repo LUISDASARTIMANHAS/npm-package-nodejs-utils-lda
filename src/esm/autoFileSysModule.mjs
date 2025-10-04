@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
@@ -9,13 +9,13 @@ const routesDir = dirname(__filename);
 const rootDir = process.cwd();
 
 function fopen(filePath) {
-  if (!fs.existsSync(filePath)) {
+  if (!existsSync(filePath)) {
     // Se for JSON, cria com objeto vazio; se for .txt, cria como string vazia
     const defaultValue = filePath.endsWith(".json") ? {} : "";
     fwrite(filePath, defaultValue);
   }
 
-  const content = fs.readFileSync(filePath, "utf8");
+  const content = readFileSync(filePath, "utf8");
 
   // Se for JSON, tenta parsear
   if (filePath.endsWith(".json")) {
@@ -38,7 +38,7 @@ function fwrite(filePath, data) {
     formatData = JSON.stringify(data, null, 2);
   }
 
-  fs.writeFileSync(filePath, formatData, "utf8");
+  writeFileSync(filePath, formatData, "utf8");
   return true;
 }
 
@@ -82,12 +82,12 @@ function fwriteBin(filePath, data) {
 
 // Leitura e conversão de volta para JSON
 function freadBin(filePath) {
-  if (!fs.existsSync(filePath)) {
+  if (!existsSync(filePath)) {
     // cria arquivo binário vazio com "{}" por padrão
     fwriteBin(filePath, {});
   }
 
-  const binaryString = fs.readFileSync(filePath, "utf8");
+  const binaryString = readFileSync(filePath, "utf8");
   const string = binaryToString(binaryString);
 
   try {
@@ -110,8 +110,8 @@ function log(message, filename = "logs.txt", maxLength = 100) {
   const filepath = path.join(logsDir, filename);
 
   // Verifica se a pasta existe, se não, cria
-  if (!fs.existsSync(logsDir)) {
-    fs.mkdirSync(logsDir, { recursive: true });
+  if (!existsSync(logsDir)) {
+    mkdirSync(logsDir, { recursive: true });
   }
 
   if (typeof message !== "string") message = String(message);
