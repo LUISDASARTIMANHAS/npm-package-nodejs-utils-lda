@@ -186,7 +186,6 @@ export function applyAutoMiddlewares(app) {
   app.use(setCacheHeaders);
   app.use(httpsSecurityMiddleware);
   checkHeaderMiddleware(app);
-  autoLoader(app);
 
   console.log(
     "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n"
