@@ -105,8 +105,8 @@ function freadBin(filePath) {
  * @param {string} [filepath="logs.txt"] - Caminho do arquivo de log.
  * @param {number} [maxLength=100] - Tamanho máximo da mensagem.
  */
-function log(message, filepath = "logs.txt", maxLength = 100) {
-  const logsDir = path.join("logs"); // pasta logs
+function log(message, filename = "logs.txt", maxLength = 100) {
+  const logsDir = path.join("logs");       // pasta logs
   const filepath = path.join(logsDir, filename);
 
   // Verifica se a pasta existe, se não, cria
@@ -116,9 +116,9 @@ function log(message, filepath = "logs.txt", maxLength = 100) {
 
   if (typeof message !== "string") message = String(message);
   if (message.length > maxLength) {
-    message = `${message.slice(0, maxLength)}… [TRUNCADO]`;
+    message =`${message.slice(0, maxLength)}… [TRUNCADO]`;
   }
-  message = `\t[npm-package-nodejs-utils-lda] ${message}`;
+    message =`\t[npm-package-nodejs-utils-lda] ${message}`;
 
   const oldContent = fopen(filepath);
   const newContent = oldContent + message + "\n";

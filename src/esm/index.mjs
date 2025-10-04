@@ -5,6 +5,7 @@ import {
   fwriteBin,
   stringToBinary,
   binaryToString,
+  log
 } from "./autoFileSysModule.mjs";
 import WSChat from "./WSCHAT/WSChat.mjs";
 import { mongoConnect, select, insert } from "./mongodb.mjs";
