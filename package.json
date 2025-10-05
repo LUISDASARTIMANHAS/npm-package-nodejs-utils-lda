@@ -1,6 +1,6 @@
 {
   "name": "npm-package-nodejs-utils-lda",
-  "version": "1.0.45",
+  "version": "1.0.46",
   "description": "Este projeto tem como fins de criar e abstrair módulos basicos e utilidades para o node js",
   "exports": {
     ".": {
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "discord.js": "^14.22.1",
     "dotenv": "^17.0.0",
     "express": "^5.0.1",
     "form-data": "^4.0.2",
