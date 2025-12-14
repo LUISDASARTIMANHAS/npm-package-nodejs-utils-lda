@@ -56,6 +56,8 @@ const {
   applyAutoMiddlewares,
 } = require("./utils.cjs");
 const { requestLogger } = require("./requestLogger.cjs");
+const { encryptedPayloadMiddleware } = require("./security/encryptedPayload.middleware.cjs");
+const { decryptAESGCM, decryptAESKey } = require("./security/crypto.service.cjs");
 
 module.exports = {
   fopen,
@@ -108,5 +110,8 @@ module.exports = {
   fetchPostJsonAsync,
   requestLogger,
   applyAutoMiddlewares,
+  encryptedPayloadMiddleware,
+  decryptAESGCM,
+  decryptAESKey
 };
 // ---------------- FIM DO PATCH AUTOMÁTICO DO EXPRESS ----------------

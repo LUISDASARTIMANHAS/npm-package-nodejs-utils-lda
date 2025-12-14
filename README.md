@@ -73,7 +73,7 @@ Usa padrões modernos e seguros
 # usage
 ```js
 import express from 'express';
-import { encryptedPayloadMiddleware } from './security/encryptedPayload.middleware.mjs';
+import { encryptedPayloadMiddleware } from 'npm-package-nodejs-utils-lda';
 
 const app = express();
 app.use(express.json());

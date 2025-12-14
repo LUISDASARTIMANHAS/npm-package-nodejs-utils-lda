@@ -21,6 +21,10 @@ export * from "./userSystem.mjs";
 export * from "./fetchModule.mjs";
 export * from "./fetchModuleAsync.mjs";
 
+// security system
+export * from "./security/crypto.service.mjs";
+export * from "./security/encryptedPayload.middleware.mjs";
+
 // ----------------------------
 // EXPORTAÇÃO DE MÓDULOS ÚNICOS / DEFAULTS
 // ----------------------------
