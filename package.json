@@ -1,6 +1,6 @@
 {
   "name": "npm-package-nodejs-utils-lda",
-  "version": "1.0.46",
+  "version": "1.0.47",
   "description": "Este projeto tem como fins de criar e abstrair módulos basicos e utilidades para o node js",
   "exports": {
     ".": {
@@ -34,6 +34,7 @@
     "helmet": "^8.0.0",
     "mongodb": "^7.0.0",
     "node-fetch": "2.7.0",
+    "node-forge": "^1.3.3",
     "nodemailer": "^7.0.0",
     "os": "^0.1.2",
     "path": "^0.12.7",

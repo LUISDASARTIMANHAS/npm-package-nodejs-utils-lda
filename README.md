@@ -42,6 +42,49 @@ sendFileToDiscord(file, webhookUrl);
 log(message, filepath = "logs.txt", maxLength = 100);
 ```
 
+Este arquivo implementa um canal criptográfico seguro no nível da aplicação, funcionando como um mini-TLS customizado, porém controlado totalmente por código.
+Usa padrões modernos e seguros
+
+- RSA-OAEP com SHA-256 (correto)
+
+- AES-256-GCM (estado da arte)
+
+- Proteção contra replay
+
+- Separação clara de responsabilidades
+
+
+### Casos de uso reais
+
+  - APIs seguras entre servidores
+
+  - Comunicação cliente ↔ backend sensível
+
+  - Sistemas financeiros
+
+  - Troca de credenciais
+
+  - Licenciamento de software
+
+  - Autenticação forte sem TLS customizado
+
+  - Comunicação entre containers isolados
+
+# usage
+```js
+import express from 'express';
+import { encryptedPayloadMiddleware } from './security/encryptedPayload.middleware.mjs';
+
+const app = express();
+app.use(express.json());
+
+app.post('/secure-endpoint', encryptedPayloadMiddleware, (req, res) => {
+  res.json({ received: req.decryptedBody });
+});
+
+app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
+```
+
 # user system
 ```js
 insertUser(name,userdata);
