@@ -193,6 +193,12 @@ function applyAutoMiddlewares(app) {
   );
 }
 
+function exposeFolders(app,folderPath){
+  console.log(`\n\t[npm-package-nodejs-utils-lda] AUTO EXPOSE FOLDER: ${folderPath}`)
+  app.use(express.static(folderPath));
+  return true
+}
+
 module.exports = {
   getRandomInt,
   getRandomBin,
@@ -211,4 +217,5 @@ module.exports = {
   requestStatus,
   parseFetchResponse,
   applyAutoMiddlewares,
+  exposeFolders,
 };

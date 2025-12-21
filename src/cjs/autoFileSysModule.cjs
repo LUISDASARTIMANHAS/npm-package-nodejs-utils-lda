@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const { exposeFolders } = require("./utils.cjs");
 const rootDir = process.cwd();
 // isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
 const publicItens = path.join(
@@ -105,7 +106,7 @@ function freadBin(filePath) {
 // Carrega dinamicamente todos os módulos de rota
 function autoLoader(app) {
    // DEFAULT STATIC PUBLIC ITENS
-  app.use(express.static(publicItens));
+    exposeFolders(publicItens);
   fs.readdirSync(rootDir).forEach((file) => {
     const filePath = path.resolve(rootDir, file);
     log(`File ${filePath} `);

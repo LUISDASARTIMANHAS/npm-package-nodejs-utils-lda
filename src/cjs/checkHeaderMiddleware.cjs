@@ -3,6 +3,7 @@ const {
   forbidden,
   validadeApiKey,
   SanitizeXSS,
+  exposeFolders,
 } = require("./utils.cjs");
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
 const path = require("path");
@@ -17,6 +18,7 @@ const publicItens = path.join(
   "src",
   "public"
 );
+const pathToPublicFolder = path.join("public");
 
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();
@@ -27,7 +29,8 @@ checkConfigIntegrity();
 
 function checkHeaderMiddleware(app) {
   // DEFAULT STATIC PUBLIC ITENS
-    app.use(express.static(publicItens))
+  exposeFolders(app,publicItens);
+  exposeFolders(app,pathToPublicFolder);
 
   // Middleware para configurar o tipo de conteúdo como JSON
   app.all("/api/*name", (req, res, next) => {

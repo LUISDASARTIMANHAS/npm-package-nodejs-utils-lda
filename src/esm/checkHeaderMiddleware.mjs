@@ -1,6 +1,6 @@
 import path from "path";
 import express from "express";
-import {forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
+import {exposeFolders, forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
 import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -21,13 +21,15 @@ const publicItens = path.join(
   "src",
   "public"
 );
+const pathToPublicFolder = path.join("public");
 
 configExist();
 checkConfigIntegrity();
 
 function checkHeaderMiddleware(app) {
   // DEFAULT STATIC PUBLIC ITENS
-    app.use(express.static(publicItens))
+  exposeFolders(pathToPublicFolder);
+    exposeFolders(publicItens);
 
   // Middleware para configurar o tipo de conteúdo como JSON
   app.all("/api/*name", (req, res, next) => {

@@ -1,4 +1,4 @@
-const { decryptAESKey, decryptAESGCM } = require('./crypto.service.cjs');
+const { decryptAESKey, decryptAESGCM } = require("./crypto.service.cjs");
 
 const recentNonces = new Set();
 
@@ -11,32 +11,35 @@ const recentNonces = new Set();
  */
 function encryptedPayloadMiddleware(req, res, next) {
 	try {
-		const {
-			encryptedData,
-			encryptedKey,
-			iv,
-			authTag,
-			timestamp,
-			nonce
-		} = req.body;
+		const { encryptedData, encryptedKey, iv, authTag, timestamp, nonce } =
+			req.body;
 
 		/* ===== Validação básica ===== */
 
-		if (!encryptedData || !encryptedKey || !iv || !authTag || !timestamp || !nonce) {
-			return res.status(400).json({ error: 'Payload criptografado incompleto' });
+		if (
+			!encryptedData ||
+			!encryptedKey ||
+			!iv ||
+			!authTag ||
+			!timestamp ||
+			!nonce
+		) {
+			return res
+				.status(400)
+				.json({ error: "Payload criptografado incompleto" });
 		}
 
 		/* ===== Validação de tempo ===== */
 
 		const now = Date.now();
 		if (Math.abs(now - timestamp) > 30000) {
-			return res.status(401).json({ error: 'Timestamp inválido' });
+			return res.status(401).json({ error: "Timestamp inválido" });
 		}
 
 		/* ===== Proteção contra replay ===== */
 
 		if (recentNonces.has(nonce)) {
-			return res.status(401).json({ error: 'Nonce reutilizado' });
+			return res.status(401).json({ error: "Nonce reutilizado" });
 		}
 
 		recentNonces.add(nonce);
@@ -55,13 +58,11 @@ function encryptedPayloadMiddleware(req, res, next) {
 
 		next();
 	} catch (err) {
-		console.error('Erro no middleware criptográfico:', err.message);
-		return res.status(400).json({ error: 'Falha ao descriptografar payload' });
+		console.error("Erro no middleware criptográfico:", err.message);
+		return res.status(400).json({ error: "Falha ao descriptografar payload" });
 	}
 }
 
-
 module.exports = {
-  encryptedPayloadMiddleware
+	encryptedPayloadMiddleware,
 };
-
