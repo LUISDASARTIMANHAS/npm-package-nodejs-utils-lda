@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = require("node-fetch").default;
 const { configExist } = require("./configHelper.cjs");
 const setEmbed = require("./discordEmbed.cjs");
 const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
