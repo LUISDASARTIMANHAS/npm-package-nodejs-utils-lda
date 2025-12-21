@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const express = require("express");
 const { fwrite, autoLoader } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
 const modulePath = path.resolve(

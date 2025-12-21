@@ -1,5 +1,4 @@
 import path from "path";
-import express from "express";
 import {exposeFolders, forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
 import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
 import { fileURLToPath } from "url";
