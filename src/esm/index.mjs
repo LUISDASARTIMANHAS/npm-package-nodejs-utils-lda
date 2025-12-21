@@ -21,12 +21,12 @@ export * from "./userSystem.mjs";
 export * from "./fetchModule.mjs";
 export * from "./fetchModuleAsync.mjs";
 
-// security system
+// Security system
 export * from "./security/crypto.service.mjs";
 export * from "./security/encryptedPayload.middleware.mjs";
 
 // ----------------------------
-// EXPORTAÇÃO DE MÓDULOS ÚNICOS / DEFAULTS
+// EXPORTAÇÃO DE MÓDULOS ÚNICOS
 // ----------------------------
 export { default as WSChat } from "./WSCHAT/WSChat.mjs";
 export { mongoConnect, select, insert } from "./mongodb.mjs";
@@ -36,3 +36,17 @@ export { default as httpsSecurityMiddleware } from "./httpsSecurity.mjs";
 export { default as sendFileToDiscord } from "./sendFileToDiscord.mjs";
 export { default as sendMail } from "./emailModule.mjs";
 export { requestLogger } from "./requestLogger.mjs";
+
+// ----------------------------
+// BLOQUEIO DE DEFAULT IMPORT
+// ----------------------------
+const __INVALID_DEFAULT_IMPORT__ = new Proxy({}, {
+  get() {
+    throw new Error(
+      "[npm-package-nodejs-utils-lda] Importação incorreta. " +
+      "Use sempre named imports: import { modulo } from 'npm-package-nodejs-utils-lda'."
+    );
+  }
+});
+
+export default __INVALID_DEFAULT_IMPORT__;

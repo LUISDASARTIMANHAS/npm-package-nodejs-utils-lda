@@ -1,3 +1,7 @@
+// ----------------------------
+// IMPORTS
+// ----------------------------
+
 const {
   fopen,
   fwrite,
@@ -8,7 +12,9 @@ const {
   autoLoader,
   log,
 } = require("./autoFileSysModule.cjs");
+
 const WSChat = require("./WSCHAT/WSChat.cjs");
+
 const {
   insertUser,
   selectUser,
@@ -18,11 +24,14 @@ const {
   reactivateUser,
   ordenarUsuario,
 } = require("./userSystem.cjs");
+
 const { mongoConnect, select, insert } = require("./mongodb.cjs");
+
 const setCacheHeaders = require("./cacheSys.cjs");
 const sendFileToDiscord = require("./sendFileToDiscord.cjs");
 const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
 const sendMail = require("./emailModule.cjs");
+
 const {
   fetchGet,
   fetchDownloadStream,
@@ -30,13 +39,16 @@ const {
   fetchPostJson,
   discordLogs,
 } = require("./fetchModule.cjs");
+
 const {
   fetchDownloadStreamAsync,
   fetchGetAsync,
   fetchPostAsync,
   fetchPostJsonAsync,
 } = require("./fetchModuleAsync.cjs");
+
 const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
+
 const {
   getRandomInt,
   getRandomBin,
@@ -55,23 +67,56 @@ const {
   serverTry,
   applyAutoMiddlewares,
 } = require("./utils.cjs");
+
 const { requestLogger } = require("./requestLogger.cjs");
-const { encryptedPayloadMiddleware } = require("./security/encryptedPayload.middleware.cjs");
-const { decryptAESGCM, decryptAESKey } = require("./security/crypto.service.cjs");
+
+const {
+  encryptedPayloadMiddleware,
+} = require("./security/encryptedPayload.middleware.cjs");
+
+const {
+  decryptAESGCM,
+  decryptAESKey,
+} = require("./security/crypto.service.cjs");
+
+// ----------------------------
+// EXPORTS (API PÚBLICA)
+// ----------------------------
 
 module.exports = {
+  // File system
   fopen,
   fwrite,
   freadBin,
   fwriteBin,
+  stringToBinary,
+  binaryToString,
+  autoLoader,
+  log,
+
+  // Middlewares
   checkHeaderMiddleware,
-  sendMail,
+  httpsSecurityMiddleware,
+  encryptedPayloadMiddleware,
+  setCacheHeaders,
+  requestLogger,
+
+  // Security / crypto
+  decryptAESGCM,
+  decryptAESKey,
+
+  // Fetch
   fetchGet,
   fetchDownloadStream,
   fetchPost,
   fetchPostJson,
+  fetchDownloadStreamAsync,
+  fetchGetAsync,
+  fetchPostAsync,
+  fetchPostJsonAsync,
   discordLogs,
-  httpsSecurityMiddleware,
+
+  // Utils
   getRandomInt,
   getRandomBin,
   getRandomHex,
@@ -82,36 +127,52 @@ module.exports = {
   landingPage,
   formatDate,
   conversorSimEnao,
-  stringToBinary,
-  binaryToString,
-  autoLoader,
   spaceUsed,
   notfound,
   sanitize,
   SanitizeXSS,
+  serverTry,
+  applyAutoMiddlewares,
+
+  // User system
   insertUser,
   selectUser,
   alterUser,
   deleteUser,
   disableUser,
-  ordenarUsuario,
   reactivateUser,
+  ordenarUsuario,
+
+  // MongoDB
   mongoConnect,
   select,
   insert,
-  serverTry,
+
+  // Misc
   sendFileToDiscord,
-  setCacheHeaders,
-  log,
+  sendMail,
   WSChat,
-  fetchDownloadStreamAsync,
-  fetchGetAsync,
-  fetchPostAsync,
-  fetchPostJsonAsync,
-  requestLogger,
-  applyAutoMiddlewares,
-  encryptedPayloadMiddleware,
-  decryptAESGCM,
-  decryptAESKey
 };
-// ---------------- FIM DO PATCH AUTOMÁTICO DO EXPRESS ----------------
+
+// ----------------------------
+// BLOQUEIO DE DEFAULT IMPORT (ESM → CJS)
+// ----------------------------
+
+Object.defineProperty(module.exports, "default", {
+  enumerable: false,
+  configurable: false,
+  get() {
+    throw new Error(
+      "[npm-package-nodejs-utils-lda] Importação incorreta detectada.\n" +
+      "Você está usando default import em um módulo CommonJS.\n\n" +
+      "Use sempre:\n" +
+      "  import { modulo } from 'npm-package-nodejs-utils-lda'\n" +
+      "ou no CommonJS:\n" +
+      "  const { modulo } = require('npm-package-nodejs-utils-lda')"
+    );
+  },
+});
+
+// ----------------------------
+// FIM DO INDEX.CJS
+// ----------------------------

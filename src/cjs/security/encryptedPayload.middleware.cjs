@@ -60,4 +60,8 @@ function encryptedPayloadMiddleware(req, res, next) {
 	}
 }
 
-module.exports = encryptedPayloadMiddleware;
+
+module.exports = {
+  encryptedPayloadMiddleware
+};
+
