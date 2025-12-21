@@ -1,6 +1,6 @@
 const forge = require('node-forge');
 const crypto = require('crypto');
-const { ensureRSAKeys } = require('./key-manager.service');
+const { ensureRSAKeys } = require('./key-manager.service.cjs');
 
 // Garante que as chaves existam antes de usar
 const { privateKeyPem } = ensureRSAKeys();

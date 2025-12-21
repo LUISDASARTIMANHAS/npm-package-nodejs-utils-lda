@@ -1,2 +1,2 @@
 @echo off
-start "NPM UPDATED" /realtime /min npm update && npm install
+start "NPM UPDATED" /realtime /min npm update && npm run update
