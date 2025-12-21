@@ -85,6 +85,148 @@ app.post('/secure-endpoint', encryptedPayloadMiddleware, (req, res) => {
 app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
 ```
 
+# client mode
+
+🔑 Crypto Client Implementation (Front-end/Node.js)
+Para que o cliente (browser, React, ou outro servidor) possa se comunicar com segurança, ele deve:
+
+Buscar a chave RSA pública do servidor (/public-keys/public_key.pem).
+
+Gerar uma chave AES efêmera.
+
+Criptografar a chave AES com a chave RSA pública (Key Exchange).
+
+Criptografar o payload da mensagem com a chave AES (Data Encryption).
+
+Enviar o pacote completo (AES key, IV, AuthTag, Timestamp, Nonce) ao endpoint seguro.
+
+Exemplo de Código do Lado do Cliente (Browser/Web Crypto API)
+
+```js
+// crypto_client.js (Implementação de referência)
+
+// 1. Defina a URL da chave pública (deve ser a rota que você expôs)
+const PUBLIC_KEY_URL = '/public-keys/public_key.pem';
+const API_URL = '/secure-endpoint';
+
+/**
+ * Converte um buffer para string Base64 (Web-Safe)
+ * @param {ArrayBuffer} buffer
+ * @returns {string} Base64 Web-Safe string.
+ */
+function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+/**
+ * Busca e importa a chave RSA pública do servidor.
+ * @returns {Promise<CryptoKey>} Chave RSA importada.
+ */
+async function getPublicKey() {
+    const response = await fetch(PUBLIC_KEY_URL);
+    if (!response.ok) throw new Error('Falha ao buscar chave pública do servidor.');
+    
+    const pem = await response.text();
+    
+    // Remove cabeçalho e rodapé PEM e trata Base64
+    const base64 = pem
+        .replace('-----BEGIN PUBLIC KEY-----', '')
+        .replace('-----END PUBLIC KEY-----', '')
+        .replace(/\s/g, ''); 
+        
+    const binaryDer = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    
+    // Importa a chave pública para a Web Crypto API
+    return crypto.subtle.importKey(
+        'spki',
+        binaryDer,
+        {
+            name: "RSA-OAEP",
+            hash: "SHA-256",
+        },
+        true,
+        ["wrapKey"]
+    );
+}
+
+/**
+ * Criptografa o payload para ser enviado ao servidor.
+ * @param {object} data - O objeto JSON a ser criptografado.
+ * @returns {Promise<object>} O payload criptografado pronto para envio.
+ */
+export async function encryptAndSend(data) {
+    const rsaPublicKey = await getPublicKey();
+
+    // 1. Gerar Chave AES-256-GCM (Chave Secreta Efêmera)
+    const aesKey = await crypto.subtle.generateKey(
+        { name: "AES-GCM", length: 256 },
+        true,
+        ["encrypt", "decrypt", "wrapKey", "unwrapKey"]
+    );
+
+    // 2. Criptografar (Wrap) a Chave AES com a Chave RSA Pública (RSA-OAEP)
+    const encryptedKeyBuffer = await crypto.subtle.wrapKey(
+        "raw",
+        aesKey,
+        rsaPublicKey,
+        { name: "RSA-OAEP" }
+    );
+
+    // 3. Criptografar o Payload (AES-256-GCM)
+    const iv = crypto.getRandomValues(new Uint8Array(12)); // Initialization Vector (IV)
+    const plaintext = JSON.stringify(data);
+    const encodedData = new TextEncoder().encode(plaintext);
+    
+    const cipherBuffer = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv },
+        aesKey,
+        encodedData
+    );
+
+    // O AES-GCM anexa o AuthTag ao final do ciphertext
+    const authTagLength = 16; // 16 bytes para GCM
+    const encryptedDataBuffer = cipherBuffer.slice(0, cipherBuffer.byteLength - authTagLength);
+    const authTagBuffer = cipherBuffer.slice(cipherBuffer.byteLength - authTagLength);
+
+    // Gerar Timestamp e Nonce para Proteção Anti-Replay
+    const timestamp = Date.now();
+    const nonce = arrayBufferToBase64(crypto.getRandomValues(new Uint8Array(16)));
+
+    // 4. Preparar o Pacote Final
+    const payload = {
+        encryptedData: arrayBufferToBase64(encryptedDataBuffer),
+        encryptedKey: arrayBufferToBase64(encryptedKeyBuffer),
+        iv: arrayBufferToBase64(iv.buffer),
+        authTag: arrayBufferToBase64(authTagBuffer),
+        timestamp: timestamp,
+        nonce: nonce
+    };
+
+    // 5. Enviar para o Servidor
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+    
+    return response.json();
+}
+
+// Exemplo de uso:
+/*
+encryptAndSend({ nome: "Luis das Artimanhas", valor: 500.00 })
+    .then(res => console.log("Resposta do Servidor:", res))
+    .catch(err => console.error("Erro na comunicação segura:", err));
+*/
+```
+
+***
+
 # user system
 ```js
 insertUser(name,userdata);
