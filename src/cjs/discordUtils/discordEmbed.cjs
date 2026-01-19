@@ -1,5 +1,5 @@
-const { fopen, fwrite } = require("./autoFileSysModule.cjs");
-const { configExist } = require("./configHelper.cjs");
+const { fopen, fwrite } = require("../autoFileSysModule.cjs");
+const { configExist } = require("../configHelper.cjs");
 
 configExist();
 

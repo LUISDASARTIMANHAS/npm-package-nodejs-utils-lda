@@ -11,7 +11,7 @@
   "homepage": "https://github.com/LUISDASARTIMANHAS/npm-package-nodejs-utils",
   "scripts": {
     "test": "jest",
-    "update":"npx npm-check-updates -u && npm install",
+    "update": "npx npm-check-updates -u && npm install",
     "structure": "npx tree -a -I \"node_modules|.git\" > structure.txt"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "url": "https://github.com/LUISDASARTIMANHAS/npm-package-nodejs-utils/issues"
   },
   "dependencies": {
+    "@google/genai": "^1.34.0",
     "cors": "^2.8.5",
     "discord.js": "^14.25.1",
     "dotenv": "^17.2.3",
