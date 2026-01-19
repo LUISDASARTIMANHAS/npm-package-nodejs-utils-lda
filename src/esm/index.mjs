@@ -25,6 +25,9 @@ export * from "./fetchModuleAsync.mjs";
 export * from "./security/crypto.service.mjs";
 export * from "./security/encryptedPayload.middleware.mjs";
 
+// Storage
+export * from "./storage/index.mjs";
+
 // ----------------------------
 // EXPORTAÇÃO DE MÓDULOS ÚNICOS
 // ----------------------------

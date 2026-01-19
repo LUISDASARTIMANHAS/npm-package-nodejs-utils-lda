@@ -79,6 +79,8 @@ const {
   decryptAESKey,
 } = require("./security/crypto.service.cjs");
 
+const { saveFile, saveBot } = require("./storage/index.cjs"); ;
+
 // ----------------------------
 // EXPORTS (API PÚBLICA)
 // ----------------------------
@@ -147,6 +149,10 @@ module.exports = {
   mongoConnect,
   select,
   insert,
+
+  // storage
+  saveFile,
+  saveBot,
 
   // Misc
   sendFileToDiscord,
