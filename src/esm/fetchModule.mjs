@@ -1,6 +1,8 @@
 import fetch from "node-fetch";
 import setEmbed from "./discordEmbed.mjs";
-import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
+import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { log, logError } from "./logger/index.mjs";
+
 const logPath = "server-requests.txt";
 
 /**
@@ -33,7 +35,7 @@ export function fetchDownloadStream(url,header, callback) {
         onError(url, error, callback);
       });
   } catch (err) {
-    console.error("FATAL ERROR:", err);
+    logError("FATAL ERROR:", err);
     callback(err, null);
   }
 }

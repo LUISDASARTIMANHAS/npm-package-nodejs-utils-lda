@@ -1,4 +1,5 @@
-import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
+import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { log, logError } from "./logger/index.mjs";
 import cors from "cors";
 import helmet from "helmet";
 import { configExist } from "./configHelper.mjs";

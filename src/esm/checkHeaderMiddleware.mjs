@@ -1,6 +1,7 @@
 import path from "path";
 import {exposeFolders, forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
-import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
+import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { log, logError } from "./logger/index.mjs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { env } from "process";

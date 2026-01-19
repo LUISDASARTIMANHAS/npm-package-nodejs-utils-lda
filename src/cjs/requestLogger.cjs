@@ -1,4 +1,5 @@
-const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
+const { fopen, fwrite } = require("./autoFileSysModule.cjs");
+const { log } = require("./logger/index.cjs");
 const { configExist } = require("./configHelper.cjs");
 
 // garante que config.json existe

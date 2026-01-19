@@ -1,0 +1,37 @@
+const { baseLog } = require("./core.cjs");
+
+/**
+ * Log padrão
+ * @param {any} message
+ * @param {string} filename
+ * @param {number} maxLength
+ * @return {void}
+ */
+function log(message, filename, maxLength) {
+  baseLog({
+    message,
+    filename,
+    maxLength,
+    level: "info",
+    consoleFn: console.log,
+  });
+}
+
+/**
+ * Log de erro
+ * @param {any} message
+ * @param {string} filename
+ * @param {number} maxLength
+ * @return {void}
+ */
+function logError(message, filename, maxLength) {
+  baseLog({
+    message,
+    filename,
+    maxLength,
+    level: "error",
+    consoleFn: console.error,
+  });
+}
+
+module.exports = { log, logError };

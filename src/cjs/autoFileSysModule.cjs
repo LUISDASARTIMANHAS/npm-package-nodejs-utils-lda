@@ -1,6 +1,7 @@
 const fs = require("fs");
 const express = require("express");
 const path = require("path");
+const { log,logError } = require("./logger/index.cjs");
 const rootDir = process.cwd();
 // isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
 const publicItens = path.join(
@@ -13,6 +14,7 @@ const publicItens = path.join(
 function fopen(filePath) {
   if (!fs.existsSync(filePath)) {
     // Se for JSON, cria com objeto vazio; se for .txt, cria como string vazia
+    logError(`File not found. Creating new file: ${filePath}`);
     const defaultValue = filePath.endsWith(".json") ? {} : "";
     fwrite(filePath, defaultValue);
   }
@@ -86,6 +88,7 @@ function fwriteBin(filePath, data) {
 function freadBin(filePath) {
   if (!fs.existsSync(filePath)) {
     // cria arquivo binário vazio com "{}" por padrão
+    log(`File not found. Creating new file: ${filePath}`);
     fwriteBin(filePath, {});
   }
 
@@ -96,7 +99,7 @@ function freadBin(filePath) {
     const data = JSON.parse(string);
     return data;
   } catch (e) {
-    console.error("Error decoding binary as JSON:", e);
+    logError("Error decoding binary as JSON:", e);
     return {};
   }
 }
@@ -119,34 +122,6 @@ function autoLoader(app) {
   });
 }
 
-
-/**
- * Escreve e imprime uma mensagem de log.
- * @param {string} message - Mensagem a ser registrada.
- * @param {string} [filepath="logs.txt"] - Caminho do arquivo de log.
- * @param {number} [maxLength=100] - Tamanho máximo da mensagem.
- */
-function log(message, filename = "logs.txt", maxLength = 100) {
-  const logsDir = path.join("logs");       // pasta logs
-  const filepath = path.join(logsDir, filename);
-
-  // Verifica se a pasta existe, se não, cria
-  if (!fs.existsSync(logsDir)) {
-    fs.mkdirSync(logsDir, { recursive: true });
-  }
-
-  if (typeof message !== "string") message = String(message);
-  if (message.length > maxLength) {
-    message =`${message.slice(0, maxLength)}… [TRUNCADO]`;
-  }
-    message =`\t[npm-package-nodejs-utils-lda] ${message}`;
-
-  const oldContent = fopen(filepath);
-  const newContent = oldContent + message + "\n";
-  fwrite(filepath, newContent);
-  console.log(message);
-}
-
 module.exports = {
   fopen,
   fwrite,
@@ -154,6 +129,5 @@ module.exports = {
   fwriteBin,
   stringToBinary,
   binaryToString,
-  autoLoader,
-  log
+  autoLoader
 };

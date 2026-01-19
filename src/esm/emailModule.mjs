@@ -1,6 +1,7 @@
 import fs from "fs";
 import { createTransport } from "nodemailer";
-import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
+import { fopen, fwrite } from "./autoFileSysModule.mjs";
+import { log, logError } from "./logger/index.mjs";
 import { configExist } from "./configHelper.mjs";
 configExist();
 const configMail = fopen("config.json").emailSystem;
@@ -40,15 +41,15 @@ function sendMail(email, subject, text, callback) {
     };
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        log(`SERVIDOR <sendMail>: Erro ao enviar o e-mail: ${error}`);
+        logError(`<sendMail>: Erro ao enviar o e-mail: ${error}`);
         callback(error, null);
       } else {
-        log(`SERVIDOR <sendMail>: E-mail enviado: ${info.response}`);
+        log(`<sendMail>: E-mail enviado: ${info.response}`);
         callback(null, info);
       }
     });
   } catch (error) {
-    console.error("SERVIDOR <sendMail>: Erro ao criar email: ", error);
+    logError("SERVIDOR <sendMail>: Erro ao criar email: ", error);
     callback(error, null);
   }
 }

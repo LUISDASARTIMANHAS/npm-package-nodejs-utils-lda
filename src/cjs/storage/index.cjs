@@ -1,7 +1,7 @@
 const multer = require("multer");
-const { createDiskStorage } = require("./diskStorageFactory");
-const { fileTypeValidator } = require("./validators");
-const { uploadLimits } = require("./limits");
+const { createDiskStorage } = require("./diskStorageFactory.cjs");
+const { fileTypeValidator } = require("./validators.cjs");
+const { uploadLimits } = require("./limits.cjs");
 
 /**
  * Upload de páginas

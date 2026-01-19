@@ -9,8 +9,7 @@ const {
   fwriteBin,
   stringToBinary,
   binaryToString,
-  autoLoader,
-  log,
+  autoLoader
 } = require("./autoFileSysModule.cjs");
 
 const WSChat = require("./WSCHAT/WSChat.cjs");
@@ -79,7 +78,10 @@ const {
   decryptAESKey,
 } = require("./security/crypto.service.cjs");
 
-const { saveFile, saveBot } = require("./storage/index.cjs"); ;
+const { saveFile, saveBot } = require("./storage/index.cjs");
+
+// logger 
+const { log } = require("./logger/index.cjs");
 
 // ----------------------------
 // EXPORTS (API PÚBLICA)

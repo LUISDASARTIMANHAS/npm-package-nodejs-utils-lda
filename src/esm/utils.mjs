@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import express from "express";
 import { fwrite } from "./autoFileSysModule.mjs";
+import { log, logError } from "./logger/index.mjs";
 import xss from "xss";
 import { requestLogger } from "./requestLogger.mjs";
 import setCacheHeaders from "./cacheSys.mjs";

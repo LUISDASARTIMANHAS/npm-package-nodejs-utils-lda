@@ -1,5 +1,6 @@
-import { fopen, fwrite, log } from "./autoFileSysModule.mjs";
+import { fopen, fwrite } from "./autoFileSysModule.mjs";
 import { configExist } from "./configHelper.mjs";
+import { log, logError } from "./logger/index.mjs";
 import { config } from "dotenv";
 const logPath = "cache.txt";
 config();

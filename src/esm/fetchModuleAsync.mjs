@@ -1,7 +1,8 @@
 import fetch from 'node-fetch';
 import { parseFetchResponse } from './utils.mjs';
 import setEmbed from './discordEmbed.mjs';
-import { fopen, fwrite, log } from './autoFileSysModule.mjs';
+import { fopen, fwrite } from './autoFileSysModule.mjs';
+import { log, logError } from "./logger/index.mjs";
 import { configExist } from "./configHelper.mjs";
 
 const logPath = 'server-requests.txt';

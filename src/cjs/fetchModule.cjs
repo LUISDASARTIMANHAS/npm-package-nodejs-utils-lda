@@ -1,7 +1,8 @@
 const fetch = require("node-fetch").default;
 const { configExist } = require("./configHelper.cjs");
 const setEmbed = require("./discordUtils/discordEmbed.cjs");
-const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
+const { fopen, fwrite } = require("./autoFileSysModule.cjs");
+const { log } = require("./logger/index.cjs");
 const logPath = "server-requests.txt";
 configExist();
 
@@ -77,7 +78,7 @@ function fetchGet(url, sendHeader, callback) {
         onError(url, error, callback);
       });
   } catch (err) {
-    console.error("FATAL ERROR: " + err);
+    log("FATAL ERROR: " + err);
   }
 }
 

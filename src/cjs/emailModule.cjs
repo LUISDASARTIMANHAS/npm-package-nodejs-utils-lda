@@ -1,7 +1,8 @@
 const fs = require("fs");
 const nodemailer = require("nodemailer");
-const { fopen, fwrite, log } = require("./autoFileSysModule.cjs");
+const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 const { configExist } = require("./configHelper.cjs");
+const { log, logError } = require("./logger/index.cjs");
 configExist();
 const configMail = fopen("config.json").emailSystem;
 let transporter;
@@ -40,15 +41,15 @@ function sendMail(email, subject, text, callback) {
     };
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        log(`SERVIDOR <sendMail>: Erro ao enviar o e-mail: ${error}`);
+        logError(`<sendMail>: Erro ao enviar o e-mail: ${error}`);
         callback(error, null);
       } else {
-        log(`SERVIDOR <sendMail>: E-mail enviado: ${info.response}`);
+        log(`<sendMail>: E-mail enviado: ${info.response}`);
         callback(null, info);
       }
     });
   } catch (error) {
-    console.error("SERVIDOR <sendMail>: Erro ao criar email: ", error);
+    logError("<sendMail>: Erro ao criar email: ", error);
     callback(error, null);
   }
 }

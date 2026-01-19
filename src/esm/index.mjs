@@ -28,6 +28,9 @@ export * from "./security/encryptedPayload.middleware.mjs";
 // Storage
 export * from "./storage/index.mjs";
 
+// logger
+export * from "./logger/index.mjs";
+
 // ----------------------------
 // EXPORTAÇÃO DE MÓDULOS ÚNICOS
 // ----------------------------
