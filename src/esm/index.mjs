@@ -33,6 +33,7 @@ export * from "./logger/index.mjs";
 
 // auth
 export { requestAuthCode } from "./auth/auth.service.mjs";
+export { verifyAuthCode } from "./auth/auth.verify.mjs";
 export * from "./auth/otp.store.mjs";
 // ----------------------------
 // EXPORTAÇÃO DE MÓDULOS ÚNICOS

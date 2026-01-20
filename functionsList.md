@@ -37,4 +37,5 @@ async function requestAuthCode(email, ttlMin = 5);
 function getOTP(email);
 function deleteOTP(email);
 function saveOTP(email, hash, expiresAt);
+async function verifyAuthCode(email, code);
 ```

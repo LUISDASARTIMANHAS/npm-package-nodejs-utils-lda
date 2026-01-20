@@ -11,7 +11,7 @@ const { sendOTP } = require("./mail.adapter.cjs");
  */
 async function requestAuthCode(email, ttlMin = 5) {
   if (!email) {
-    throw new Error("Email obrigatório");
+    throw new Error("Email required");
   }
 
   const otp = generateOTP(6);

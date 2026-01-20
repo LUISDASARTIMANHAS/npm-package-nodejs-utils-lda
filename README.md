@@ -279,6 +279,23 @@ router.post("/request-code", async (req, res) => {
 module.exports = router;
 ```
 
+## verify codes
+```js
+const { verifyAuthCode } = require("npm-package-nodejs-utils-lda");
+
+app.post("/api/auth/verify-code", async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    await verifyAuthCode(email, code);
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+});
+```
+
 ## Generals Usage
 
 ````js

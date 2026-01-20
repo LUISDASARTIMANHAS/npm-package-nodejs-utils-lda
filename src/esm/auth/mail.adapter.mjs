@@ -8,11 +8,11 @@ import sendMail from "../emailModule.mjs";
  */
 export function sendOTP(email, code) {
 	return new Promise((resolve, reject) => {
-		const subject = "Seu código de acesso";
+		const subject = "Your access code";
 		const text =
-			`Seu código de verificação é:\n\n` +
+			`Your verification code is:\n\n` +
 			`${code}\n\n` +
-			`Esse código expira em 5 minutos.`;
+			`This code expires in 5 minutes.`;
 
 		sendMail(email, subject, text, (err) => {
 			if (err) return reject(err);
