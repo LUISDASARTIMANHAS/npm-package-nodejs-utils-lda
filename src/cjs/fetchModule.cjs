@@ -2,7 +2,7 @@ const fetch = require("node-fetch").default;
 const { configExist } = require("./configHelper.cjs");
 const setEmbed = require("./discordUtils/discordEmbed.cjs");
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
-const { log } = require("./logger/index.cjs");
+const { log, logError } = require("./logger/index.cjs");
 const logPath = "server-requests.txt";
 configExist();
 
@@ -17,7 +17,7 @@ function fetchDownloadStream(url, sendHeader, callback) {
 
     const requestOptions = {
       method: "GET",
-      headers: buildHeaders(sendHeader,true),
+      headers: buildHeaders(sendHeader, true),
     };
 
     log("Download Iniciado.", logPath);
@@ -41,11 +41,11 @@ function fetchDownloadStream(url, sendHeader, callback) {
         callback(null, response.body, importantHeaders);
       })
       .catch((error) => {
-        console.error(`Erro na requisição fetch: ${error.message}`);
+        logError(`Erro na requisição fetch: ${error.message}`);
         callback(error, null);
       });
   } catch (err) {
-    console.error(`Erro fatal em fetchDownloadStream: ${err.message}`);
+    logError(`Erro fatal em fetchDownloadStream: ${err.message}`);
     callback(err, null);
   }
 }
@@ -115,7 +115,7 @@ function fetchPostJson(url, payload, sendHeader, callback) {
         onError(url, error, callback);
       });
   } catch (err) {
-    console.error("FATAL ERROR: " + err);
+    logError("FATAL ERROR: " + err);
   }
 }
 
@@ -156,7 +156,7 @@ function fetchPost(url, payload, sendHeader, callback) {
         onError(url, error, callback);
       });
   } catch (err) {
-    console.error("FATAL ERROR: " + err);
+    logError("FATAL ERROR: " + err);
   }
 }
 
@@ -174,7 +174,7 @@ function discordLogs(title, mensagem, footerText) {
         mensagem,
         configs.color,
         footerText || configs.footerText,
-        configs.footerUrl
+        configs.footerUrl,
       ),
     ],
     attachments: [],
@@ -182,8 +182,8 @@ function discordLogs(title, mensagem, footerText) {
   let altWebhookUrl;
 
   if (webhookUrl == null || webhookUrl == "") {
-    console.error(
-      `[npm-package-nodejs-utils-lda] WARN: Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`
+    logError(
+      `Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`,
     );
     return null;
   } else {
@@ -191,7 +191,7 @@ function discordLogs(title, mensagem, footerText) {
   }
   fetchPost(altWebhookUrl, preSet, null, (error, data) => {
     if (error) {
-      console.error(error);
+      logError(error);
     }
   });
 }
@@ -219,7 +219,7 @@ function buildHeaders(extraHeaders = {}, includeContentType = false) {
     {},
     headersDefault,
     includeContentType ? defaultContentType : {},
-    extraHeaders
+    extraHeaders,
   );
 }
 
@@ -254,7 +254,7 @@ function requestError(response) {
 }
 
 function onError(url, error, callback) {
-  console.error(`Erro ao fazer a requisição para ${url}: ${error}`);
+  logError(`Erro ao fazer a requisição para ${url}: ${error}`);
   callback(error, null);
 }
 
@@ -289,5 +289,5 @@ module.exports = {
   fetchDownloadStream,
   fetchPost,
   fetchPostJson,
-  discordLogs
+  discordLogs,
 };

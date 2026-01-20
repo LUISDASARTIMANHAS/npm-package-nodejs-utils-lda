@@ -28,15 +28,15 @@ function normalizeMessage(message, maxLength) {
   return msg;
 }
 
+
 /**
- * Escreve mensagem no arquivo de log
+ * Escreve mensagem no arquivo de log (append)
  * @param {string} filepath
  * @param {string} message
  * @return {void}
  */
 function writeLogFile(filepath, message) {
-  const oldContent = fopen(filepath);
-  fwrite(filepath, oldContent + message + "\n");
+  fs.appendFileSync(filepath, message + "\n", "utf8");
 }
 
 /**

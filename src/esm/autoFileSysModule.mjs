@@ -1,7 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { log, logError } from "./logger/index.mjs";
 
 // Obtém o caminho absoluto do arquivo atual
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +11,7 @@ const rootDir = process.cwd();
 function fopen(filePath) {
   if (!existsSync(filePath)) {
     // Se for JSON, cria com objeto vazio; se for .txt, cria como string vazia
-    log(`File not found. Creating new file: ${filePath}`);
+    console.error(`File not found. Creating new file: ${filePath}`);
     const defaultValue = filePath.endsWith(".json") ? {} : "";
     fwrite(filePath, defaultValue);
   }
@@ -86,7 +85,7 @@ function fwriteBin(filePath, data) {
 function freadBin(filePath) {
   if (!existsSync(filePath)) {
     // cria arquivo binário vazio com "{}" por padrão
-    log(`File not found. Creating new file: ${filePath}`);
+    console.error(`File not found. Creating new file: ${filePath}`);
     fwriteBin(filePath, {});
   }
 
@@ -97,7 +96,7 @@ function freadBin(filePath) {
     const data = JSON.parse(string);
     return data;
   } catch (e) {
-    logError("Error decoding binary as JSON:", e);
+    console.error("Error decoding binary as JSON:", e);
     return {};
   }
 }

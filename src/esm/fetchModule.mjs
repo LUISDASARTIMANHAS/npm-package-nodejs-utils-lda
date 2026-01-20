@@ -69,7 +69,7 @@ export function fetchGet(url, header, callback) {
         onError(url, error, callback);
       });
   } catch (err) {
-    console.error("FATAL ERROR: " + err);
+    logError("FATAL ERROR: " + err);
   }
 }
 
@@ -106,7 +106,7 @@ export function fetchPostJson(url, payload, header, callback) {
         onError(url, error, callback);
       });
   } catch (err) {
-    console.error("FATAL ERROR: " + err);
+    logError("FATAL ERROR: " + err);
   }
 }
 
@@ -149,7 +149,7 @@ export function fetchPost(url, payload, header, callback) {
         onError(url, error, callback);
       });
   } catch (err) {
-    console.error("FATAL ERROR: " + err);
+    logError("FATAL ERROR: " + err);
   }
 }
 
@@ -176,8 +176,8 @@ export function discordLogs(title, mensagem, footerText) {
   let altWebhookUrl;
 
   if (webhookUrl == null || webhookUrl == "") {
-    console.error(
-      `[npm-package-nodejs-utils-lda] WARN: Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`
+    logError(
+      `Not Found env file key DISCORD_LOGS_WEBHOOK_URL, Discord LOGS Disabled!`
     );
     return null;
   } else {
@@ -185,7 +185,7 @@ export function discordLogs(title, mensagem, footerText) {
   }
   fetchPost(altWebhookUrl, preSet, null, (error, data) => {
     if (error) {
-      console.error(error);
+      logError(error);
     }
   });
 }
@@ -249,7 +249,7 @@ function requestError(response) {
 }
 
 function onError(url, error, callback) {
-  console.error(`Erro ao fazer a requisição para ${url}: ${error}`);
+  logError(`Erro ao fazer a requisição para ${url}: ${error}`);
   callback(error, null);
 }
 

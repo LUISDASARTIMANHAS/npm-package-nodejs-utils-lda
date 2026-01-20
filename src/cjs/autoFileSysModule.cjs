@@ -1,7 +1,6 @@
 const fs = require("fs");
 const express = require("express");
 const path = require("path");
-const { log,logError } = require("./logger/index.cjs");
 const rootDir = process.cwd();
 // isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
 const publicItens = path.join(
@@ -14,7 +13,7 @@ const publicItens = path.join(
 function fopen(filePath) {
   if (!fs.existsSync(filePath)) {
     // Se for JSON, cria com objeto vazio; se for .txt, cria como string vazia
-    logError(`File not found. Creating new file: ${filePath}`);
+    console.error(`File not found. Creating new file: ${filePath}`);
     const defaultValue = filePath.endsWith(".json") ? {} : "";
     fwrite(filePath, defaultValue);
   }
@@ -88,7 +87,7 @@ function fwriteBin(filePath, data) {
 function freadBin(filePath) {
   if (!fs.existsSync(filePath)) {
     // cria arquivo binário vazio com "{}" por padrão
-    log(`File not found. Creating new file: ${filePath}`);
+    console.log(`File not found. Creating new file: ${filePath}`);
     fwriteBin(filePath, {});
   }
 
@@ -99,7 +98,7 @@ function freadBin(filePath) {
     const data = JSON.parse(string);
     return data;
   } catch (e) {
-    logError("Error decoding binary as JSON:", e);
+    console.error("Error decoding binary as JSON:", e);
     return {};
   }
 }
@@ -111,13 +110,13 @@ function autoLoader(app) {
     app.use(express.static(publicItens));
   fs.readdirSync(rootDir).forEach((file) => {
     const filePath = path.resolve(rootDir, file);
-    log(`File ${filePath} `);
+    console.log(`File ${filePath} `);
 
     if (file.endsWith(".js") && file !== "server.js") {
       const route = require(filePath);
 
       app.use(route);
-      log(`File ${file} loaded auto!`);
+      console.log(`File ${file} loaded auto!`);
     }
   });
 }
