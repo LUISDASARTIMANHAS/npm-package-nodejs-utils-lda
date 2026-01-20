@@ -31,6 +31,9 @@ export * from "./storage/index.mjs";
 // logger
 export * from "./logger/index.mjs";
 
+// auth
+export { requestAuthCode } from "./auth/auth.service.mjs";
+export * from "./auth/otp.store.mjs";
 // ----------------------------
 // EXPORTAÇÃO DE MÓDULOS ÚNICOS
 // ----------------------------

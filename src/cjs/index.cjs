@@ -9,7 +9,7 @@ const {
   fwriteBin,
   stringToBinary,
   binaryToString,
-  autoLoader
+  autoLoader,
 } = require("./autoFileSysModule.cjs");
 
 const WSChat = require("./WSCHAT/WSChat.cjs");
@@ -80,8 +80,12 @@ const {
 
 const { saveFile, saveBot } = require("./storage/index.cjs");
 
-// logger 
+// logger
 const { log } = require("./logger/index.cjs");
+
+// auth
+const { requestAuthCode } = require("./auth/auth.service.cjs");
+const { saveOTP, getOTP, deleteOTP } = "./auth/otp.store.cjs";
 
 // ----------------------------
 // EXPORTS (API PÚBLICA)
@@ -156,6 +160,12 @@ module.exports = {
   saveFile,
   saveBot,
 
+  // Auth
+  requestAuthCode,
+  saveOTP,
+  getOTP,
+  deleteOTP,
+
   // Misc
   sendFileToDiscord,
   sendMail,
@@ -172,11 +182,11 @@ Object.defineProperty(module.exports, "default", {
   get() {
     throw new Error(
       "[npm-package-nodejs-utils-lda] Importação incorreta detectada.\n" +
-      "Você está usando default import em um módulo CommonJS.\n\n" +
-      "Use sempre:\n" +
-      "  import { modulo } from 'npm-package-nodejs-utils-lda'\n" +
-      "ou no CommonJS:\n" +
-      "  const { modulo } = require('npm-package-nodejs-utils-lda')"
+        "Você está usando default import em um módulo CommonJS.\n\n" +
+        "Use sempre:\n" +
+        "  import { modulo } from 'npm-package-nodejs-utils-lda'\n" +
+        "ou no CommonJS:\n" +
+        "  const { modulo } = require('npm-package-nodejs-utils-lda')",
     );
   },
 });
