@@ -1,11 +1,12 @@
 const { hashOTP } = require("./otp.service.cjs");
 const { getOTP, deleteOTP } = require("./otp.store.cjs");
+const { generateToken } = require("../utils.cjs");
 
 /**
- * Verifica código OTP
+ * Verifica código OTP e gera token de sessão
  * @param {string} email
  * @param {string} code
- * @return {Promise<boolean>}
+ * @return {Promise<{ token: string, email: string }>}
  */
 async function verifyAuthCode(email, code) {
 	const data = getOTP(email);
@@ -16,17 +17,23 @@ async function verifyAuthCode(email, code) {
 
 	if (Date.now() > data.expiresAt) {
 		deleteOTP(email);
-		throw new Error("Expired code");
+		throw new Error("Expired code.");
 	}
 
 	const hash = hashOTP(code);
 
 	if (hash !== data.hash) {
-		throw new Error("Invalid code");
+		throw new Error("Invalid code.");
 	}
 
 	deleteOTP(email);
-	return true;
+
+	const token = generateToken();
+
+	return {
+		token,
+		email
+	};
 }
 
 module.exports = { verifyAuthCode };

@@ -85,7 +85,7 @@ const { log } = require("./logger/index.cjs");
 
 // auth
 const { requestAuthCode } = require("./auth/auth.service.cjs");
-const {verifyAuthCode} = require("./auth/auth.verify.cjs");
+const { verifyAuthCode } = require("./auth/auth.verify.cjs");
 const { saveOTP, getOTP, deleteOTP } = require("./auth/otp.store.cjs");
 
 // ----------------------------
@@ -166,6 +166,7 @@ module.exports = {
   saveOTP,
   getOTP,
   deleteOTP,
+  verifyAuthCode,
 
   // Misc
   sendFileToDiscord,
