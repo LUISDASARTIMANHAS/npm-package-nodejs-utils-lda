@@ -217,7 +217,7 @@ Express (ESM)
 
 ```js
 import express from "express";
-import { saveFile, saveBot } from "./storage/index.mjs";
+import { saveFile, saveBot } from "npm-package-nodejs-utils-lda";
 
 const app = express();
 
@@ -244,6 +244,39 @@ return all data of selected table
 insert(connection, database, table, data)
 
 return mongoClient or connection
+```
+
+# AUTH
+```js
+const { requestAuthCode } = require("npm-package-nodejs-utils-lda");
+
+/**
+ * POST /api/auth/request-code
+ * Body: { email: string }
+ */
+router.post("/request-code", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email é obrigatório" });
+    }
+
+    await requestAuthCode(email);
+
+    return res.status(200).json({
+      success: true,
+      message: "Código enviado para o email",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      error: "Erro ao enviar código",
+    });
+  }
+});
+
+module.exports = router;
 ```
 
 ## Generals Usage

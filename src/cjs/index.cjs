@@ -85,7 +85,7 @@ const { log } = require("./logger/index.cjs");
 
 // auth
 const { requestAuthCode } = require("./auth/auth.service.cjs");
-const { saveOTP, getOTP, deleteOTP } = "./auth/otp.store.cjs";
+const { saveOTP, getOTP, deleteOTP } = require("./auth/otp.store.cjs");
 
 // ----------------------------
 // EXPORTS (API PÚBLICA)

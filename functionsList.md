@@ -1,5 +1,8 @@
 
 ## Functions
+
+lista de funções disponiveis na blibioteca npm-package-nodejs-utils-lda
+
 ```js
 fopen(filePath);
 fwrite(filePath, data);
@@ -30,4 +33,8 @@ spaceUsed(space, used);
 serverTry(res,callback)
 sendFileToDiscord(file, webhookUrl);
 log(message, filepath = "logs.txt", maxLength = 100);
+async function requestAuthCode(email, ttlMin = 5);
+function getOTP(email);
+function deleteOTP(email);
+function saveOTP(email, hash, expiresAt);
 ```
