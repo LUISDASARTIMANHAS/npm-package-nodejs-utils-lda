@@ -2,18 +2,11 @@ import path from "path";
 import {exposeFolders, forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
 import { fopen, fwrite } from "./autoFileSysModule.mjs";
 import { log, logError } from "./logger/index.mjs";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import { env } from "process";
 import { config } from "dotenv";
 import { configExist } from "./configHelper.mjs";
 config();
 
-// Obtém o caminho absoluto do arquivo atual
-const __filename = fileURLToPath(import.meta.url);
-const routesDir = dirname(__filename);
-const pages = routesDir + "/src/pages";
-const css = routesDir + "/src/css";
 // isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
 const publicItens = path.join(
   "node_modules",

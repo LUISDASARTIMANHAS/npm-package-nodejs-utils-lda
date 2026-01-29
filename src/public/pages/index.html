@@ -1,68 +1,79 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=0.7" />
-    <link rel="icon" href="/imgs/servidor-icon.png" />
-    <link rel="stylesheet" href="/assets/bootstrap@5.3.7.css" />
+<head>
+  <meta charset="UTF-8" />
+  <title>• Server Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <seo>
-      <meta name="description" content=" SERVER ONLINE!" />
-      <meta name="robots" content="index,follow" />
-      <meta property="og:title" content="SERVER" />
-      <meta property="og:type" content="article" />
-      <meta property="og:description" content=" SERVER " />
-      <meta property="og:image" content="./imgs/servidor-icon.png" />
-      <meta name="twitter:card" content="summary" />
-    </seo>
+  <!-- Bootstrap -->
+  <link
+    href="/assets/bootstrap@5.3.7.css"
+    rel="stylesheet"
+  />
 
-    <title>SERVER</title>
-  </head>
-   <body>
-    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">SERVER</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link active" href="#">Início</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Documentação</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Contato</a>
-            </li>
-          </ul>
+  <!-- Estilo Futurista -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="bg-dark text-light">
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-dark bg-black border-bottom border-primary">
+    <div class="container-fluid">
+      <span class="navbar-brand fw-bold">SERVER</span>
+      <span class="badge bg-success pulse">ONLINE</span>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero text-center">
+    <h1 class="neon-text">Server Status Dashboard</h1>
+    <p class="text-secondary">
+      Monitoramento em tempo real do backend Node.js
+    </p>
+  </section>
+
+  <!-- DASHBOARD -->
+  <main class="container mt-5">
+    <div class="row g-4">
+
+      <div class="col-md-3">
+        <div class="card neon-card">
+          <h6>Uptime</h6>
+          <span id="uptime">--</span>
         </div>
       </div>
-    </nav>
 
-    <div class="card server-card shadow">
-      <div class="card-body">
-        <h2 class="card-title">🎉 Bem-vindo ao servidor!</h2>
-        <p class="card-text">
-          Esta é uma página inicial simples do servidor. Aqui você encontra informações básicas sobre a API e confirma que o servidor está <strong>online</strong>.
-        </p>
-
-        <h4>Status do Servidor:</h4>
-        <p class="text-success fw-bold">🟢 Online</p>
-
-        <p>
-          Os dados são retornados em formato JSON, padrão para aplicações modernas.
-        </p>
-        <p>
-          Você pode usar parâmetros como data, autor ou categoria. Consulte a <a href="#">documentação</a> para mais detalhes.
-        </p>
+      <div class="col-md-3">
+        <div class="card neon-card">
+          <h6>CPU Load</h6>
+          <span id="cpu">--</span>
+        </div>
       </div>
+
+      <div class="col-md-3">
+        <div class="card neon-card">
+          <h6>Heap Used</h6>
+          <span id="heap">--</span>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card neon-card">
+          <h6>RSS Memory</h6>
+          <span id="rss">--</span>
+        </div>
+      </div>
+
     </div>
-  </body>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="text-center text-secondary mt-5 mb-3">
+    Node.js Server • API /status
+  </footer>
+
+  <script src="/js/dashboard.js"></script>
+  <script src="/assets/bootstrap@5.3.7.js"></script>
+</body>
 </html>

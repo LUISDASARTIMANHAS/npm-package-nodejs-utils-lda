@@ -1,0 +1,103 @@
+:root {
+  --bg-1: #0f172a;
+  --bg-2: #111827;
+  --card-bg: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.12);
+  --accent: #38bdf8;
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: var(--text-main);
+}
+
+/* Navbar */
+.navbar {
+  background: rgba(15,23,42,0.85) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Hero */
+.hero {
+  padding: 60px 20px 30px;
+  text-align: center;
+}
+
+.neon-text {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.hero p {
+  color: var(--text-muted);
+}
+
+/* Cards */
+.neon-card {
+  background: var(--card-bg);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  animation: cardIn 0.6s ease forwards;
+  opacity: 0;
+}
+
+/* entrada em cascata */
+.col-md-3:nth-child(1) .neon-card { animation-delay: 0.05s; }
+.col-md-3:nth-child(2) .neon-card { animation-delay: 0.1s; }
+.col-md-3:nth-child(3) .neon-card { animation-delay: 0.15s; }
+.col-md-3:nth-child(4) .neon-card { animation-delay: 0.2s; }
+
+@keyframes cardIn {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Micro movimento (quase invisível) */
+.neon-card {
+  animation:
+    cardIn 0.6s ease forwards,
+    breathe 6s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.neon-card h6 {
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.neon-card span {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Status badge */
+.badge.bg-success {
+  background-color: #22c55e !important;
+  box-shadow: 0 0 0 6px rgba(34,197,94,0.15);
+}
