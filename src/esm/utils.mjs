@@ -199,3 +199,29 @@ export function exposeFolders(app,folderPath){
   app.use(express.static(folderPath));
   return true
 }
+
+
+/**
+ * Resume interfaces de rede sem dados sensíveis
+ * @param {Object} interfaces
+ * @return {{interfaces:number, ipv4:boolean, ipv6:boolean}}
+ */
+export function sanitizeNetworkInterfaces(interfaces) {
+  let hasIPv4 = false;
+  let hasIPv6 = false;
+  let count = 0;
+
+  for (const iface of Object.values(interfaces)) {
+    count++;
+    for (const addr of iface) {
+      if (addr.family === "IPv4" && !addr.internal) hasIPv4 = true;
+      if (addr.family === "IPv6" && !addr.internal) hasIPv6 = true;
+    }
+  }
+
+  return {
+    interfaces: count,
+    ipv4: hasIPv4,
+    ipv6: hasIPv6
+  };
+}

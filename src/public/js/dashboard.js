@@ -1,7 +1,16 @@
+const UPDATE_INTERVAL = 15000;
 
-const updateIntervalSeconds = 15
 /**
- * Converte segundos em formato legível
+ * Converte bytes para MB
+ * @param {number} bytes
+ * @return {string}
+ */
+function toMB(bytes) {
+  return (bytes / 1024 / 1024).toFixed(1) + " MB";
+}
+
+/**
+ * Converte uptime em formato legível
  * @param {number} seconds
  * @return {string}
  */
@@ -12,25 +21,39 @@ function formatUptime(seconds) {
 }
 
 /**
- * Atualiza campo com animação sutil
- * @param {string} id
+ * Cria um card padrão
+ * @param {string} title
  * @param {string} value
- * @return {void}
+ * @return {HTMLElement}
  */
-function updateField(id, value) {
-  const el = document.getElementById(id);
-  el.style.transform = "scale(0.96)";
-  el.style.opacity = "0.7";
+function createCard(title, value) {
+  const col = document.createElement("div");
+  col.className = "col-md-3";
 
-  requestAnimationFrame(() => {
-    el.textContent = value;
-    el.style.transform = "scale(1)";
-    el.style.opacity = "1";
-  });
+  col.innerHTML = `
+    <div class="neon-card">
+      <h6>${title}</h6>
+      <span>${value}</span>
+    </div>
+  `;
+
+  return col;
 }
 
 /**
- * Atualiza o dashboard com dados do servidor
+ * Limpa e renderiza cards em um container
+ * @param {string} containerId
+ * @param {HTMLElement[]} cards
+ * @return {void}
+ */
+function renderCards(containerId, cards) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  cards.forEach((card) => container.appendChild(card));
+}
+
+/**
+ * Atualiza dashboard
  * @return {Promise<void>}
  */
 async function loadStatus() {
@@ -38,20 +61,37 @@ async function loadStatus() {
     const res = await fetch("/status");
     const data = await res.json();
 
-    updateField("uptime", formatUptime(data.uptime));
-    updateField("cpu", data.cpuUsage.map((v) => v.toFixed(2)).join(" | "));
-    updateField(
-      "heap",
-      (data.memoryUsage.heapUsed / 1024 / 1024).toFixed(1) + " MB",
-    );
-    updateField("rss", (data.memoryUsage.rss / 1024 / 1024).toFixed(1) + " MB");
-  } catch (err) {
-    console.error("Erro ao carregar status:", err);
+    // SISTEMA
+    renderCards("systemCards", [
+      createCard("Uptime", formatUptime(data.uptime)),
+      createCard("Plataforma", data.platform),
+      createCard("CPU Cores", data.cpuCores),
+      createCard("Timestamp", new Date(data.timestamp).toLocaleTimeString()),
+    ]);
+
+    // CPU
+    renderCards("cpuCards", [
+      createCard("Load AVG", data.cpuUsage.join(" | ")),
+    ]);
+
+    // MEMÓRIA
+    renderCards("memoryCards", [
+      createCard("Heap Used", toMB(data.memoryUsage.heapUsed)),
+      createCard("Heap Total", toMB(data.memoryUsage.heapTotal)),
+      createCard("RSS", toMB(data.memoryUsage.rss)),
+      createCard("Livre", toMB(data.freeMemory)),
+    ]);
+
+    // REDE (interfaces)
+    renderCards("networkCards", [
+      createCard("Interfaces", data.network.interfaces),
+      createCard("IPv4", data.network.ipv4 ? "Ativo" : "Inativo"),
+      createCard("IPv6", data.network.ipv6 ? "Ativo" : "Inativo"),
+    ]);
+  } catch (e) {
+    console.error("Erro ao carregar status:", e);
   }
 }
 
-/**
- * Loop de atualização
- */
-setInterval(loadStatus, 1000*updateIntervalSeconds);
+setInterval(loadStatus, UPDATE_INTERVAL);
 loadStatus();

@@ -1,79 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <title>• Server Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="UTF-8" />
+    <title>• Server Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Bootstrap -->
-  <link
-    href="/assets/bootstrap@5.3.7.css"
-    rel="stylesheet"
-  />
+    <link href="/assets/bootstrap@5.3.7.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
 
-  <!-- Estilo Futurista -->
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-
-<body class="bg-dark text-light">
-
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-dark bg-black border-bottom border-primary">
-    <div class="container-fluid">
-      <span class="navbar-brand fw-bold">SERVER</span>
-      <span class="badge bg-success pulse">ONLINE</span>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero text-center">
-    <h1 class="neon-text">Server Status Dashboard</h1>
-    <p class="text-secondary">
-      Monitoramento em tempo real do backend Node.js
-    </p>
-  </section>
-
-  <!-- DASHBOARD -->
-  <main class="container mt-5">
-    <div class="row g-4">
-
-      <div class="col-md-3">
-        <div class="card neon-card">
-          <h6>Uptime</h6>
-          <span id="uptime">--</span>
-        </div>
+  <body class="bg-dark text-light">
+    <nav class="navbar navbar-dark bg-black border-bottom border-primary">
+      <div class="container-fluid">
+        <span class="navbar-brand fw-bold">NODE SERVER</span>
+        <span id="statusBadge" class="badge bg-success pulse">ONLINE</span>
       </div>
+    </nav>
 
-      <div class="col-md-3">
-        <div class="card neon-card">
-          <h6>CPU Load</h6>
-          <span id="cpu">--</span>
-        </div>
-      </div>
+    <header class="hero">
+      <h1 class="neon-text">Node.js Status Dashboard</h1>
+      <p>Monitoramento em tempo real do backend</p>
+    </header>
 
-      <div class="col-md-3">
-        <div class="card neon-card">
-          <h6>Heap Used</h6>
-          <span id="heap">--</span>
-        </div>
-      </div>
+    <main class="container mt-4">
+      <!-- SISTEMA -->
+      <section class="mb-4">
+        <h6 class="section-title">Sistema</h6>
+        <div class="row g-4" id="systemCards"></div>
+      </section>
 
-      <div class="col-md-3">
-        <div class="card neon-card">
-          <h6>RSS Memory</h6>
-          <span id="rss">--</span>
-        </div>
-      </div>
+      <!-- CPU -->
+      <section class="mb-4">
+        <h6 class="section-title">CPU</h6>
+        <div class="row g-4" id="cpuCards"></div>
+      </section>
 
-    </div>
-  </main>
+      <!-- MEMÓRIA -->
+      <section class="mb-4">
+        <h6 class="section-title">Memória</h6>
+        <div class="row g-4" id="memoryCards"></div>
+      </section>
 
-  <!-- FOOTER -->
-  <footer class="text-center text-secondary mt-5 mb-3">
-    Node.js Server • API /status
-  </footer>
+      <!-- REDE -->
+      <section class="mb-5">
+        <h6 class="section-title">Rede</h6>
+        <div class="row g-4" id="networkCards"></div>
+      </section>
+    </main>
 
-  <script src="/js/dashboard.js"></script>
-  <script src="/assets/bootstrap@5.3.7.js"></script>
-</body>
+    <footer class="text-center text-secondary mb-3">
+      API <code>/status</code> • Node.js
+    </footer>
+
+    <script src="/js/dashboard.js"></script>
+    <script src="/assets/bootstrap@5.3.7.js"></script>
+  </body>
 </html>

@@ -65,6 +65,7 @@ const {
   SanitizeXSS,
   serverTry,
   applyAutoMiddlewares,
+  sanitizeNetworkInterfaces,
 } = require("./utils.cjs");
 
 const { requestLogger } = require("./requestLogger.cjs");
@@ -142,6 +143,7 @@ module.exports = {
   SanitizeXSS,
   serverTry,
   applyAutoMiddlewares,
+  sanitizeNetworkInterfaces,
 
   // User system
   insertUser,
