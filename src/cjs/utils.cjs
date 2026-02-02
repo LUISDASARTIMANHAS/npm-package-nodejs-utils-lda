@@ -9,8 +9,8 @@ const modulePath = path.resolve(
     "npm-package-nodejs-utils-lda",
     "src",
     "public",
-    "pages"
-  )
+    "pages",
+  ),
 );
 // arquivos que o servidor do usuario poderia ter
 let forbiddenFilePath = verifyHostedFiles("forbidden");
@@ -19,17 +19,17 @@ let landingFilePath = verifyHostedFiles("index");
 
 function verifyHostedFiles(filePathName) {
   let filePath = path.resolve(
-    path.join("src", "pages", `${filePathName}.html`)
+    path.join("src", "pages", `${filePathName}.html`),
   );
   // Verifica se o arquivo .html existe
   if (!fs.existsSync(filePath)) {
     const defaultForbiddenFilePath = path.join(
       modulePath,
-      `${filePathName}.html`
+      `${filePathName}.html`,
     );
 
     console.error(
-      `\n[npm-package-nodejs-utils-lda] WARN: not found: ${filePath} using: ${defaultForbiddenFilePath}\n`
+      `\n[npm-package-nodejs-utils-lda] WARN: not found: ${filePath} using: ${defaultForbiddenFilePath}\n`,
     );
     // usa o default da blibioteca
     filePath = defaultForbiddenFilePath;
@@ -102,7 +102,7 @@ function validadeApiKey(req, res, key) {
   if (!authApi) {
     forbidden(
       res,
-      "Acesso negado para API Chave invalida para essa API! invalid or missing api key!"
+      "Acesso negado para API Chave invalida para essa API! invalid or missing api key!",
     );
   }
 }
@@ -181,7 +181,7 @@ function applyAutoMiddlewares(app) {
   const requestLogger = require("./requestLogger.cjs");
   const setCacheHeaders = require("./cacheSys.cjs");
   const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
-  const  checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
+  const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
   // Middlewares já aplicados ao app
   app.use(requestLogger);
   app.use(setCacheHeaders);
@@ -190,14 +190,22 @@ function applyAutoMiddlewares(app) {
   autoLoader(app);
 
   console.log(
-    "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n"
+    "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n",
   );
 }
 
-function exposeFolders(app,folderPath){
-  console.log(`\n\t[npm-package-nodejs-utils-lda] AUTO EXPOSE FOLDER: ${folderPath}`)
-  app.use(express.static(folderPath));
-  return true
+function exposeFolders(app, folderPath) {
+  // Resolve o caminho combinando o local do arquivo atual com a pasta desejada
+  const absolutePath = path.isAbsolute(folderPath)
+    ? folderPath
+    : path.resolve(folderPath);
+
+  console.log(`\n\t[SYSTEM] AUTO EXPOSE FOLDER: ${absolutePath}`);
+
+  // É recomendável usar o caminho absoluto aqui também para evitar erros de runtime
+  app.use(express.static(absolutePath));
+
+  return true;
 }
 
 /**
@@ -221,10 +229,9 @@ function sanitizeNetworkInterfaces(interfaces) {
   return {
     interfaces: count,
     ipv4: hasIPv4,
-    ipv6: hasIPv6
+    ipv6: hasIPv6,
   };
 }
-
 
 module.exports = {
   getRandomInt,
