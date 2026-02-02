@@ -5,6 +5,7 @@ import { log, logError } from "./logger/index.mjs";
 import { env } from "process";
 import { config } from "dotenv";
 import { configExist } from "./configHelper.mjs";
+const logPath = "headerSys.txt";
 config();
 
 // isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
@@ -21,8 +22,8 @@ checkConfigIntegrity();
 
 function checkHeaderMiddleware(app) {
   // DEFAULT STATIC PUBLIC ITENS
-  exposeFolders(pathToPublicFolder);
-    exposeFolders(publicItens);
+  exposeFolders(app,pathToPublicFolder);
+    exposeFolders(app,publicItens);
 
   // Middleware para configurar o tipo de conteúdo como JSON
   app.all("/api/*name", (req, res, next) => {
