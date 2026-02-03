@@ -12,6 +12,16 @@ automatic generation of AES + RSA KEYS FOR ENCRYPTION
 ## Functions
 [FUNCTIONS](./functionsList.md)
 
+## self-hosted status dashboard
+
+The dashboard uses the /status route, automatically created with the function StatusDashboard(app). This means you can also use the endpoint, but don't overwrite it.
+
+// PT-BR
+
+O dashboard utiliza a rota /status, criado automaticamente com function StatusDashboard(app), isso significa que voce tambem pode usar o endpoint mas não o sobrescreva
+
+![StatusDashboard - app](./StatusDashboard%20-%20app.png)
+
 Este arquivo implementa um canal criptográfico seguro no nível da aplicação, funcionando como um mini-TLS customizado, porém controlado totalmente por código.
 Usa padrões modernos e seguros
 

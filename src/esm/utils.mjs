@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 import express from "express";
 import { fwrite } from "./autoFileSysModule.mjs";
 import { log, logError } from "./logger/index.mjs";
@@ -149,6 +150,35 @@ export function unauthorized(res, error) {
 export function landingPage(res) {
   res.status(200);
   res.sendFile(landingFilePath);
+}
+
+export function StatusDashboard(app) {
+  app.get("/", (req, res) => {
+    log(`{SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
+    landingPage(res);
+  });
+
+  app.get("/status", (req, res) => {
+    try {
+      const rawInterfaces = os.networkInterfaces();
+
+      res.json({
+        uptime: process.uptime(),
+        message: "OK",
+        timestamp: Date.now(),
+        cpuUsage: os.loadavg(),
+        memoryUsage: process.memoryUsage(),
+        platform: os.platform(),
+        cpuCores: os.cpus().length,
+        totalMemory: os.totalmem(),
+        freeMemory: os.freemem(),
+        network: sanitizeNetworkInterfaces(rawInterfaces),
+      });
+    } catch (e) {
+      res.status(503).json({ message: "ERROR" });
+    }
+  });
+  return true;
 }
 
 export function serverTry(res, callback) {

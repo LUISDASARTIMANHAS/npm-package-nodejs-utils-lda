@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const express = require("express");
 const { fwrite, autoLoader } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
@@ -134,6 +135,36 @@ function landingPage(res) {
   res.sendFile(landingFilePath);
 }
 
+
+function StatusDashboard(app) {
+  app.get("/", (req, res) => {
+    log(`{SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
+    landingPage(res);
+  });
+
+  app.get("/status", (req, res) => {
+    try {
+      const rawInterfaces = os.networkInterfaces();
+
+      res.json({
+        uptime: process.uptime(),
+        message: "OK",
+        timestamp: Date.now(),
+        cpuUsage: os.loadavg(),
+        memoryUsage: process.memoryUsage(),
+        platform: os.platform(),
+        cpuCores: os.cpus().length,
+        totalMemory: os.totalmem(),
+        freeMemory: os.freemem(),
+        network: sanitizeNetworkInterfaces(rawInterfaces),
+      });
+    } catch (e) {
+      res.status(503).json({ message: "ERROR" });
+    }
+  });
+  return true;
+}
+
 function unauthorized(res, error) {
   console.error("unauthorized 401");
   res.status(401);
@@ -253,4 +284,5 @@ module.exports = {
   applyAutoMiddlewares,
   exposeFolders,
   sanitizeNetworkInterfaces,
+  StatusDashboard,
 };

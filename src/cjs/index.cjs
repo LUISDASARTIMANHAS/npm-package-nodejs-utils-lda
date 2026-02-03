@@ -66,6 +66,7 @@ const {
   serverTry,
   applyAutoMiddlewares,
   sanitizeNetworkInterfaces,
+  StatusDashboard,
 } = require("./utils.cjs");
 
 const { requestLogger } = require("./requestLogger.cjs");
@@ -144,6 +145,7 @@ module.exports = {
   serverTry,
   applyAutoMiddlewares,
   sanitizeNetworkInterfaces,
+  StatusDashboard,
 
   // User system
   insertUser,
