@@ -122,8 +122,23 @@ function privateExposePublicFolder(app) {
     "public"
   );
   const route = "/public";
-  exposeFolders(app, publicItens, route);
-  exposeFolders(app, modulePublicFolder, route);
+  privateExposeFolders(app, publicItens, route);
+  privateExposeFolders(app, modulePublicFolder, route);
+}
+
+function privateExposeFolders(app, folderPath, route) {
+  // Resolve o caminho combinando o local do arquivo atual com a pasta desejada
+  const absolutePath = path.isAbsolute(folderPath)
+    ? folderPath
+    : path.resolve(folderPath);
+  const sanitizedRoute = route || "/";
+
+  console.log(`\n\t[SYSTEM] AUTO EXPOSE FOLDER: ${absolutePath}`);
+
+  // É recomendável usar o caminho absoluto aqui também para evitar erros de runtime
+  app.use(sanitizedRoute, express.static(absolutePath));
+
+  return true;
 }
 
 module.exports = {
