@@ -237,11 +237,12 @@ function exposeFolders(app, folderPath, route) {
   const absolutePath = path.isAbsolute(folderPath)
     ? folderPath
     : path.resolve(folderPath);
+  const sanitizedRoute = route || "/";
 
   console.log(`\n\t[SYSTEM] AUTO EXPOSE FOLDER: ${absolutePath}`);
 
   // É recomendável usar o caminho absoluto aqui também para evitar erros de runtime
-  app.use(route, express.static(absolutePath));
+  app.use(sanitizedRoute, express.static(absolutePath));
 
   return true;
 }
