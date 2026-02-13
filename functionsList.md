@@ -4,12 +4,14 @@
 lista de funções disponiveis na blibioteca npm-package-nodejs-utils-lda
 
 ```js
+// FS SYSTEM
 function fopen(filePath);
 function fwrite(filePath, data);
 function fwriteBin(filePath, data);
 function stringToBinary(str, binaryLenght);
 function freadBin(filePath);
 function binaryToString(binary, binaryLenght);
+
 function checkHeaderMiddleware(app);
 function sendMail(email, subject, text, function(error,data));
 function fetchGet(url, header, callback);
@@ -33,10 +35,19 @@ function spaceUsed(space, used);
 function serverTry(res,callback)
 function sendFileToDiscord(file, webhookUrl);
 function log(message, filepath = "logs.txt", maxLength = 100);
+
+// OTP AUTH AND MAIL
 async function requestAuthCode(email, ttlMin = 5);
 function getOTP(email);
 function deleteOTP(email);
 function saveOTP(email, hash, expiresAt);
 async function verifyAuthCode(email, code);
+
+// dashboard
 function StatusDashboard(app);
+
+// expose folders
+function exposeFolders(app, folderPath, route);
+function exposePublicFolder(app);
+function exposeLogsFolder(app);
 ```

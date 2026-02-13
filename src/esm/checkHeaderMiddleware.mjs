@@ -1,5 +1,5 @@
 import path from "path";
-import {exposeFolders, forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
+import { exposeLogsFolder, exposePublicFolder, forbidden, SanitizeXSS, validadeApiKey } from "./utils.mjs";
 import { fopen, fwrite } from "./autoFileSysModule.mjs";
 import { log, logError } from "./logger/index.mjs";
 import { env } from "process";
@@ -8,22 +8,13 @@ import { configExist } from "./configHelper.mjs";
 const logPath = "headerSys.txt";
 config();
 
-// isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
-const publicItens = path.join(
-  "node_modules",
-  "npm-package-nodejs-utils-lda",
-  "src",
-  "public"
-);
-const pathToPublicFolder = path.join("public");
-
 configExist();
 checkConfigIntegrity();
 
 function checkHeaderMiddleware(app) {
   // DEFAULT STATIC PUBLIC ITENS
-  exposeFolders(app,pathToPublicFolder);
-    exposeFolders(app,publicItens);
+  exposePublicFolder(app);
+  exposeLogsFolder(app);
 
   // Middleware para configurar o tipo de conteúdo como JSON
   app.all("/api/*name", (req, res, next) => {

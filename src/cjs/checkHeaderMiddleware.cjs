@@ -2,7 +2,8 @@ const {
   forbidden,
   validadeApiKey,
   SanitizeXSS,
-  exposeFolders,
+  exposePublicFolder,
+  exposeLogsFolder,
 } = require("./utils.cjs");
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 const path = require("path");
@@ -10,15 +11,7 @@ const { env } = require("process");
 const dotenv = require("dotenv");
 const { configExist } = require("./configHelper.cjs");
 const { log, logError } = require("./logger/index.cjs");
-const logPath = "headerSys.txt";
-// isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
-const publicItens = path.join(
-  "node_modules",
-  "npm-package-nodejs-utils-lda",
-  "src",
-  "public"
-);
-const pathToPublicFolder = path.join("public");
+const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();
@@ -29,10 +22,10 @@ checkConfigIntegrity();
 
 function checkHeaderMiddleware(app) {
   // DEFAULT STATIC PUBLIC ITENS
-  exposeFolders(app,publicItens);
-  exposeFolders(app,pathToPublicFolder);
+  exposePublicFolder(app);
+  exposeLogsFolder(app);
 
-  // Middleware para configurar o tipo de conteúdo como JSON
+  // Middleware para verificar a presença do header de autorização em rotas específicas
   app.all("/api/*name", (req, res, next) => {
     if (!req.headers["authorization"]) {
       logError(`SYSTEM NOT FOUND KEY_${req.headers["authorization"]}`,logPath);
@@ -45,6 +38,7 @@ function checkHeaderMiddleware(app) {
     next();
   });
 
+  // requires API key validation, while other routes just log the request and sanitize input
   app.all("/*name", (req, res, next) => {
     const origin = req.headers.referer || req.headers.referrer;
     const blockRoutesPresent = isBlockedRoute(req);

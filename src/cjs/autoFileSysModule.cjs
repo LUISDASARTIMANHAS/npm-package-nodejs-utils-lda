@@ -2,13 +2,6 @@ const fs = require("fs");
 const express = require("express");
 const path = require("path");
 const rootDir = process.cwd();
-// isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
-const publicItens = path.join(
-  "node_modules",
-  "npm-package-nodejs-utils-lda",
-  "src",
-  "public"
-);
 
 function fopen(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -106,8 +99,7 @@ function freadBin(filePath) {
 
 // Carrega dinamicamente todos os módulos de rota
 function autoLoader(app) {
-   // DEFAULT STATIC PUBLIC ITENS
-    app.use(express.static(publicItens));
+  privateExposePublicFolder(app);
   fs.readdirSync(rootDir).forEach((file) => {
     const filePath = path.resolve(rootDir, file);
     console.log(`File ${filePath} `);
@@ -119,6 +111,19 @@ function autoLoader(app) {
       console.log(`File ${file} loaded auto!`);
     }
   });
+}
+
+function privateExposePublicFolder(app) {
+  const publicItens = path.join("public");
+  const modulePublicFolder = path.join(
+    "node_modules",
+    "npm-package-nodejs-utils-lda",
+    "src",
+    "public"
+  );
+  const route = "/public";
+  exposeFolders(app, publicItens, route);
+  exposeFolders(app, modulePublicFolder, route);
 }
 
 module.exports = {

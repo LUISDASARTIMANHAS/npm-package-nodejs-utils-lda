@@ -19,6 +19,14 @@ const modulePath = path.resolve(
     "pages",
   ),
 );
+
+const modulePublicFolder = path.join(
+  "node_modules",
+  "npm-package-nodejs-utils-lda",
+  "src",
+  "public"
+);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // arquivos que o servidor do usuario poderia ter
@@ -226,7 +234,7 @@ export function applyAutoMiddlewares(app) {
   );
 }
 
-export function exposeFolders(app, folderPath) {
+export function exposeFolders(app, folderPath, route) {
   // Resolve o caminho combinando o local do arquivo atual com a pasta desejada
   const absolutePath = path.isAbsolute(folderPath)
     ? folderPath
@@ -235,9 +243,22 @@ export function exposeFolders(app, folderPath) {
   console.log(`\n\t[SYSTEM] AUTO EXPOSE FOLDER: ${absolutePath}`);
 
   // É recomendável usar o caminho absoluto aqui também para evitar erros de runtime
-  app.use(express.static(absolutePath));
+  app.use(route, express.static(absolutePath));
 
   return true;
+}
+
+export function exposePublicFolder(app) {
+  const publicItens = path.join("public");
+  const route = "/public";
+  exposeFolders(app, publicItens, route);
+  exposeFolders(app, modulePublicFolder, route);
+}
+
+export function exposeLogsFolder(app) {
+  const publicItens = path.join("logs");
+  const route = "/logs";
+  exposeFolders(app, publicItens, route);
 }
 
 /**

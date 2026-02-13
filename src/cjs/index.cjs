@@ -67,6 +67,9 @@ const {
   applyAutoMiddlewares,
   sanitizeNetworkInterfaces,
   StatusDashboard,
+  exposeFolders,
+  exposePublicFolder,
+  exposeLogsFolder,
 } = require("./utils.cjs");
 
 const { requestLogger } = require("./requestLogger.cjs");
@@ -146,6 +149,9 @@ module.exports = {
   applyAutoMiddlewares,
   sanitizeNetworkInterfaces,
   StatusDashboard,
+  exposeFolders,
+  exposePublicFolder,
+  exposeLogsFolder,
 
   // User system
   insertUser,

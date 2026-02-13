@@ -13,6 +13,14 @@ const modulePath = path.resolve(
     "pages",
   ),
 );
+
+const modulePublicFolder = path.join(
+  "node_modules",
+  "npm-package-nodejs-utils-lda",
+  "src",
+  "public",
+);
+
 // arquivos que o servidor do usuario poderia ter
 let forbiddenFilePath = verifyHostedFiles("forbidden");
 let notfoundFilePath = verifyHostedFiles("not-found");
@@ -135,7 +143,6 @@ function landingPage(res) {
   res.sendFile(landingFilePath);
 }
 
-
 function StatusDashboard(app) {
   app.get("/", (req, res) => {
     log(`{SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
@@ -225,7 +232,7 @@ function applyAutoMiddlewares(app) {
   );
 }
 
-function exposeFolders(app, folderPath) {
+function exposeFolders(app, folderPath, route) {
   // Resolve o caminho combinando o local do arquivo atual com a pasta desejada
   const absolutePath = path.isAbsolute(folderPath)
     ? folderPath
@@ -234,9 +241,22 @@ function exposeFolders(app, folderPath) {
   console.log(`\n\t[SYSTEM] AUTO EXPOSE FOLDER: ${absolutePath}`);
 
   // É recomendável usar o caminho absoluto aqui também para evitar erros de runtime
-  app.use(express.static(absolutePath));
+  app.use(route, express.static(absolutePath));
 
   return true;
+}
+
+function exposePublicFolder(app) {
+  const publicItens = path.join("public");
+  const route = "/public";
+  exposeFolders(app, publicItens, route);
+  exposeFolders(app, modulePublicFolder, route);
+}
+
+function exposeLogsFolder(app) {
+  const publicItens = path.join("logs");
+  const route = "/logs";
+  exposeFolders(app, publicItens, route);
 }
 
 /**
@@ -283,6 +303,8 @@ module.exports = {
   parseFetchResponse,
   applyAutoMiddlewares,
   exposeFolders,
+  exposePublicFolder,
+  exposeLogsFolder,
   sanitizeNetworkInterfaces,
   StatusDashboard,
 };
