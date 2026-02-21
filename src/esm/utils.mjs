@@ -20,8 +20,6 @@ const modulePath = path.resolve(
   ),
 );
 
-
-
 /**
  * Diretório onde estão os logs
  */
@@ -35,7 +33,7 @@ const modulePublicFolder = path.join(
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // arquivos que o servidor do usuario poderia ter
-const LOGS_DIR = path.join(__dirname, "..", "logs");
+const LOGS_DIR = "logs";
 let forbiddenFilePath = verifyHostedFiles("forbidden");
 let notfoundFilePath = verifyHostedFiles("not-found");
 let landingFilePath = verifyHostedFiles("index");
@@ -314,6 +312,7 @@ export function logsDashboard(app) {
       `);
 
     } catch (error) {
+      console.error("ERRO REAL:", error);
       res.status(500).send("Erro ao listar arquivos.");
     }
   });

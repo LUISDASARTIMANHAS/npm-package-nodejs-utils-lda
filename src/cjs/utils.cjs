@@ -4,6 +4,7 @@ const os = require("os");
 const express = require("express");
 const { fwrite, autoLoader } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
+const { log, logError } = require("./logger/index.cjs");
 const modulePath = path.resolve(
   path.join(
     "node_modules",
@@ -22,7 +23,7 @@ const modulePublicFolder = path.join(
 );
 
 // arquivos que o servidor do usuario poderia ter
-const LOGS_DIR = path.join(__dirname, "..", "logs");
+const LOGS_DIR = "logs";
 let forbiddenFilePath = verifyHostedFiles("forbidden");
 let notfoundFilePath = verifyHostedFiles("not-found");
 let landingFilePath = verifyHostedFiles("index");
@@ -268,7 +269,6 @@ function exposeLogsFolder(app) {
  * @returns {boolean}
  */
 function logsDashboard(app) {
-
   /**
    * Lista arquivos da pasta /logs
    */
@@ -277,7 +277,7 @@ function logsDashboard(app) {
       const files = await fs.promises.readdir(LOGS_DIR);
 
       const fileLinks = files
-        .map(file => {
+        .map((file) => {
           return `
             <li class="list-group-item">
               <a href="/logs/${file}" target="_blank">${file}</a>
@@ -305,8 +305,8 @@ function logsDashboard(app) {
         </body>
         </html>
       `);
-
     } catch (error) {
+      console.error("ERRO REAL:", error);
       res.status(500).send("Erro ao listar arquivos.");
     }
   });
@@ -327,7 +327,6 @@ function logsDashboard(app) {
 
   return true;
 }
-
 
 /**
  * Resume interfaces de rede sem dados sensíveis
