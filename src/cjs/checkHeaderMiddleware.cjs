@@ -28,10 +28,10 @@ function checkHeaderMiddleware(app) {
   // Middleware para verificar a presença do header de autorização em rotas específicas
   app.all("/api/*name", (req, res, next) => {
     if (!req.headers["authorization"]) {
-      logError(`SYSTEM NOT FOUND KEY_${req.headers["authorization"]}`,logPath);
+      logError(`SYSTEM NOT FOUND KEY_${req.headers["authorization"]}`, logPath);
       return forbidden(
         res,
-        "Autorização de acesso minima faltante para essa rota! authorization is null!"
+        "[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] Autorização de acesso minima faltante para essa rota! Minimum access authorization is missing for this route!",
       );
     }
     res.set("Content-Type", "application/json");
@@ -43,16 +43,19 @@ function checkHeaderMiddleware(app) {
     const origin = req.headers.referer || req.headers.referrer;
     const blockRoutesPresent = isBlockedRoute(req);
     const payload = JSON.stringify(req.body, null, 2);
+    const headers = req.headers;
 
     // Combinar chaves padrão e do .env filtradas
     const keys = getKeys();
     if (blockRoutesPresent) {
       return validadeApiKey(req, res, keys);
     } else {
-      log("-------------------------",logPath);
-      log(`SYSTEM <CHECK> <GET>: ${req.url}`,logPath);
-      log(`SYSTEM <PAYLOAD>: ${payload}`,logPath);
-      log(`SYSTEM <ORIGEM>: ${origin}`,logPath);
+      log("-------------------------", logPath);
+      log(`SYSTEM <CHECK> <GET>: ${req.url}`, logPath);
+      log(`SYSTEM <ORIGEN>: ${origin}`, logPath);
+      log(`SYSTEM <PAYLOAD>: ${payload}`, logPath);
+      log(`SYSTEM <HEADERS>: ${headers}`, logPath);
+      log(`SYSTEM <REQUIRED VALID KEY>: ${blockRoutesPresent}, change in config.blockedRoutes`, logPath);
 
       SanitizeXSS(req.body);
       next();
@@ -75,7 +78,9 @@ function getKeys() {
   // Obter as entradas do objeto 'env'
   const environmentEntries = Object.entries(env);
   // Filtrar apenas as chaves que começam com 'KEY_'
-  const keyEntries = environmentEntries.filter(([key, _]) => key.startsWith("KEY_"));
+  const keyEntries = environmentEntries.filter(([key, _]) =>
+    key.startsWith("KEY_"),
+  );
   // Extrair apenas os valores das chaves filtradas
   const extractedKeys = keyEntries.map(([_, value]) => value);
 
@@ -84,7 +89,6 @@ function getKeys() {
 
   return finalKeys;
 }
-
 
 function checkConfigIntegrity() {
   // obtem config.json

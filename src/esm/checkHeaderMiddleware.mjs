@@ -21,7 +21,7 @@ function checkHeaderMiddleware(app) {
     if (!req.headers["authorization"]) {
       return forbidden(
         res,
-        "Autorização de acesso minima faltante para essa rota! authorization is null!"
+        "[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] Autorização de acesso minima faltante para essa rota! Minimum access authorization is missing for this route!"
       );
     }
     res.set("Content-Type", "application/json");
@@ -30,19 +30,21 @@ function checkHeaderMiddleware(app) {
 
   app.all("/*name", (req, res, next) => {
     const origin = req.headers.referer || req.headers.referrer;
-    const keyHeader = req.headers["authorization"];
     const blockRoutesPresent = isBlockedRoute(req);
     const payload = JSON.stringify(req.body, null, 2);
+    const headers = req.headers;
 
     // Combinar chaves padrão e do .env filtradas
     const keys = getKeys();
     if (blockRoutesPresent) {
       return validadeApiKey(req, res, keys);
     } else {
-      log("-------------------------",logPath);
-      log(`SYSTEM <CHECK> <GET>: ${req.url}`,logPath);
-      log(`SYSTEM <ORIGEM>: ${origin}`,logPath);
-      log(`SYSTEM <PAYLOAD>: ${payload}`,logPath);
+      log("-------------------------", logPath);
+      log(`SYSTEM <CHECK> <GET>: ${req.url}`, logPath);
+      log(`SYSTEM <ORIGEN>: ${origin}`, logPath);
+      log(`SYSTEM <PAYLOAD>: ${payload}`, logPath);
+      log(`SYSTEM <HEADERS>: ${headers}`, logPath);
+      log(`SYSTEM <REQUIRED VALID KEY>: ${blockRoutesPresent}, change in config.blockedRoutes`, logPath);
 
       SanitizeXSS(req.body);
       next();

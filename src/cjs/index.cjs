@@ -70,6 +70,7 @@ const {
   exposeFolders,
   exposePublicFolder,
   exposeLogsFolder,
+  logsDashboard,
 } = require("./utils.cjs");
 
 const { requestLogger } = require("./requestLogger.cjs");
@@ -152,6 +153,7 @@ module.exports = {
   exposeFolders,
   exposePublicFolder,
   exposeLogsFolder,
+  logsDashboard,
 
   // User system
   insertUser,

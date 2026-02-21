@@ -20,6 +20,11 @@ const modulePath = path.resolve(
   ),
 );
 
+
+
+/**
+ * Diretório onde estão os logs
+ */
 const modulePublicFolder = path.join(
   "node_modules",
   "npm-package-nodejs-utils-lda",
@@ -30,6 +35,7 @@ const modulePublicFolder = path.join(
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // arquivos que o servidor do usuario poderia ter
+const LOGS_DIR = path.join(__dirname, "..", "logs");
 let forbiddenFilePath = verifyHostedFiles("forbidden");
 let notfoundFilePath = verifyHostedFiles("not-found");
 let landingFilePath = verifyHostedFiles("index");
@@ -117,10 +123,11 @@ export function validadeApiKey(req, res, key) {
   const authApi = keyHeader && key.includes(keyHeader);
 
   if (!authApi) {
-    forbidden(
-      res,
-      "Acesso negado para API Chave invalida para essa API! invalid or missing api key!",
-    );
+    forbidden(res, {
+      error:
+        "[npm-package-nodejs-utils-lda] [validadeApiKey] Acesso negado para API Chave invalida para essa API! Access denied for API. Invalid key for this API!",
+      keyHeader: keyHeader,
+    });
   }
 }
 
@@ -260,6 +267,72 @@ export function exposeLogsFolder(app) {
   const publicItens = path.join("logs");
   const route = "/logs";
   exposeFolders(app, publicItens, route);
+}
+
+/**
+ * Registra rota dinâmica para listagem e acesso aos logs
+ * @param {import("express").Express} app
+ * @returns {boolean}
+ */
+export function logsDashboard(app) {
+
+  /**
+   * Lista arquivos da pasta /logs
+   */
+  app.get("/logs", async (req, res) => {
+    try {
+      const files = await fs.promises.readdir(LOGS_DIR);
+
+      const fileLinks = files
+        .map(file => {
+          return `
+            <li class="list-group-item">
+              <a href="/logs/${file}" target="_blank">${file}</a>
+            </li>
+          `;
+        })
+        .join("");
+
+      res.status(200).send(`
+        <!doctype html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Logs Dashboard</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body class="bg-dark text-light">
+          <div class="container py-5">
+            <h1 class="mb-4">Logs Dashboard</h1>
+            <ul class="list-group">
+              ${fileLinks || "<li class='list-group-item'>Nenhum arquivo encontrado</li>"}
+            </ul>
+          </div>
+        </body>
+        </html>
+      `);
+
+    } catch (error) {
+      res.status(500).send("Erro ao listar arquivos.");
+    }
+  });
+
+  /**
+   * Permite acessar arquivos individuais
+   */
+  app.get("/logs/:filename", (req, res) => {
+    const filePath = path.join(LOGS_DIR, req.params.filename);
+
+    // Proteção contra path traversal
+    if (!filePath.startsWith(LOGS_DIR)) {
+      return res.status(403).send("Acesso negado.");
+    }
+
+    res.sendFile(filePath);
+  });
+
+  return true;
 }
 
 /**
