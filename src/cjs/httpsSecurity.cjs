@@ -97,6 +97,10 @@ function checkConfigIntegrity() {
       "urlParams",
       "cache-control",
       "X-Disable-Cache",
+      "x-nonce",
+      "x-signature",
+      "x-timestamp",
+      "x-ip-info",
     ];
   }
   if (!configs.ALLOWED_USER_AGENTS) {
@@ -105,6 +109,9 @@ function checkConfigIntegrity() {
       "Chrome",
       "Firefox",
       "custom/1.0",
+      "Discordbot",
+      "iPhone OS",
+      "WordPress"
     ];
   }
   if (!configs.BLOCKED_USER_AGENTS) {

@@ -36,24 +36,29 @@ async function checkUserAgent(req, res, userAgent) {
   if (!isAllowed || isBlocked) {
     logBlockedUserAgent(userAgent, req);
     res.status(403).send("User-Agent not authorized.");
-    return true;  // Bloqueado
+    return true; // Bloqueado
   }
-  return false;  // Permitido
+  return false; // Permitido
 }
 
 // FUNÇÕES BASICAS DE SUBPROCESSOS
 
 function isUserAgentAllowed(userAgent, allowedAgents) {
-  return allowedAgents.some(ua => userAgent.includes(ua));
+  return allowedAgents.some((ua) => userAgent.includes(ua));
 }
 
 function isUserAgentBlocked(userAgent, blockedAgents) {
-  return blockedAgents.some(blocked => userAgent.includes(blocked));
+  return blockedAgents.some((blocked) => userAgent.includes(blocked));
 }
 
 function logBlockedUserAgent(userAgent, req) {
-  log(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`,"UAfirewall.txt");
-  console.warn(`Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`);
+  log(
+    `Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`,
+    "UAfirewall.txt",
+  );
+  console.warn(
+    `Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`,
+  );
 }
 
 function configureCorsHeaders(res, corsOptions) {
@@ -98,6 +103,10 @@ function checkConfigIntegrity() {
       "urlParams",
       "cache-control",
       "X-Disable-Cache",
+      "x-nonce",
+      "x-signature",
+      "x-timestamp",
+      "x-ip-info",
     ];
   }
   if (!configs.ALLOWED_USER_AGENTS) {
@@ -106,6 +115,9 @@ function checkConfigIntegrity() {
       "Chrome",
       "Firefox",
       "custom/1.0",
+      "Discordbot",
+      "iPhone OS",
+      "WordPress",
     ];
   }
   if (!configs.BLOCKED_USER_AGENTS) {

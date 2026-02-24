@@ -193,30 +193,6 @@ function serverTry(res, callback) {
   }
 }
 
-function requestStatus(response) {
-  const status = response.status;
-  const contentType = response.headers.get("content-type");
-
-  log(`Status da resposta: ${status} - ${response.statusText}`);
-  log(`Tipo de conteúdo: ${contentType}`);
-}
-
-function parseFetchResponse(response) {
-  const status = response.status;
-  const contentType = response.headers.get("content-type");
-
-  requestStatus(response);
-
-  // Verifica o tipo de conteúdo retornado
-  if (contentType && contentType.includes("application/json")) {
-    // Se for JSON, retorna o JSON
-    return response.json().then((data) => ({ data, status }));
-  } else {
-    // Se não for JSON, retorna o conteúdo como texto
-    return response.text().then((data) => ({ data, status }));
-  }
-}
-
 // utils.js ou no seu pacote
 function applyAutoMiddlewares(app) {
   const requestLogger = require("./requestLogger.cjs");
@@ -353,6 +329,12 @@ function sanitizeNetworkInterfaces(interfaces) {
   };
 }
 
+function fileExistAndCreate(filePath,defaultContent = []) {
+  if (!fs.existsSync(filePath)) {
+    fwrite(filePath, defaultContent);
+  }
+}
+
 module.exports = {
   getRandomInt,
   getRandomBin,
@@ -369,7 +351,6 @@ module.exports = {
   SanitizeXSS,
   serverTry,
   requestStatus,
-  parseFetchResponse,
   applyAutoMiddlewares,
   exposeFolders,
   exposePublicFolder,
@@ -377,4 +358,5 @@ module.exports = {
   sanitizeNetworkInterfaces,
   StatusDashboard,
   logsDashboard,
+  fileExistAndCreate
 };
