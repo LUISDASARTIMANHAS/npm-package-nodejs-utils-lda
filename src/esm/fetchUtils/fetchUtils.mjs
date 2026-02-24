@@ -4,9 +4,12 @@ import { logError, log } from "../logger/index.cjs";
 // FUNÇÕES INTERNAS
 // ============================
 
-export function checkArgs(url, payload) {
-  if (!url || !payload) {
-    throw new Error("NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL");
+export function checkArgs(url, callback) {
+  if (!url || !callback) {
+    throw new Error(`NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL! 
+			URL: ${url}
+			CALLBACK: ${callback}
+			`);
   }
 }
 export function buildHeaders(extraHeaders = {}, includeContentType = false) {

@@ -1,5 +1,4 @@
 const fetch = require("node-fetch").default;
-const { parseFetchResponse } = require("../utils.cjs");
 const { configExist } = require("../configHelper.cjs");
 const { log } = require("../logger/index.cjs");
 const logPath = "server-requests.txt";

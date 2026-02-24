@@ -70,7 +70,7 @@ function fetchGet(url, sendHeader, callback) {
       .then((data, status) => {
         data.status = status;
         log(`FETCH GET RECEBIDO! OK ${status}`, logPath);
-        log(`Dados recebidos: ${data}`, logPath);
+        log(`Dados recebidos: ${JSON.stringify(data)}`, logPath);
         callback(null, data);
       })
       .catch((error) => {
@@ -107,7 +107,7 @@ function fetchPostJson(url, payload, sendHeader, callback) {
       .then((data, status) => {
         data.status = status;
         log(`FETCH POST ENVIADO! OK ${status}`, logPath);
-        log(`Dados recebidos: ${data}`, logPath);
+        log(`Dados recebidos: ${JSON.stringify(data)}`, logPath);
         callback(null, data);
       })
       .catch((error) => {
@@ -148,7 +148,7 @@ function fetchPost(url, payload, sendHeader, callback) {
       .then((data, status) => {
         data.status = status;
         log(`FETCH POST ENVIADO! OK ${status}`, logPath);
-        log(`Dados recebidos: ${data}`, logPath);
+        log(`Dados recebidos: ${JSON.stringify(data)}`, logPath);
         callback(null, data);
       })
       .catch((error) => {

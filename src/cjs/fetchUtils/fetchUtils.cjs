@@ -2,70 +2,73 @@ const { logError, log } = require("../logger/index.cjs");
 
 // FUNÇÕES BASICAS MODULARES
 function checkArgs(url, callback) {
-	if (!url || !callback) {
-		throw new Error("NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL");
-	}
+  if (!url || !callback) {
+    throw new Error(`NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL! 
+			URL: ${url}
+			CALLBACK: ${callback}
+			`);
+  }
 }
 
 function buildHeaders(extraHeaders = {}, includeContentType = false) {
-	const headersDefault = {
-		"x-forwarded-proto": "https,http,http",
-		"x-forwarded-port": "443,80,80",
-		"accept-encoding": "gzip",
-	};
+  const headersDefault = {
+    "x-forwarded-proto": "https,http,http",
+    "x-forwarded-port": "443,80,80",
+    "accept-encoding": "gzip",
+  };
 
-	const defaultContentType = {
-		"content-type": "application/json; charset=UTF-8",
-	};
+  const defaultContentType = {
+    "content-type": "application/json; charset=UTF-8",
+  };
 
-	// Constrói os headers finais, adicionando Content-Type se necessário
-	return Object.assign(
-		{},
-		headersDefault,
-		includeContentType ? defaultContentType : {},
-		extraHeaders,
-	);
+  // Constrói os headers finais, adicionando Content-Type se necessário
+  return Object.assign(
+    {},
+    headersDefault,
+    includeContentType ? defaultContentType : {},
+    extraHeaders,
+  );
 }
 
 function requestStatus(response) {
-	const status = response.status;
-	const contentType = response.headers.get("content-type");
+  const status = response.status;
+  const contentType = response.headers.get("content-type");
 
-	log(`Status da resposta: ${status} - ${response.statusText}`);
-	log(`Tipo de conteúdo: ${contentType}`);
+  log(`Status da resposta: ${status} - ${response.statusText}`);
+  log(`Tipo de conteúdo: ${contentType}`);
 }
 
 function parseFetchResponse(response) {
-	const status = response.status;
-	const contentType = response.headers.get("content-type");
+  const status = response.status;
+  const contentType = response.headers.get("content-type");
 
-	requestStatus(response);
+  requestStatus(response);
 
-	// Verifica o tipo de conteúdo retornado
-	if (contentType && contentType.includes("application/json")) {
-		// Se for JSON, retorna o JSON
-		return response.json().then((data) => ({ data, status }));
-	} else {
-		// Se não for JSON, retorna o conteúdo como texto
-		return response.text().then((data) => ({ data, status }));
-	}
+  // Verifica o tipo de conteúdo retornado
+  if (contentType && contentType.includes("application/json")) {
+    // Se for JSON, retorna o JSON
+    return response.json().then((data) => ({ data, status }));
+  } else {
+    // Se não for JSON, retorna o conteúdo como texto
+    return response.text().then((data) => ({ data, status }));
+  }
 }
 
 function requestError(response) {
-	return response.text().then((errorData) => {
-		throw new Error(JSON.stringify(errorData, null, 2));
-	});
+  return response.text().then((errorData) => {
+    throw new Error(JSON.stringify(errorData, null, 2));
+  });
 }
 
 function onError(url, error, callback) {
-	logError(`Erro ao fazer a requisição para ${url}: ${error}`);
-	callback(error, null);
+  logError(`Erro ao fazer a requisição para ${url}: ${error}`);
+  callback(error, null);
 }
 
 module.exports = {
-	checkArgs,
-	buildHeaders,
-	parseFetchResponse,
-	requestError,
-	onError,
+  checkArgs,
+  buildHeaders,
+  parseFetchResponse,
+  requestError,
+  onError,
 };

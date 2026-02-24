@@ -350,7 +350,6 @@ module.exports = {
   sanitize,
   SanitizeXSS,
   serverTry,
-  requestStatus,
   applyAutoMiddlewares,
   exposeFolders,
   exposePublicFolder,
