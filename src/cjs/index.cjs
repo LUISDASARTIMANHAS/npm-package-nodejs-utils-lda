@@ -31,20 +31,21 @@ const sendFileToDiscord = require("./sendFileToDiscord.cjs");
 const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
 const sendMail = require("./emailModule.cjs");
 
+const discordLogs = require("./discordUtils/discordSender.cjs")
+
 const {
   fetchGet,
   fetchDownloadStream,
   fetchPost,
   fetchPostJson,
-  discordLogs,
-} = require("./fetchModule.cjs");
+} = require("./fetchUtils/fetchModule.cjs");
 
 const {
   fetchDownloadStreamAsync,
   fetchGetAsync,
   fetchPostAsync,
   fetchPostJsonAsync,
-} = require("./fetchModuleAsync.cjs");
+} = require("./fetchUtils/fetchModuleAsync.cjs");
 
 const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
 
@@ -70,6 +71,8 @@ const {
   exposeFolders,
   exposePublicFolder,
   exposeLogsFolder,
+  logsDashboard,
+  fileExistAndCreate,
 } = require("./utils.cjs");
 
 const { requestLogger } = require("./requestLogger.cjs");
@@ -152,6 +155,8 @@ module.exports = {
   exposeFolders,
   exposePublicFolder,
   exposeLogsFolder,
+  logsDashboard,
+  fileExistAndCreate,
 
   // User system
   insertUser,

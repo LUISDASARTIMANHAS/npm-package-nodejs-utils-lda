@@ -50,4 +50,5 @@ function StatusDashboard(app);
 function exposeFolders(app, folderPath, route);
 function exposePublicFolder(app);
 function exposeLogsFolder(app);
+function fileExistAndCreate(filePath,defaultContent = []);
 ```

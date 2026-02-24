@@ -1,6 +1,6 @@
 require("dotenv/config");
 const { MongoClient } = require("mongodb");
-const { discordLogs } = require("./fetchModule.cjs");
+const  discordLogs  = require("./discordUtils/discordSender.cjs");
 
 async function mongoConnect(connectionString) {
   let mongoClient, srv;

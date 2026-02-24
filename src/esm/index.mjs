@@ -3,6 +3,9 @@
 // ----------------------------
 
 // Discord Utils
+export * from "./discordUtils/discordEmbed.mjs"
+export * from "./discordUtils/discordSender.mjs"
+export * from "./discordUtils/interactionGetters.mjs"
 export * from "./discordUtils/discordUtils.mjs";
 
 // Interaction Getters
@@ -18,8 +21,8 @@ export * from "./utils.mjs";
 export * from "./userSystem.mjs";
 
 // Fetch Modules
-export * from "./fetchModule.mjs";
-export * from "./fetchModuleAsync.mjs";
+export * from "./fetchUtils/fetchModule.mjs";
+export * from "./fetchUtils/fetchModuleAsync.mjs";
 
 // Security system
 export * from "./security/crypto.service.mjs";

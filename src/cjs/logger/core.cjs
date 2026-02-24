@@ -52,7 +52,7 @@ function writeLogFile(filepath, message) {
 function baseLog({
   message,
   filename = "logs.txt",
-  maxLength = 100,
+  maxLength = 200,
   level = "info",
   consoleFn = console.log,
 }) {

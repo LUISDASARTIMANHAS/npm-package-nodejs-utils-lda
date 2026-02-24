@@ -4,6 +4,7 @@ const os = require("os");
 const express = require("express");
 const { fwrite, autoLoader } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
+const { log, logError } = require("./logger/index.cjs");
 const modulePath = path.resolve(
   path.join(
     "node_modules",
@@ -22,6 +23,7 @@ const modulePublicFolder = path.join(
 );
 
 // arquivos que o servidor do usuario poderia ter
+const LOGS_DIR = "logs";
 let forbiddenFilePath = verifyHostedFiles("forbidden");
 let notfoundFilePath = verifyHostedFiles("not-found");
 let landingFilePath = verifyHostedFiles("index");
@@ -109,10 +111,11 @@ function validadeApiKey(req, res, key) {
   const authApi = keyHeader && key.includes(keyHeader);
 
   if (!authApi) {
-    forbidden(
-      res,
-      "Acesso negado para API Chave invalida para essa API! invalid or missing api key!",
-    );
+    forbidden(res, {
+      error:
+        "[npm-package-nodejs-utils-lda] [validadeApiKey] Acesso negado para API Chave invalida para essa API! Access denied for API. Invalid key for this API!",
+      keyHeader: keyHeader,
+    });
   }
 }
 
@@ -190,30 +193,6 @@ function serverTry(res, callback) {
   }
 }
 
-function requestStatus(response) {
-  const status = response.status;
-  const contentType = response.headers.get("content-type");
-
-  log(`Status da resposta: ${status} - ${response.statusText}`);
-  log(`Tipo de conteúdo: ${contentType}`);
-}
-
-function parseFetchResponse(response) {
-  const status = response.status;
-  const contentType = response.headers.get("content-type");
-
-  requestStatus(response);
-
-  // Verifica o tipo de conteúdo retornado
-  if (contentType && contentType.includes("application/json")) {
-    // Se for JSON, retorna o JSON
-    return response.json().then((data) => ({ data, status }));
-  } else {
-    // Se não for JSON, retorna o conteúdo como texto
-    return response.text().then((data) => ({ data, status }));
-  }
-}
-
 // utils.js ou no seu pacote
 function applyAutoMiddlewares(app) {
   const requestLogger = require("./requestLogger.cjs");
@@ -261,6 +240,71 @@ function exposeLogsFolder(app) {
 }
 
 /**
+ * Registra rota dinâmica para listagem e acesso aos logs
+ * @param {import("express").Express} app
+ * @returns {boolean}
+ */
+function logsDashboard(app) {
+  /**
+   * Lista arquivos da pasta /logs
+   */
+  app.get("/logs", async (req, res) => {
+    try {
+      const files = await fs.promises.readdir(LOGS_DIR);
+
+      const fileLinks = files
+        .map((file) => {
+          return `
+            <li class="list-group-item">
+              <a href="/logs/${file}" target="_blank">${file}</a>
+            </li>
+          `;
+        })
+        .join("");
+
+      res.status(200).send(`
+        <!doctype html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Logs Dashboard</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body class="bg-dark text-light">
+          <div class="container py-5">
+            <h1 class="mb-4">Logs Dashboard</h1>
+            <ul class="list-group">
+              ${fileLinks || "<li class='list-group-item'>Nenhum arquivo encontrado</li>"}
+            </ul>
+          </div>
+        </body>
+        </html>
+      `);
+    } catch (error) {
+      console.error("ERRO REAL:", error);
+      res.status(500).send("Erro ao listar arquivos.");
+    }
+  });
+
+  /**
+   * Permite acessar arquivos individuais
+   */
+  app.get("/logs/:filename", (req, res) => {
+    const filePath = path.join(LOGS_DIR, req.params.filename);
+
+    // Proteção contra path traversal
+    if (!filePath.startsWith(LOGS_DIR)) {
+      return res.status(403).send("Acesso negado.");
+    }
+
+    res.sendFile(filePath);
+  });
+
+  return true;
+}
+
+/**
  * Resume interfaces de rede sem dados sensíveis
  * @param {Object} interfaces
  * @return {{interfaces:number, ipv4:boolean, ipv6:boolean}}
@@ -285,6 +329,12 @@ function sanitizeNetworkInterfaces(interfaces) {
   };
 }
 
+function fileExistAndCreate(filePath,defaultContent = []) {
+  if (!fs.existsSync(filePath)) {
+    fwrite(filePath, defaultContent);
+  }
+}
+
 module.exports = {
   getRandomInt,
   getRandomBin,
@@ -300,12 +350,12 @@ module.exports = {
   sanitize,
   SanitizeXSS,
   serverTry,
-  requestStatus,
-  parseFetchResponse,
   applyAutoMiddlewares,
   exposeFolders,
   exposePublicFolder,
   exposeLogsFolder,
   sanitizeNetworkInterfaces,
   StatusDashboard,
+  logsDashboard,
+  fileExistAndCreate
 };
