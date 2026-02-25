@@ -10,6 +10,15 @@ function toMB(bytes) {
 }
 
 /**
+ * Converte bytes para GB
+ * @param {number} bytes
+ * @return {string}
+ */
+function toGB(bytes) {
+  return (bytes / 1024 / 1024/ 1024).toFixed(1) + " GB";
+}
+
+/**
  * Converte uptime em formato legível
  * @param {number} seconds
  * @return {string}
@@ -79,7 +88,8 @@ async function loadStatus() {
       createCard("Heap Used", toMB(data.memoryUsage.heapUsed)),
       createCard("Heap Total", toMB(data.memoryUsage.heapTotal)),
       createCard("RSS", toMB(data.memoryUsage.rss)),
-      createCard("Livre", toMB(data.freeMemory)),
+      createCard("Livre", data.freeMemoryGB + "GB"),
+      createCard("Total Memory", data.totalMemoryGB + "GB"),
     ]);
 
     // REDE (interfaces)
