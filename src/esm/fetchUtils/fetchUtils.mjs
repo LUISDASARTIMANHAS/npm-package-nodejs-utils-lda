@@ -1,4 +1,4 @@
-import { logError, log } from "../logger/index.cjs";
+import { logError, log } from "../logger/index.mjs";
 
 // ============================
 // FUNÇÕES INTERNAS
