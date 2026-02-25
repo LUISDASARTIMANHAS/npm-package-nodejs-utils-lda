@@ -54,7 +54,7 @@ function checkHeaderMiddleware(app) {
       log(`SYSTEM <CHECK> <GET>: ${req.url}`, logPath);
       log(`SYSTEM <ORIGEN>: ${origin}`, logPath);
       log(`SYSTEM <PAYLOAD>: ${payload}`, logPath);
-      log(`SYSTEM <HEADERS>: ${headers}`, logPath);
+      log(`SYSTEM <HEADERS>: ${JSON.stringify(headers)}`, logPath);
       log(`SYSTEM <REQUIRED VALID KEY>: ${blockRoutesPresent}, change in config.blockedRoutes`, logPath);
 
       SanitizeXSS(req.body);
