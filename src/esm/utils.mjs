@@ -58,6 +58,34 @@ function verifyHostedFiles(filePathName) {
   return filePath;
 }
 
+
+/**
+ * Converte bytes para KB
+ * @param {number} bytes
+ * @return {string}
+ */
+function toKB(bytes) {
+  return (bytes / 1024).toFixed(2);
+}
+
+/**
+ * Converte bytes para MB
+ * @param {number} bytes
+ * @return {string}
+ */
+function toMB(bytes) {
+  return (toKB(bytes) / 1024).toFixed(2);
+}
+
+/**
+ * Converte bytes para GB
+ * @param {number} bytes
+ * @return {string}
+ */
+function toGB(bytes) {
+  return (toMB(bytes) / 1024).toFixed(2);
+}
+
 export function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
@@ -167,7 +195,7 @@ export function landingPage(res) {
 
 export function StatusDashboard(app) {
   app.get("/", (req, res) => {
-    log(`{SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
+    log(`[SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
     landingPage(res);
   });
 
@@ -183,8 +211,8 @@ export function StatusDashboard(app) {
         memoryUsage: process.memoryUsage(),
         platform: os.platform(),
         cpuCores: os.cpus().length,
-        totalMemory: os.totalmem(),
-        freeMemory: os.freemem(),
+        totalMemoryGB: toGB(os.totalmem()),
+        freeMemoryGB: toGB(os.freemem()),
         network: sanitizeNetworkInterfaces(rawInterfaces),
       });
     } catch (e) {

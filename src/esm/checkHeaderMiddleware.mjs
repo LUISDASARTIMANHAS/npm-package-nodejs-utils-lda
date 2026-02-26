@@ -42,8 +42,8 @@ function checkHeaderMiddleware(app) {
       log("-------------------------", logPath);
       log(`SYSTEM <CHECK> <GET>: ${req.url}`, logPath);
       log(`SYSTEM <ORIGEN>: ${origin}`, logPath);
-      log(`SYSTEM <PAYLOAD>: ${payload}`, logPath);
-      log(`SYSTEM <HEADERS>: ${headers}`, logPath);
+      log(`SYSTEM <PAYLOAD>: ${payload}`, logPath,1000);
+      log(`SYSTEM <HEADERS>: ${JSON.stringify(headers)}`, logPath,2000);
       log(`SYSTEM <REQUIRED VALID KEY>: ${blockRoutesPresent}, change in config.blockedRoutes`, logPath);
 
       SanitizeXSS(req.body);
@@ -84,7 +84,7 @@ function checkConfigIntegrity() {
   // verifica se blockedRoutes não existe
   if (!configs.blockedRoutes) {
     // caso não exista configura para uma rota padrão
-    configs.blockedRoutes = ["/default/api"];
+    configs.blockedRoutes = ["/default/api","/api/auth"];
     // salva novamente
     fwrite("config.json", configs);
   }

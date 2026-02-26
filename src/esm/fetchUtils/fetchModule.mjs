@@ -19,7 +19,7 @@ export function fetchDownloadStream(url,header, callback) {
     };
     log(`Iniciando download: ${url}`, logPath);
 
-    fetch(url)
+    fetch(url,requestOptions)
       .then((response) => {
         requestStatus(response);
         if (!response.ok) {

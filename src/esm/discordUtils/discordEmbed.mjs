@@ -1,20 +1,22 @@
-import { fopen, fwrite } from "../autoFileSysModule.mjs";
+import { fopen, fwrite } from "../autoFileSysModule.mjs"
 import { configExist } from "../configHelper.mjs";
 
 configExist();
 
-export function setEmbed(title, description, colorHex, footerText, footerURL) {
+function setEmbed(title, description, colorHex, footerText, footerURL) {
   checkConfigIntegrity();
   const date = new Date();
   const ano = date.getFullYear();
-	const configs = fopen("config.json").discordLogs;
+  const configs = fopen("config.json").discordLogs;
   const embed = {
     title: title,
     description: description,
     color: parseInt(colorHex, 16) || configs.color,
     timestamp: date, // Adiciona um timestamp atual
     footer: {
-      text: `₢All rights reserved - ${ano} - ${footerText || configs.footerText}`,
+      text: `₢All rights reserved - ${ano} - ${
+        footerText || configs.footerText
+      }`,
       icon_url: footerURL || configs.footerURL,
     },
   };
@@ -46,3 +48,5 @@ function checkConfigIntegrity() {
     fwrite("config.json", configs);
   }
 }
+
+export default setEmbed;

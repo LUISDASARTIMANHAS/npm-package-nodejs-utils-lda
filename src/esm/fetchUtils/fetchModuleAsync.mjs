@@ -1,8 +1,7 @@
 import fetch from 'node-fetch';
-import { parseFetchResponse } from '../utils.mjs';
 import { log, logError } from "../logger/index.mjs";
 import { configExist } from "../configHelper.mjs";
-import { buildHeaders, checkArgs } from './fetchUtils.mjs';
+import { buildHeaders, checkArgs, parseFetchResponse } from './fetchUtils.mjs';
 
 const logPath = 'server-requests.txt';
 configExist();
