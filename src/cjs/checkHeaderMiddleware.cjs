@@ -2,7 +2,8 @@ const {
   forbidden,
   validadeApiKey,
   SanitizeXSS,
-  exposeFolders,
+  exposePublicFolder,
+  exposeLogsFolder,
 } = require("./utils.cjs");
 const { fopen, fwrite } = require("./autoFileSysModule.cjs");
 const path = require("path");
@@ -10,15 +11,7 @@ const { env } = require("process");
 const dotenv = require("dotenv");
 const { configExist } = require("./configHelper.cjs");
 const { log, logError } = require("./logger/index.cjs");
-const logPath = "headerSys.txt";
-// isso deixara os arquivos estaticos na raiz usando app.use(express.static(publicItens)) ex: /not-found.html
-const publicItens = path.join(
-  "node_modules",
-  "npm-package-nodejs-utils-lda",
-  "src",
-  "public"
-);
-const pathToPublicFolder = path.join("public");
+const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();
@@ -29,36 +22,40 @@ checkConfigIntegrity();
 
 function checkHeaderMiddleware(app) {
   // DEFAULT STATIC PUBLIC ITENS
-  exposeFolders(app,publicItens);
-  exposeFolders(app,pathToPublicFolder);
+  exposePublicFolder(app);
+  exposeLogsFolder(app);
 
-  // Middleware para configurar o tipo de conteúdo como JSON
+  // Middleware para verificar a presença do header de autorização em rotas específicas
   app.all("/api/*name", (req, res, next) => {
     if (!req.headers["authorization"]) {
-      logError(`SYSTEM NOT FOUND KEY_${req.headers["authorization"]}`,logPath);
+      logError(`SYSTEM NOT FOUND KEY_${req.headers["authorization"]}`, logPath);
       return forbidden(
         res,
-        "Autorização de acesso minima faltante para essa rota! authorization is null!"
+        "[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] Autorização de acesso minima faltante para essa rota! Minimum access authorization is missing for this route!",
       );
     }
     res.set("Content-Type", "application/json");
     next();
   });
 
+  // requires API key validation, while other routes just log the request and sanitize input
   app.all("/*name", (req, res, next) => {
     const origin = req.headers.referer || req.headers.referrer;
     const blockRoutesPresent = isBlockedRoute(req);
     const payload = JSON.stringify(req.body, null, 2);
+    const headers = req.headers;
 
     // Combinar chaves padrão e do .env filtradas
     const keys = getKeys();
     if (blockRoutesPresent) {
       return validadeApiKey(req, res, keys);
     } else {
-      log("-------------------------",logPath);
-      log(`SYSTEM <CHECK> <GET>: ${req.url}`,logPath);
-      log(`SYSTEM <PAYLOAD>: ${payload}`,logPath);
-      log(`SYSTEM <ORIGEM>: ${origin}`,logPath);
+      log("-------------------------", logPath);
+      log(`SYSTEM <CHECK> <GET>: ${req.url}`, logPath);
+      log(`SYSTEM <ORIGEN>: ${origin}`, logPath);
+      log(`SYSTEM <PAYLOAD>: ${payload}`, logPath);
+      log(`SYSTEM <HEADERS>: ${JSON.stringify(headers)}`, logPath,2000);
+      log(`SYSTEM <REQUIRED VALID KEY>: ${blockRoutesPresent}, change in config.blockedRoutes`, logPath);
 
       SanitizeXSS(req.body);
       next();
@@ -81,7 +78,9 @@ function getKeys() {
   // Obter as entradas do objeto 'env'
   const environmentEntries = Object.entries(env);
   // Filtrar apenas as chaves que começam com 'KEY_'
-  const keyEntries = environmentEntries.filter(([key, _]) => key.startsWith("KEY_"));
+  const keyEntries = environmentEntries.filter(([key, _]) =>
+    key.startsWith("KEY_"),
+  );
   // Extrair apenas os valores das chaves filtradas
   const extractedKeys = keyEntries.map(([_, value]) => value);
 
@@ -91,14 +90,13 @@ function getKeys() {
   return finalKeys;
 }
 
-
 function checkConfigIntegrity() {
   // obtem config.json
   const configs = fopen("config.json");
   // verifica se blockedRoutes não existe
   if (!configs.blockedRoutes) {
     // caso não exista configura para uma rota padrão
-    configs.blockedRoutes = ["/default/api"];
+    configs.blockedRoutes = ["/default/api","/api/auth"];
     // salva novamente
     fwrite("config.json", configs);
   }
