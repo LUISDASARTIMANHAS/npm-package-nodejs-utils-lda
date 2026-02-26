@@ -175,7 +175,7 @@ function landingPage(res) {
 
 function StatusDashboard(app) {
   app.get("/", (req, res) => {
-    log(`{SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
+    log(`[SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
     landingPage(res);
   });
 

@@ -195,7 +195,7 @@ export function landingPage(res) {
 
 export function StatusDashboard(app) {
   app.get("/", (req, res) => {
-    log(`{SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
+    log(`[SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
     landingPage(res);
   });
 
