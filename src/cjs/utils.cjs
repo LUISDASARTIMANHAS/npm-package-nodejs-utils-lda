@@ -4,6 +4,7 @@ const os = require("os");
 const express = require("express");
 const { fwrite, autoLoader } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
+const { log, logError } = require("./logger/index.cjs");
 const modulePath = path.resolve(
   path.join(
     "node_modules",
@@ -13,7 +14,16 @@ const modulePath = path.resolve(
     "pages",
   ),
 );
+
+const modulePublicFolder = path.join(
+  "node_modules",
+  "npm-package-nodejs-utils-lda",
+  "src",
+  "public",
+);
+
 // arquivos que o servidor do usuario poderia ter
+const LOGS_DIR = "logs";
 let forbiddenFilePath = verifyHostedFiles("forbidden");
 let notfoundFilePath = verifyHostedFiles("not-found");
 let landingFilePath = verifyHostedFiles("index");
@@ -36,6 +46,33 @@ function verifyHostedFiles(filePathName) {
     filePath = defaultForbiddenFilePath;
   }
   return filePath;
+}
+
+/**
+ * Converte bytes para KB
+ * @param {number} bytes
+ * @return {string}
+ */
+function toKB(bytes) {
+  return (bytes / 1024).toFixed(2);
+}
+
+/**
+ * Converte bytes para MB
+ * @param {number} bytes
+ * @return {string}
+ */
+function toMB(bytes) {
+  return (toKB(bytes) / 1024).toFixed(2);
+}
+
+/**
+ * Converte bytes para GB
+ * @param {number} bytes
+ * @return {string}
+ */
+function toGB(bytes) {
+  return (toMB(bytes) / 1024).toFixed(2);
 }
 
 function getRandomInt(max) {
@@ -101,10 +138,11 @@ function validadeApiKey(req, res, key) {
   const authApi = keyHeader && key.includes(keyHeader);
 
   if (!authApi) {
-    forbidden(
-      res,
-      "Acesso negado para API Chave invalida para essa API! invalid or missing api key!",
-    );
+    forbidden(res, {
+      error:
+        "[npm-package-nodejs-utils-lda] [validadeApiKey] Acesso negado para API Chave invalida para essa API! Access denied for API. Invalid key for this API!",
+      keyHeader: keyHeader,
+    });
   }
 }
 
@@ -135,10 +173,9 @@ function landingPage(res) {
   res.sendFile(landingFilePath);
 }
 
-
 function StatusDashboard(app) {
   app.get("/", (req, res) => {
-    log(`{SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
+    log(`[SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
     landingPage(res);
   });
 
@@ -154,8 +191,8 @@ function StatusDashboard(app) {
         memoryUsage: process.memoryUsage(),
         platform: os.platform(),
         cpuCores: os.cpus().length,
-        totalMemory: os.totalmem(),
-        freeMemory: os.freemem(),
+        totalMemoryGB: toGB(os.totalmem()),
+        freeMemoryGB: toGB(os.freemem()),
         network: sanitizeNetworkInterfaces(rawInterfaces),
       });
     } catch (e) {
@@ -183,30 +220,6 @@ function serverTry(res, callback) {
   }
 }
 
-function requestStatus(response) {
-  const status = response.status;
-  const contentType = response.headers.get("content-type");
-
-  log(`Status da resposta: ${status} - ${response.statusText}`);
-  log(`Tipo de conteúdo: ${contentType}`);
-}
-
-function parseFetchResponse(response) {
-  const status = response.status;
-  const contentType = response.headers.get("content-type");
-
-  requestStatus(response);
-
-  // Verifica o tipo de conteúdo retornado
-  if (contentType && contentType.includes("application/json")) {
-    // Se for JSON, retorna o JSON
-    return response.json().then((data) => ({ data, status }));
-  } else {
-    // Se não for JSON, retorna o conteúdo como texto
-    return response.text().then((data) => ({ data, status }));
-  }
-}
-
 // utils.js ou no seu pacote
 function applyAutoMiddlewares(app) {
   const requestLogger = require("./requestLogger.cjs");
@@ -225,16 +238,95 @@ function applyAutoMiddlewares(app) {
   );
 }
 
-function exposeFolders(app, folderPath) {
+function exposeFolders(app, folderPath, route) {
   // Resolve o caminho combinando o local do arquivo atual com a pasta desejada
   const absolutePath = path.isAbsolute(folderPath)
     ? folderPath
     : path.resolve(folderPath);
+  const sanitizedRoute = route || "/";
 
   console.log(`\n\t[SYSTEM] AUTO EXPOSE FOLDER: ${absolutePath}`);
 
   // É recomendável usar o caminho absoluto aqui também para evitar erros de runtime
-  app.use(express.static(absolutePath));
+  app.use(sanitizedRoute, express.static(absolutePath));
+
+  return true;
+}
+
+function exposePublicFolder(app) {
+  const publicItens = path.join("public");
+  const route = "/public";
+  exposeFolders(app, publicItens, route);
+  exposeFolders(app, modulePublicFolder, route);
+}
+
+function exposeLogsFolder(app) {
+  const publicItens = path.join("logs");
+  const route = "/logs";
+  exposeFolders(app, publicItens, route);
+}
+
+/**
+ * Registra rota dinâmica para listagem e acesso aos logs
+ * @param {import("express").Express} app
+ * @returns {boolean}
+ */
+function logsDashboard(app) {
+  /**
+   * Lista arquivos da pasta /logs
+   */
+  app.get("/logs", async (req, res) => {
+    try {
+      const files = await fs.promises.readdir(LOGS_DIR);
+
+      const fileLinks = files
+        .map((file) => {
+          return `
+            <li class="list-group-item">
+              <a href="/logs/${file}" target="_blank">${file}</a>
+            </li>
+          `;
+        })
+        .join("");
+
+      res.status(200).send(`
+        <!doctype html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Logs Dashboard</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body class="bg-dark text-light">
+          <div class="container py-5">
+            <h1 class="mb-4">Logs Dashboard</h1>
+            <ul class="list-group">
+              ${fileLinks || "<li class='list-group-item'>Nenhum arquivo encontrado</li>"}
+            </ul>
+          </div>
+        </body>
+        </html>
+      `);
+    } catch (error) {
+      console.error("ERRO REAL:", error);
+      res.status(500).send("Erro ao listar arquivos.");
+    }
+  });
+
+  /**
+   * Permite acessar arquivos individuais
+   */
+  app.get("/logs/:filename", (req, res) => {
+    const filePath = path.join(LOGS_DIR, req.params.filename);
+
+    // Proteção contra path traversal
+    if (!filePath.startsWith(LOGS_DIR)) {
+      return res.status(403).send("Acesso negado.");
+    }
+
+    res.sendFile(filePath);
+  });
 
   return true;
 }
@@ -264,6 +356,12 @@ function sanitizeNetworkInterfaces(interfaces) {
   };
 }
 
+function fileExistAndCreate(filePath,defaultContent = []) {
+  if (!fs.existsSync(filePath)) {
+    fwrite(filePath, defaultContent);
+  }
+}
+
 module.exports = {
   getRandomInt,
   getRandomBin,
@@ -279,10 +377,12 @@ module.exports = {
   sanitize,
   SanitizeXSS,
   serverTry,
-  requestStatus,
-  parseFetchResponse,
   applyAutoMiddlewares,
   exposeFolders,
+  exposePublicFolder,
+  exposeLogsFolder,
   sanitizeNetworkInterfaces,
   StatusDashboard,
+  logsDashboard,
+  fileExistAndCreate
 };
