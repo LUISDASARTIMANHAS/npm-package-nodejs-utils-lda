@@ -13,6 +13,9 @@ function getChannelsCount(bot);
 function getGuildsCount(bot);
 function getBotTag(bot);
 function getBotPermissionsByInteraction(interaction);
+function changeStatus(bot);
+async function verifyManageMessagesInInteraction(interaction);
+async function validateInteractionChannel(interaction);
 async function replyWarning(interaction, message, isPrivate = true);
 
 // interactionGetters
