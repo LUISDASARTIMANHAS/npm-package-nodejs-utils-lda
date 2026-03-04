@@ -13,6 +13,7 @@ function getChannelsCount(bot);
 function getGuildsCount(bot);
 function getBotTag(bot);
 function getBotPermissionsByInteraction(interaction);
+function renderTemplate(template, variables);
 function changeStatus(bot);
 async function verifyManageMessagesInInteraction(interaction);
 async function validateInteractionChannel(interaction);
