@@ -1,6 +1,12 @@
 import { ChannelType, PermissionsBitField, ActivityType } from "discord.js";
 import { getGuildByInteraction } from "./interactionGetters.mjs";
-import { fileExistAndCreate } from "../utils.mjs";
+import { fileExistAndCreate, getRandomInt } from "../utils.mjs";
+import { fopen } from "../autoFileSysModule.mjs";
+
+// exporters pre commands
+export * from "./setStatus.mjs";
+export * from "./exec.mjs";
+
 
 /**
  * Retorna o número de usuários que o bot consegue ver.

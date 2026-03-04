@@ -3,7 +3,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 let setStatusCommand = new SlashCommandBuilder()
 	.setName("set-status")
-	.setDescription("Usado para definir o status do bot.")
+	.setDescription("Usado para definir o status do bot. // Used to define the bot's status.")
 	.addStringOption((option) =>
 		option
 			.setName("status")
@@ -15,23 +15,23 @@ let setStatusCommand = new SlashCommandBuilder()
 					value: "online",
 				},
 				{
-					name: "Não pertubar",
+					name: "Do not disturb",
 					value: "dnd",
 				},
 				{
-					name: "Ausente",
+					name: "idle",
 					value: "idle",
 				},
 				{
-					name: "Invisível",
+					name: "invisible",
 					value: "invisible",
 				},
 			),
 	)
 	.addStringOption((option) =>
 		option
-			.setName("descrição")
-			.setDescription("Qual a descrição do status?")
+			.setName("description")
+			.setDescription("Qual a descrição do status? // What is the status description?")
 			.setRequired(true),
 	);
 setStatusCommand = setStatusCommand.toJSON();
@@ -41,7 +41,7 @@ function handleSetStatus(interaction) {
 		const configs = fopen("./data/status.json");
 		const options = interaction.options;
 		const status = options.get("status").value;
-		const descricao = options.get("descrição").value;
+		const descricao = options.get("description").value;
 		configs.description = descricao;
 		configs.typeStatus = status;
 

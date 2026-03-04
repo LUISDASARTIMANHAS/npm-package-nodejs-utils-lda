@@ -362,6 +362,25 @@ function fileExistAndCreate(filePath,defaultContent = []) {
   }
 }
 
+/**
+ * Executa um comando no Windows CMD e retorna a saída.
+ * @param {string} cmd - O comando CMD a ser executado.
+ * @returns {Promise<string>} - A saída do comando.
+ */
+export async function execCmd(cmd) {
+  if (bloqueados.some((p) => cmd.toLowerCase().includes(p))) {
+    throw new Error(`This command is dangerous and has been blocked.
+      🚫 Esse comando é perigoso e foi bloqueado.`);
+  }
+  return new Promise((resolve, reject) => {
+    exec(cmd, { shell: "cmd.exe" }, (error, stdout, stderr) => {
+      if (error) return reject(stderr || error.message);
+      resolve(stdout || `Command executed with no output.
+        Comando executado sem saída.`);
+    });
+  });
+}
+
 module.exports = {
   getRandomInt,
   getRandomBin,
@@ -384,5 +403,6 @@ module.exports = {
   sanitizeNetworkInterfaces,
   StatusDashboard,
   logsDashboard,
-  fileExistAndCreate
+  fileExistAndCreate,
+  execCmd
 };

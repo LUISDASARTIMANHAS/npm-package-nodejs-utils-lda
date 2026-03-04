@@ -10,6 +10,8 @@ import setCacheHeaders from "./cacheSys.mjs";
 import httpsSecurityMiddleware from "./httpsSecurity.mjs";
 import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import { fileURLToPath } from "url";
+import { exec } from "child_process";
+const bloqueados = ["cd", "format", "shutdown", "rd", "del", "rmdir", "erase"];
 const modulePath = path.resolve(
   path.join(
     "node_modules",
@@ -367,4 +369,23 @@ export function fileExistAndCreate(filePath,defaultContent = []) {
   if (!fs.existsSync(filePath)) {
     fwrite(filePath, defaultContent);
   }
+}
+
+/**
+ * Executa um comando no Windows CMD e retorna a saída.
+ * @param {string} cmd - O comando CMD a ser executado.
+ * @returns {Promise<string>} - A saída do comando.
+ */
+export async function execCmd(cmd) {
+	if (bloqueados.some((p) => cmd.toLowerCase().includes(p))) {
+		throw new Error(`This command is dangerous and has been blocked.
+			🚫 Esse comando é perigoso e foi bloqueado.`);
+	}
+	return new Promise((resolve, reject) => {
+		exec(cmd, { shell: "cmd.exe" }, (error, stdout, stderr) => {
+			if (error) return reject(stderr || error.message);
+			resolve(stdout || `Command executed with no output.
+				Comando executado sem saída.`);
+		});
+	});
 }
