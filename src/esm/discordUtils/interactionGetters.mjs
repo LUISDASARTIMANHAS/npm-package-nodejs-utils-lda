@@ -206,6 +206,7 @@ export function isDM(interaction) {
  * @returns {object}
  */
 export function getInteractionSummary(interaction) {
+  console.log("\n[getInteractionSummary]:\n");
   return {
     guildId: getGuildIdByInteraction(interaction),
     guildName: getGuildNameByInteraction(interaction),

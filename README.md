@@ -12,6 +12,10 @@ automatic generation of AES + RSA KEYS FOR ENCRYPTION
 ## Functions
 [FUNCTIONS](./functionsList.md)
 
+# Discord Utils
+
+[DiscordUtils](./discordUtils.md)
+
 ## self-hosted status dashboard
 
 The dashboard uses the /status route, automatically created with the function StatusDashboard(app). This means you can also use the endpoint, but don't overwrite it.

@@ -52,3 +52,7 @@ function exposePublicFolder(app);
 function exposeLogsFolder(app);
 function fileExistAndCreate(filePath,defaultContent = []);
 ```
+
+# Discord Utils
+
+[discordUtils](./discordUtils.md)
