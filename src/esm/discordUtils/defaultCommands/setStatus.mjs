@@ -1,4 +1,4 @@
-import { fopen, fwrite } from "../autoFileSysModule.mjs"
+import { fopen, fwrite } from "../../autoFileSysModule.mjs"
 import { SlashCommandBuilder } from "@discordjs/builders";
 
 let setStatusCommand = new SlashCommandBuilder()

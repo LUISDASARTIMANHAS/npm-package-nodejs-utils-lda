@@ -1,12 +1,13 @@
 import { ChannelType, PermissionsBitField, ActivityType } from "discord.js";
-import { getGuildByInteraction } from "./interactionGetters.mjs";
-import { fileExistAndCreate, getRandomInt } from "../utils.mjs";
+import { getGuildByInteraction, isDM } from "./interactionGetters.mjs";
+import { execCmd, fileExistAndCreate, getRandomInt } from "../utils.mjs";
 import { fopen } from "../autoFileSysModule.mjs";
 
 // exporters pre commands
-export * from "./setStatus.mjs";
-export * from "./exec.mjs";
-
+export * from "./defaultCommands/setStatus.mjs";
+export * from "./defaultCommands/exec.mjs";
+export * from "./defaultCommands/nslookup.mjs";
+export * from "./defaultCommands/tracert.mjs";
 
 /**
  * Retorna o número de usuários que o bot consegue ver.
@@ -218,4 +219,20 @@ export async function replyWarning(interaction, message, isPrivate = true) {
     content: `:warning: ${message}`,
     flags: isPrivate ? 64 : 0, // 64 = EPHEMERAL
   });
+}
+
+export async function discordHandleExecTemplate(execCommand) {
+  try {
+    await interaction.reply(`⏳ Executing ${execCommand}...
+				⏳ Executando ${execCommand}...`);
+    const resultado = await execCmd(execCommand);
+    await interaction.editReply({
+      content: `🖥️ ${execCommand}:\n\`\`\`\n${resultado.slice(0, 1900)}\n\`\`\``,
+    });
+  } catch (err) {
+    console.error(err);
+    await interaction.editReply({
+      content: `⚠️ Error while running/Erro ao executar:\n\`\`\`\n${(err.message || String(err)).slice(0, 1900)}\n\`\`\``,
+    });
+  }
 }
