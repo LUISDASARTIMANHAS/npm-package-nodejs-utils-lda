@@ -20,7 +20,7 @@ async function handleTracert(interaction) {
   if (interaction.commandName === "tracert") {
     const domain = interaction.options.getString("domain");
 
-    await discordHandleExecTemplate(`tracert ${domain}`);
+    await discordHandleExecTemplate(interaction, `tracert ${domain}`);
   }
 }
 

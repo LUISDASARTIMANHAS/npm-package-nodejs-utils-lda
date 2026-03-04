@@ -221,7 +221,7 @@ export async function replyWarning(interaction, message, isPrivate = true) {
   });
 }
 
-export async function discordHandleExecTemplate(execCommand) {
+export async function discordHandleExecTemplate(interaction, execCommand) {
   try {
     await interaction.reply(`⏳ Executing ${execCommand}...
 				⏳ Executando ${execCommand}...`);

@@ -18,7 +18,7 @@ async function handleNslookup(interaction) {
   if (interaction.commandName === "nslookup") {
     const domain = interaction.options.getString("domain");
 
-    await discordHandleExecTemplate(`nslookup ${domain}`);
+    await discordHandleExecTemplate(interaction, `nslookup ${domain}`);
   }
 }
 export { nslookupCommand, handleNslookup };

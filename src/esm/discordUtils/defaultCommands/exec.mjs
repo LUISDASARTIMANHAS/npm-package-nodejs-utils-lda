@@ -25,7 +25,5 @@ export async function handleExec(interaction) {
   if (interaction.commandName !== "exec") return;
 
   const comando = interaction.options.getString("command");
-	await discordHandleExecTemplate(comando)
+  await discordHandleExecTemplate(interaction, comando);
 }
-
-
