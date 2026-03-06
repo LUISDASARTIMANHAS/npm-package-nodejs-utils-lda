@@ -367,7 +367,7 @@ function fileExistAndCreate(filePath,defaultContent = []) {
  * @param {string} cmd - O comando CMD a ser executado.
  * @returns {Promise<string>} - A saída do comando.
  */
-export async function execCmd(cmd) {
+async function shell(cmd) {
   if (bloqueados.some((p) => cmd.toLowerCase().includes(p))) {
     throw new Error(`This command is dangerous and has been blocked.
       🚫 Esse comando é perigoso e foi bloqueado.`);
@@ -404,5 +404,5 @@ module.exports = {
   StatusDashboard,
   logsDashboard,
   fileExistAndCreate,
-  execCmd
+  shell
 };

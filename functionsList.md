@@ -35,7 +35,7 @@ function spaceUsed(space, used);
 function serverTry(res,callback)
 function sendFileToDiscord(file, webhookUrl);
 function log(message, filepath = "logs.txt", maxLength = 100);
-async function execCmd(cmd);
+async function shell(cmd);
 
 // OTP AUTH AND MAIL
 async function requestAuthCode(email, ttlMin = 5);

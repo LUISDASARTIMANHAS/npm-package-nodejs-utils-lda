@@ -60,7 +60,6 @@ function verifyHostedFiles(filePathName) {
   return filePath;
 }
 
-
 /**
  * Converte bytes para KB
  * @param {number} bytes
@@ -279,7 +278,6 @@ export function exposeLogsFolder(app) {
  * @returns {boolean}
  */
 export function logsDashboard(app) {
-
   /**
    * Lista arquivos da pasta /logs
    */
@@ -288,7 +286,7 @@ export function logsDashboard(app) {
       const files = await fs.promises.readdir(LOGS_DIR);
 
       const fileLinks = files
-        .map(file => {
+        .map((file) => {
           return `
             <li class="list-group-item">
               <a href="/logs/${file}" target="_blank">${file}</a>
@@ -316,7 +314,6 @@ export function logsDashboard(app) {
         </body>
         </html>
       `);
-
     } catch (error) {
       console.error("ERRO REAL:", error);
       res.status(500).send("Erro ao listar arquivos.");
@@ -365,27 +362,49 @@ export function sanitizeNetworkInterfaces(interfaces) {
   };
 }
 
-export function fileExistAndCreate(filePath,defaultContent = []) {
+export function fileExistAndCreate(filePath, defaultContent = []) {
   if (!fs.existsSync(filePath)) {
     fwrite(filePath, defaultContent);
   }
 }
 
 /**
- * Executa um comando no Windows CMD e retorna a saída.
- * @param {string} cmd - O comando CMD a ser executado.
- * @returns {Promise<string>} - A saída do comando.
+ * Sanitiza o input do usuário, permitindo apenas caracteres seguros.
+ * Remove qualquer coisa que possa ser interpretada como comando shell.
+ * @param {string} input
+ * @returns {string} input sanitizado
  */
-export async function execCmd(cmd) {
-	if (bloqueados.some((p) => cmd.toLowerCase().includes(p))) {
-		throw new Error(`This command is dangerous and has been blocked.
-			🚫 Esse comando é perigoso e foi bloqueado.`);
-	}
-	return new Promise((resolve, reject) => {
-		exec(cmd, { shell: "cmd.exe" }, (error, stdout, stderr) => {
-			if (error) return reject(stderr || error.message);
-			resolve(stdout || `Command executed with no output.
-				Comando executado sem saída.`);
-		});
-	});
+function sanitizeInput(input) {
+  if (typeof input !== "string") throw new Error("Input must be a string");
+  // permite apenas letras, números, pontos, hífens e dois-pontos (para IPs)
+  const sanitized = input.replace(/[^a-zA-Z0-9.-:]/g, "");
+  if (!sanitized) throw new Error("Invalid input after sanitization");
+  return sanitized;
+}
+
+/**
+ * Executa um comando no Windows CMD de forma segura.
+ * @param {string} cmd - comando base (ex: "nslookup")
+ * @param {string[]} args - argumentos do comando (ex: ["google.com"])
+ * @returns {Promise<string>} - saída do comando
+ */
+export async function shell(cmd, args = []) {
+  // valida o comando base
+  const cmdLower = cmd.toLowerCase();
+  if (bloqueados.some((p) => cmdLower.includes(p))) {
+    throw new Error(`This command is blocked for safety. 🚫`);
+  }
+
+  // sanitiza todos os argumentos
+  const safeArgs = args.map((a) => sanitizeInput(a));
+
+  return new Promise((resolve, reject) => {
+    // monta o comando seguro
+    const fullCmd = [cmd, ...safeArgs].join(" ");
+
+    exec(fullCmd, { shell: "cmd.exe" }, (error, stdout, stderr) => {
+      if (error) return reject(stderr || error.message);
+      resolve(stdout || "Command executed with no output.");
+    });
+  });
 }

@@ -73,7 +73,7 @@ const {
   exposeLogsFolder,
   logsDashboard,
   fileExistAndCreate,
-  execCmd,
+  shell,
 } = require("./utils.cjs");
 
 const { requestLogger } = require("./requestLogger.cjs");
@@ -158,7 +158,7 @@ module.exports = {
   exposeLogsFolder,
   logsDashboard,
   fileExistAndCreate,
-  execCmd,
+  shell,
 
   // User system
   insertUser,

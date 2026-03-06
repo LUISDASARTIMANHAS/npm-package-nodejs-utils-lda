@@ -1,6 +1,6 @@
 import { ChannelType, PermissionsBitField, ActivityType } from "discord.js";
 import { getGuildByInteraction, isDM } from "./interactionGetters.mjs";
-import { execCmd, fileExistAndCreate, getRandomInt } from "../utils.mjs";
+import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
 import { fopen } from "../autoFileSysModule.mjs";
 
 // exporters pre commands
@@ -223,8 +223,13 @@ export async function replyWarning(interaction, message, isPrivate = true) {
 
 export async function discordHandleExecTemplate(interaction, execCommand) {
   try {
-    await interaction.reply(`⏳ Executing ${execCommand}...
-				⏳ Executando ${execCommand}...`);
+    // avisar que vai responder depois, isso invalida .reply()
+    await interaction.deferReply();
+
+    // mostra mensagem de processamento
+    await interaction.editReply(`⏳ Executing ${execCommand}...
+		⏳ Executando ${execCommand}...`);
+
     const resultado = await execCmd(execCommand);
     await interaction.editReply({
       content: `🖥️ ${execCommand}:\n\`\`\`\n${resultado.slice(0, 1900)}\n\`\`\``,
@@ -236,3 +241,4 @@ export async function discordHandleExecTemplate(interaction, execCommand) {
     });
   }
 }
+
