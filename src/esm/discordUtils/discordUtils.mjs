@@ -2,7 +2,7 @@ import { ChannelType, PermissionsBitField, ActivityType } from "discord.js";
 import { getGuildByInteraction, isDM } from "./interactionGetters.mjs";
 import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
 import { fopen } from "../autoFileSysModule.mjs";
-
+import os from "os";
 // exporters pre commands
 export * from "./defaultCommands/setStatus.mjs";
 export * from "./defaultCommands/exec.mjs";
@@ -91,6 +91,7 @@ export function changeStatus(bot) {
   });
   fileExistAndCreate(ActivitiesFile, [
     "${guildsCount} servers!",
+    "${os.hostname}",
     "${description} - ${ano}",
     "${channelsCount} channels!",
     "${description} - ${ano}",
@@ -230,7 +231,7 @@ export async function discordHandleExecTemplate(interaction, execCommand) {
     await interaction.editReply(`⏳ Executing ${execCommand}...
 		⏳ Executando ${execCommand}...`);
 
-    const resultado = await execCmd(execCommand);
+    const resultado = await shell(execCommand);
     await interaction.editReply({
       content: `🖥️ ${execCommand}:\n\`\`\`\n${resultado.slice(0, 1900)}\n\`\`\``,
     });
