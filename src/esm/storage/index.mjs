@@ -1,3 +1,5 @@
+// src\esm\storage\index.mjs
+import storageRouter from "./storageRoutes.mjs";
 import multer from "multer";
 import { createDiskStorage } from "./diskStorageFactory.mjs";
 import { fileTypeValidator } from "./validators.mjs";
@@ -32,3 +34,17 @@ export const saveBot = multer({
     "application/octet-stream",
   ]),
 });
+
+// ROTAS MANAGER, NÃO USAR LOGICA AQUI, APENAS GERENCIAR AS ROTAS E CHAMAR AS FUNÇÕES DE OUTROS ARQUIVOS
+// POR EXEMPLO router.use("/api/ENDPOINT",arquivoDeCrudDeRotas);
+/**
+ * Registra rotas de storage no router principal
+ * @param {import("express").Router} router
+ * @returns {import("express").Router}
+ */
+export async function apiStorageRoutes(mainRouter) {
+
+  mainRouter.use("/api/storage", storageRouter);
+
+  return mainRouter;
+}

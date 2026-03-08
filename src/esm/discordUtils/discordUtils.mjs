@@ -91,7 +91,7 @@ export function changeStatus(bot) {
   });
   fileExistAndCreate(ActivitiesFile, [
     "${guildsCount} servers!",
-    "${os.hostname}",
+    "${hostname}",
     "${description} - ${ano}",
     "${channelsCount} channels!",
     "${description} - ${ano}",
@@ -109,6 +109,7 @@ export function changeStatus(bot) {
   const description = configs.description || "Status";
   const status = configs.typeStatus || "idle";
   const dataTime = date.toLocaleString("pt-BR");
+  const hostname = os.hostname();
   // Seleciona uma atividade aleatória
   const rawActivity = atividades[getRandomInt(atividades.length)];
 
@@ -139,6 +140,7 @@ export function changeStatus(bot) {
     },
     { name: randomActivity, type: ActivityType.Watching },
     { name: `${dataTime}`, type: ActivityType.Watching },
+    { name: `${hostname}`, type: ActivityType.Watching },
   ];
   const statusOptionsLength = statusOptions.length;
   const randomOption = getRandomInt(statusOptionsLength);
