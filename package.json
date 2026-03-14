@@ -27,7 +27,10 @@
     "url": "https://github.com/LUISDASARTIMANHAS/npm-package-nodejs-utils/issues"
   },
   "dependencies": {
+    "@discordjs/builders": "^1.13.1",
+    "@discordjs/rest": "^2.6.0",
     "@google/genai": "^1.38.0",
+    "child_process": "^1.0.2",
     "cors": "^2.8.6",
     "discord.js": "^14.25.1",
     "dotenv": "^17.2.3",

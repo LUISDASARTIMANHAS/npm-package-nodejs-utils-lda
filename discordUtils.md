@@ -14,6 +14,7 @@ function getGuildsCount(bot);
 function getBotTag(bot);
 function renderTemplate(template, variables);
 function changeStatus(bot);
+async function commandsSYNC(token,CLIENT_ID,restartSec);
 async function validateInteractionChannel(interaction);
 async function replyWarning(interaction, message, isPrivate = true);
 
@@ -29,13 +30,13 @@ async function verifyBanInInteraction(interaction);
 /* -----------------------------
 	MODERATION
 ----------------------------- */
-export async function executeModerationAction(interaction, targetUser, options);
-export async function banUser(interaction, targetUser, reason);
-export async function kickUser(interaction, targetUser, reason);
-export async function timeoutUser(interaction, targetUser, reason);
+async function executeModerationAction(interaction, targetUser, options);
+async function banUser(interaction, targetUser, reason);
+async function kickUser(interaction, targetUser, reason);
+async function timeoutUser(interaction, targetUser, reason);
 
 // implementsCommands
-export const defaultCommandHandlers = {
+const defaultCommandHandlers = {
 	ping: handlePing,
 	setstatus: handleSetStatus,
 	exec: handleExec,
@@ -43,7 +44,7 @@ export const defaultCommandHandlers = {
 	tracert: handleTracert,
 	curl: handleCurl,
 };
-export const defaultCommands = [
+const defaultCommands = [
 	pingCommand,
 	setStatusCommand,
 	execCommand,
