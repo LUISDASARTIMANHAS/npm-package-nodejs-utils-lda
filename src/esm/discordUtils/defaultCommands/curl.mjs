@@ -13,10 +13,7 @@ let curlCommand = new SlashCommandBuilder()
       .setRequired(true),
   )
   .addStringOption((option) =>
-    option
-      .setName("args")
-      .setDescription("extra args")
-      .setRequired(true),
+    option.setName("args").setDescription("extra args").setRequired(false),
   );
 
 curlCommand = curlCommand.toJSON();
@@ -26,8 +23,11 @@ async function handleCurl(interaction) {
   if (interaction.commandName === "curl") {
     const domain = interaction.options.getString("domain");
     const args = interaction.options.getString("args");
-
-    await discordHandleExecTemplate(interaction, `curl ${args} ${domain}`);
+    if (args) {
+      await discordHandleExecTemplate(interaction, `curl ${args} ${domain}`);
+    } else {
+      await discordHandleExecTemplate(interaction, `curl ${domain}`);
+    }
   }
 }
 

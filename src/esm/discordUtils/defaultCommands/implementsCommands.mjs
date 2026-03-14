@@ -2,7 +2,7 @@ import { verifyManageMessagesInInteraction } from "../permissionValidators.mjs";
 import { curlCommand, handleCurl } from "./curl.mjs";
 import { execCommand, handleExec } from "./exec.mjs";
 import { handleNslookup, nslookupCommand } from "./nslookup.mjs";
-import { handlePing, pingCommand } from "./ping";
+import { handlePing, pingCommand } from "./ping.mjs";
 import { handleSetStatus, setStatusCommand } from "./setStatus.mjs";
 import { handleTracert, tracertCommand } from "./tracert.mjs";
 

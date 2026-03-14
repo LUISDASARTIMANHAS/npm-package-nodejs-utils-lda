@@ -1,6 +1,7 @@
 // src\esm\discordUtils\discordUtils.mjs
-import { ChannelType, PermissionsBitField, ActivityType } from "discord.js";
-import { getGuildByInteraction, isDM } from "./interactionGetters.mjs";
+import { REST } from "@discordjs/rest";
+import { ActivityType, Routes } from "discord.js";
+import { isDM } from "./interactionGetters.mjs";
 import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
 import { fopen } from "../autoFileSysModule.mjs";
 import os from "os";
@@ -51,7 +52,6 @@ export function getGuildsCount(bot) {
 export function getBotTag(bot) {
   return bot.user?.tag ?? "Desconhecido#0000";
 }
-
 
 /**
  * Renderiza uma string substituindo ${variavel}
@@ -204,5 +204,35 @@ export async function discordHandleExecTemplate(interaction, execCommand) {
     await interaction.editReply({
       content: `⚠️ Error while running/Erro ao executar:\n\`\`\`\n${(err.message || String(err)).slice(0, 1900)}\n\`\`\``,
     });
+  }
+}
+
+export async function commandsSYNC(
+  commands,
+  token = process.env.DISCORD_BOT_TOKEN,
+  CLIENT_ID = process.env.DISCORD_BOT_CLIENT_ID,
+  restartSec = 20,
+) {
+  if (!token || !CLIENT_ID) {
+    console.error("Error: TOKEN or CLIENT_ID not defined in .env");
+    return;
+  }
+
+  const rest = new REST({ version: "10" }).setToken(token);
+  try {
+    console.log(`\n\n \t[LDA SYNC] Reloading slash commands /
+      Recarregando comandos de barra /\n\n`);
+    await rest.put(Routes.applicationCommands(CLIENT_ID), {
+      body: commands,
+    });
+    console.log(commands);
+    return console.log(`\n\n\t [LDA SYNC] Slash commands reloaded successfully! /
+      Comandos de barra recarregados com sucesso! \n\n`);
+  } catch (err) {
+    console.log(err);
+    setTimeout(() => {
+      console.log(`[LDA SYNC] Restarting SYNC... in ${restartSec} Seconds`);
+      commandsSYNC(token, CLIENT_ID);
+    }, 1000 * restartSec);
   }
 }
