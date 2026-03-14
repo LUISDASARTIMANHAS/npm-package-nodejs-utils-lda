@@ -12,12 +12,45 @@ function getUsersCount(bot);
 function getChannelsCount(bot);
 function getGuildsCount(bot);
 function getBotTag(bot);
-function getBotPermissionsByInteraction(interaction);
 function renderTemplate(template, variables);
 function changeStatus(bot);
-async function verifyManageMessagesInInteraction(interaction);
 async function validateInteractionChannel(interaction);
 async function replyWarning(interaction, message, isPrivate = true);
+
+// permissionValidators
+function getBotPermissionsByInteraction(interaction);
+function getPermissionName(permissionFlag);
+async function verifyBotPermission(interaction, permissionFlag);
+async function verifyManageMessagesInInteraction(interaction);
+async function verifyBanInInteraction(interaction);
+
+
+// moderation
+/* -----------------------------
+	MODERATION
+----------------------------- */
+export async function executeModerationAction(interaction, targetUser, options);
+export async function banUser(interaction, targetUser, reason);
+export async function kickUser(interaction, targetUser, reason);
+export async function timeoutUser(interaction, targetUser, reason);
+
+// implementsCommands
+export const defaultCommandHandlers = {
+	ping: handlePing,
+	setstatus: handleSetStatus,
+	exec: handleExec,
+	nslookup: handleNslookup,
+	tracert: handleTracert,
+	curl: handleCurl,
+};
+export const defaultCommands = [
+	pingCommand,
+	setStatusCommand,
+	execCommand,
+	nslookupCommand,
+	tracertCommand,
+	curlCommand,
+];
 
 // interactionGetters
 /* -----------------------------
