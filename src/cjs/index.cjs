@@ -31,7 +31,7 @@ const sendFileToDiscord = require("./sendFileToDiscord.cjs");
 const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
 const sendMail = require("./emailModule.cjs");
 
-const discordLogs = require("./discordUtils/discordSender.cjs")
+const discordLogs = require("./discordUtils/discordSender.cjs");
 
 const {
   fetchGet,
@@ -48,6 +48,13 @@ const {
 } = require("./fetchUtils/fetchModuleAsync.cjs");
 
 const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
+
+const {
+  configExist,
+  getConfig,
+  saveConfig,
+  checkConfigValue,
+} = require("./configHelper.cjs");
 
 const {
   getRandomInt,
@@ -133,6 +140,11 @@ module.exports = {
   fetchPostAsync,
   fetchPostJsonAsync,
   discordLogs,
+
+  // CONFIG HELPER
+  configExist,
+  saveConfig,
+  checkConfigValue,
 
   // Utils
   getRandomInt,

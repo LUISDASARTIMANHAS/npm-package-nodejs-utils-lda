@@ -11,10 +11,13 @@ function checkArgs(url, callback) {
 }
 
 function buildHeaders(extraHeaders = {}, includeContentType = false) {
+  const config = getConfig();
+  const envAgent = process.env.SERVER_USER_AGENT;
   const headersDefault = {
     "x-forwarded-proto": "https,http,http",
     "x-forwarded-port": "443,80,80",
     "accept-encoding": "gzip",
+    "User-Agent": envAgent || config.userAgent || "BACKEND NODE SERVER"
   };
 
   const defaultContentType = {

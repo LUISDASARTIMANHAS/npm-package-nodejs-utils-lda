@@ -12,6 +12,12 @@ function stringToBinary(str, binaryLenght);
 function freadBin(filePath);
 function binaryToString(binary, binaryLenght);
 
+// CONFIG
+function configExist();
+function getConfig();
+function saveConfig(data);
+function checkConfigValue(key, value);
+
 function checkHeaderMiddleware(app);
 function sendMail(email, subject, text, function(error,data));
 function fetchGet(url, header, callback);
