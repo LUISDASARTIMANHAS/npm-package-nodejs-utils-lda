@@ -1,7 +1,7 @@
 // ----------------------------
 // IMPORTS
 // ----------------------------
-
+const figlet = require("figlet");
 const {
   fopen,
   fwrite,
@@ -202,6 +202,17 @@ module.exports = {
   sendMail,
   WSChat,
 };
+
+
+console.log(
+  figlet.textSync("UTILS LDA", {
+    font: "Slant",
+    horizontalLayout: "default",
+    verticalLayout: "default",
+  })
+);
+
+console.log("[npm-package-nodejs-utils-lda] loaded 🚀");
 
 // ----------------------------
 // BLOQUEIO DE DEFAULT IMPORT (ESM → CJS)

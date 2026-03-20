@@ -1,3 +1,4 @@
+const { getConfig } = require("../configHelper.cjs");
 const { logError, log } = require("../logger/index.cjs");
 
 // FUNÇÕES BASICAS MODULARES

@@ -1,6 +1,7 @@
 // ----------------------------
 // EXPORTAÇÃO AUTOMÁTICA DE MÓDULOS
 // ----------------------------
+const figlet = require("figlet");
 
 // Discord Utils
 export * from "./discordUtils/discordEmbed.mjs"
@@ -52,6 +53,16 @@ export { default as httpsSecurityMiddleware } from "./httpsSecurity.mjs";
 export { default as sendFileToDiscord } from "./sendFileToDiscord.mjs";
 export { default as sendMail } from "./emailModule.mjs";
 export { requestLogger } from "./requestLogger.mjs";
+
+console.log(
+  figlet.textSync("UTILS LDA", {
+    font: "Slant",
+    horizontalLayout: "default",
+    verticalLayout: "default",
+  })
+);
+
+console.log("[npm-package-nodejs-utils-lda] loaded 🚀");
 
 // ----------------------------
 // BLOQUEIO DE DEFAULT IMPORT
