@@ -1,16 +1,16 @@
 // ----------------------------
 // EXPORTAÇÃO AUTOMÁTICA DE MÓDULOS
 // ----------------------------
-const figlet = require("figlet");
+import figlet from "figlet";
 
 // Discord Utils
-export * from "./discordUtils/discordEmbed.mjs"
-export * from "./discordUtils/discordSender.mjs"
-export * from "./discordUtils/interactionGetters.mjs"
+export * from "./discordUtils/discordEmbed.mjs";
+export * from "./discordUtils/discordSender.mjs";
+export * from "./discordUtils/interactionGetters.mjs";
 export * from "./discordUtils/discordUtils.mjs";
-export * from "./discordUtils/permissionValidators.mjs"
-export * from "./discordUtils/moderation.mjs"
-export * from "./discordUtils/defaultCommands/implementsCommands.mjs"
+export * from "./discordUtils/permissionValidators.mjs";
+export * from "./discordUtils/moderation.mjs";
+export * from "./discordUtils/defaultCommands/implementsCommands.mjs";
 
 // Interaction Getters
 export * from "./discordUtils/interactionGetters.mjs";
@@ -59,21 +59,24 @@ console.log(
     font: "Slant",
     horizontalLayout: "default",
     verticalLayout: "default",
-  })
+  }),
 );
 
-console.log("[npm-package-nodejs-utils-lda] loaded 🚀");
+console.log("[npm-package-nodejs-utils-lda] Module JavaScript loaded 🚀");
 
 // ----------------------------
 // BLOQUEIO DE DEFAULT IMPORT
 // ----------------------------
-const __INVALID_DEFAULT_IMPORT__ = new Proxy({}, {
-  get() {
-    throw new Error(
-      "[npm-package-nodejs-utils-lda] Importação incorreta. " +
-      "Use sempre named imports: import { modulo } from 'npm-package-nodejs-utils-lda'."
-    );
-  }
-});
+const __INVALID_DEFAULT_IMPORT__ = new Proxy(
+  {},
+  {
+    get() {
+      throw new Error(
+        "[npm-package-nodejs-utils-lda] Importação incorreta. " +
+          "Use sempre named imports: import { modulo } from 'npm-package-nodejs-utils-lda'.",
+      );
+    },
+  },
+);
 
 export default __INVALID_DEFAULT_IMPORT__;

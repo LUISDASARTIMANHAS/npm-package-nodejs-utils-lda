@@ -212,7 +212,7 @@ console.log(
   })
 );
 
-console.log("[npm-package-nodejs-utils-lda] loaded 🚀");
+console.log("[npm-package-nodejs-utils-lda] CommonJS  loaded 🚀");
 
 // ----------------------------
 // BLOQUEIO DE DEFAULT IMPORT (ESM → CJS)
