@@ -1,6 +1,6 @@
 // configHelper.cjs
 const fs = require("fs");
-const { fwrite } = require("./autoFileSysModule.cjs");
+const { fwrite, fopen } = require("./autoFileSysModule.cjs");
 
 function configExist() {
   if (!fs.existsSync("config.json")) {
