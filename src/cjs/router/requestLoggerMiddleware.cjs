@@ -1,13 +1,18 @@
-const { fopen, fwrite } = require("./autoFileSysModule.cjs");
-const { log } = require("./logger/index.cjs");
-const { configExist } = require("./configHelper.cjs");
+const express = require("express");
+const routerRequestLogger = express.Router();
+const { log } = require("../logger/index.cjs");
+const { checkConfigValue, getConfig } = require("../configHelper.cjs");
+const LOGS_DIR = "requestLogger.txt";
 
 // garante que config.json existe
-configExist();
-checkConfigIntegrity();
+// configExist();
+// checkConfigIntegrity();
+checkConfigValue("requestLogger", {
+  enabled: true,
+});
 
-async function requestLogger(req, res, next) {
-  const configs = fopen("config.json");
+routerRequestLogger.all("/", async (req, res, next) => {
+  const configs = getConfig();
   if (!configs.requestLogger.enabled) return next();
 
   const userAgent = req.headers["user-agent"] || "Desconhecido";
@@ -31,18 +36,17 @@ async function requestLogger(req, res, next) {
     `REQ [${new Date().toISOString()}] IP=${ip}, URL=${
       req.originalUrl
     }, UA=${userAgent}`,
-    "requestLogger.txt"
+    LOGS_DIR,
   );
 
   next();
-}
+});
 
-function checkConfigIntegrity() {
-  const configs = fopen("config.json");
-  if (!configs.requestLogger) configs.requestLogger = {};
-  if (configs.requestLogger.enabled === undefined)
-    configs.requestLogger.enabled = true;
-  fwrite("config.json", configs);
-}
-
-module.exports = requestLogger;
+// function checkConfigIntegrity() {
+//   const configs = fopen("config.json");
+//   if (!configs.requestLogger) configs.requestLogger = {};
+//   if (configs.requestLogger.enabled === undefined)
+//     configs.requestLogger.enabled = true;
+//   fwrite("config.json", configs);
+// }
+module.exports = routerRequestLogger;

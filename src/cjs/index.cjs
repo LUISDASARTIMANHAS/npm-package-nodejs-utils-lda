@@ -26,11 +26,16 @@ const {
 
 const { mongoConnect, select, insert } = require("./mongodb.cjs");
 
-const { logsDashboard, StatusDashboard, checkHeaderMiddleware } = require("./router/router.cjs");
+const {
+  registerRoutes,
+  applyAutoMiddlewares,
+  logsDashboard,
+  StatusDashboard,
+  checkHeaderMiddleware,
+  cacheMiddleware,
+} = require("./router/router.cjs");
 
-const setCacheHeaders = require("./router/cacheSys.cjs");
 const sendFileToDiscord = require("./sendFileToDiscord.cjs");
-const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
 const sendMail = require("./emailModule.cjs");
 
 const discordLogs = require("./discordUtils/discordSender.cjs");
@@ -74,7 +79,6 @@ const {
   sanitize,
   SanitizeXSS,
   serverTry,
-  applyAutoMiddlewares,
   sanitizeNetworkInterfaces,
   exposeFolders,
   exposePublicFolder,
@@ -82,8 +86,6 @@ const {
   fileExistAndCreate,
   shell,
 } = require("./utils.cjs");
-
-const { requestLogger } = require("./requestLogger.cjs");
 
 const {
   encryptedPayloadMiddleware,
@@ -120,15 +122,15 @@ module.exports = {
   log,
 
   // Middlewares
-  httpsSecurityMiddleware,
   encryptedPayloadMiddleware,
-  setCacheHeaders,
-  requestLogger,
 
    // router
-  checkHeaderMiddleware,
+  registerRoutes,
+  applyAutoMiddlewares,
   logsDashboard,
   StatusDashboard,
+  checkHeaderMiddleware,
+  cacheMiddleware,
 
   // Security / crypto
   decryptAESGCM,
@@ -167,7 +169,6 @@ module.exports = {
   sanitize,
   SanitizeXSS,
   serverTry,
-  applyAutoMiddlewares,
   sanitizeNetworkInterfaces,
   exposeFolders,
   exposePublicFolder,

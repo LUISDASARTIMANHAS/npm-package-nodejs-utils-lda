@@ -2,7 +2,7 @@ const { log } = require("../logger/index.cjs");
 const cors = require("cors");
 const helmet = require("helmet");
 const { getConfig, checkConfigValue } = require("../configHelper.cjs");
-const logPath = "HTTPSfirewall.txt";
+const logPath = "httpsFirewall.log";
 
 // checkConfigIntegrity();
 
@@ -40,7 +40,7 @@ checkConfigValue("BLOCKED_USER_AGENTS", [
   "nmap",
 ]);
 
-async function httpsSecurityMiddleware(req, res, next) {
+async function httpsFirewall(req, res, next) {
   const userAgent = req.get("user-agent") || "";
 
   if (await checkUserAgent(req, res, userAgent)) return;
@@ -162,5 +162,4 @@ function makeHstsOptions() {
 //   // salva novamente
 //   fwrite("config.json", configs);
 // }
-
-module.exports = httpsSecurityMiddleware;
+module.exports = httpsFirewall;

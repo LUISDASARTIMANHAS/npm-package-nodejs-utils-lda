@@ -1,8 +1,11 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const { exposeLogsFolder } = require("../utils.cjs");
 const routerLogsDash = express.Router();
 const LOGS_DIR = "logs";
+
+exposeLogsFolder(routerLogsDash);
 
 /**
  * Lista arquivos da pasta /logs

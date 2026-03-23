@@ -20,9 +20,9 @@ checkConfigValue("blockedRoutes", `["/default/api", "/api/auth"]`);
 // configExist();
 // checkConfigIntegrity();
 // DEFAULT STATIC PUBLIC ITENS
-exposePublicFolder(app);
-exposeLogsFolder(app);
-// Middleware para configurar o tipo de conteúdo como JSON
+exposePublicFolder(routerCheckHeaderMiddleware);
+// exposeLogsFolder(routerCheckHeaderMiddleware);
+
 routerCheckHeaderMiddleware.all("/api/*name", (req, res, next) => {
   if (!req.headers["authorization"]) {
     return forbidden(
