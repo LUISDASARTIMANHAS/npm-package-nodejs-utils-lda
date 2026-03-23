@@ -1,8 +1,8 @@
 import { Router } from "express";
 const routerCache = Router();
 import { config } from "dotenv";
-import { getConfig, checkConfigValue } from "../configHelper.cjs";
-import { log } from "../logger/index.cjs";
+import { getConfig, checkConfigValue } from "../configHelper.mjs";
+import { log } from "../logger/index.mjs";
 
 const logPath = "cache.txt";
 

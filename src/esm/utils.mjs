@@ -3,14 +3,8 @@ import path from "path";
 import express from "express";
 import { fwrite } from "./autoFileSysModule.mjs";
 import xss from "xss";
-import { requestLogger } from "./requestLogger.mjs";
-import setCacheHeaders from "./router/cacheSys.mjs";
-import httpsSecurityMiddleware from "./router/httpsSecurity.mjs";
-import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import { fileURLToPath } from "url";
 import { exec } from "child_process";
-import routerStatusDash from "./router/routerStatusDash.mjs";
-import routerLogsDash from "./router/routerLogsDash.mjs";
 const bloqueados = ["cd", "format", "shutdown", "rd", "del", "rmdir", "erase"];
 const modulePath = path.resolve(
   path.join(
@@ -164,11 +158,6 @@ export function unauthorized(res, error) {
 export function landingPage(res) {
   res.status(200);
   res.sendFile(landingFilePath);
-}
-
-export function StatusDashboard(mainRouter) {
-  mainRouter.use("/", routerStatusDash);
-  return mainRouter;
 }
 
 export function serverTry(res, callback) {

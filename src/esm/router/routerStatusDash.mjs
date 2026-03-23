@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { landingPage, sanitizeNetworkInterfaces } from "../utils.cjs";
-import { log } from "../logger/index.cjs";
+import { landingPage, sanitizeNetworkInterfaces } from "../utils.mjs";
+import { log } from "../logger/index.mjs";
 import { networkInterfaces, loadavg, platform as _platform, cpus, totalmem, freemem } from "os";
 const routerStatusDash = Router();
 

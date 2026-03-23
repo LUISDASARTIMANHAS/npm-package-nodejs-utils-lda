@@ -1,10 +1,10 @@
 import { Router } from "express";
 const routerCheckHeaderMiddleware = Router();
-import { forbidden, validadeApiKey, SanitizeXSS, exposePublicFolder, exposeLogsFolder } from "../utils.cjs";
+import { forbidden, validadeApiKey, SanitizeXSS, exposePublicFolder, exposeLogsFolder } from "../utils.mjs";
 import { env } from "process";
 import { config } from "dotenv";
-import { checkConfigValue, getConfig } from "../configHelper.cjs";
-import { log, logError } from "../logger/index.cjs";
+import { checkConfigValue, getConfig } from "../configHelper.mjs";
+import { log, logError } from "../logger/index.mjs";
 const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env

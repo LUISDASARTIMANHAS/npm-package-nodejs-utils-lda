@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const routerRequestLogger = express.Router();
-const { log } = require("../logger/index.cjs");
-const { checkConfigValue, getConfig } = require("../configHelper.cjs");
+import { log } from "../logger/index.mjs";
+import { checkConfigValue, getConfig } from "../configHelper.mjs";
 const LOGS_DIR = "requestLogger.txt";
 
 // garante que config.json existe
@@ -49,4 +49,4 @@ routerRequestLogger.all("/", async (req, res, next) => {
 //     configs.requestLogger.enabled = true;
 //   fwrite("config.json", configs);
 // }
-module.exports = routerRequestLogger;
+export default routerRequestLogger;

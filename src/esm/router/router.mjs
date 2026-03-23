@@ -4,44 +4,43 @@ import routerCheckHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import routerStatusDash from "./routerStatusDash.mjs";
 import httpsFirewall from "./httpsFirewall.mjs";
 import routerRequestLogger from "./requestLoggerMiddleware.mjs";
-import { autoLoader } from "../autoFileSysModule.cjs";
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
  * @param {import("express").Express} app
  * @returns {boolean}
  */
-function logsDashboard(mainRouter) {
+export function logsDashboard(mainRouter) {
   mainRouter.use("/logs", routerLogsDash);
   console.log("\n\t[npm-package-nodejs-utils-lda] [LogsDash] loaded!");
   return mainRouter;
 }
 
-function StatusDashboard(mainRouter) {
+export function StatusDashboard(mainRouter) {
   mainRouter.use("/", routerStatusDash);
   console.log("\n\t[npm-package-nodejs-utils-lda] [StatusDash] loaded!");
   return mainRouter;
 }
 
-function requestLoggerMiddleware(mainRouter) {
+export function requestLoggerMiddleware(mainRouter) {
   mainRouter.use(routerRequestLogger);
   console.log("\n\t[npm-package-nodejs-utils-lda] [requestLogger] loaded!");
   return mainRouter;
 }
 
-function httpsFirewallMiddleware(app) {
+export function httpsFirewallMiddleware(app) {
   app.use(httpsFirewall);
   console.log("\n\t[npm-package-nodejs-utils-lda] [httpsFirewall] loaded!");
   return app;
 }
 
-function checkHeaderMiddleware(app) {
+export function checkHeaderMiddleware(app) {
   app.use(routerCheckHeaderMiddleware);
   console.log("\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!");
   return app;
 }
 
-function cacheMiddleware(app) {
+export function cacheMiddleware(app) {
   app.use(routerCache);
   console.log("\n\t[npm-package-nodejs-utils-lda] [cacheMiddleware] loaded!");
   return app;
@@ -53,7 +52,7 @@ function cacheMiddleware(app) {
  * @param {import("express").Router | import("express").Express} mainRouter
  * @returns {import("express").Router | import("express").Express}
  */
-function registerRoutes(mainRouter) {
+export function registerRoutes(mainRouter) {
   requestLoggerMiddleware(mainRouter);
   cacheMiddleware(mainRouter)
   httpsFirewallMiddleware(mainRouter);
@@ -76,26 +75,3 @@ export function applyAutoMiddlewares(app) {
     "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n",
   );
 }
-
-// utils.js ou no seu pacote
-function applyAutoMiddlewares(app) {
-  // Middlewares já aplicados ao app
-  registerRoutes(app);
-  autoLoader(app);
-
-  console.log(
-    "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n",
-  );
-}
-
-
-export default {
-  registerRoutes,
-  applyAutoMiddlewares,
-  requestLoggerMiddleware,
-  httpsFirewallMiddleware,
-  logsDashboard,
-  StatusDashboard,
-  checkHeaderMiddleware,
-  cacheMiddleware,
-};

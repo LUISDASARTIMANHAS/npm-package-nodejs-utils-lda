@@ -1,7 +1,7 @@
-import { log } from "../logger/index.cjs";
+import { log } from "../logger/index.mjs";
 import cors from "cors";
 import { hsts } from "helmet";
-import { getConfig, checkConfigValue } from "../configHelper.cjs";
+import { getConfig, checkConfigValue } from "../configHelper.mjs";
 const logPath = "httpsFirewall.log";
 
 // checkConfigIntegrity();

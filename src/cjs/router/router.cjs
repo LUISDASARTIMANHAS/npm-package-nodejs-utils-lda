@@ -1,9 +1,10 @@
-import routerCache from "./cacheSys.cjs";
-import routerLogsDash from "./routerLogsDash.cjs";
-import routerCheckHeaderMiddleware from "./checkHeaderMiddleware.cjs";
-import routerStatusDash from "./routerStatusDash.cjs";
-import  httpsFirewall from "./httpsFirewall.cjs";
-import routerRequestLogger from "./requestLoggerMiddleware.cjs";
+const routerCache = require("./cacheSys.cjs");
+const routerLogsDash = require("./routerLogsDash.cjs");
+const routerCheckHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
+const routerStatusDash = require("./routerStatusDash.cjs");
+const httpsFirewall = require("./httpsFirewall.cjs");
+const routerRequestLogger = require("./requestLoggerMiddleware.cjs");
+const { autoLoader } = require("../autoFileSysModule.cjs");
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
@@ -36,7 +37,9 @@ function httpsFirewallMiddleware(app) {
 
 function checkHeaderMiddleware(app) {
   app.use(routerCheckHeaderMiddleware);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!");
+  console.log(
+    "\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!",
+  );
   return app;
 }
 
@@ -54,7 +57,7 @@ function cacheMiddleware(app) {
  */
 function registerRoutes(mainRouter) {
   requestLoggerMiddleware(mainRouter);
-  cacheMiddleware(mainRouter)
+  cacheMiddleware(mainRouter);
   httpsFirewallMiddleware(mainRouter);
   checkHeaderMiddleware(mainRouter);
   logsDashboard(mainRouter);
@@ -67,7 +70,6 @@ function registerRoutes(mainRouter) {
   return mainRouter;
 }
 
-
 // utils.js ou no seu pacote
 function applyAutoMiddlewares(app) {
   // Middlewares já aplicados ao app
@@ -78,7 +80,6 @@ function applyAutoMiddlewares(app) {
     "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n",
   );
 }
-
 
 module.exports = {
   registerRoutes,
