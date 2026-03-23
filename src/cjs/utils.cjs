@@ -163,24 +163,6 @@ function serverTry(res, callback) {
   }
 }
 
-// utils.js ou no seu pacote
-function applyAutoMiddlewares(app) {
-  const requestLogger = require("./requestLogger.cjs");
-  const setCacheHeaders = require("./cacheSys.cjs");
-  const httpsSecurityMiddleware = require("./router/httpsSecurity.cjs");
-  const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
-  // Middlewares já aplicados ao app
-  app.use(requestLogger);
-  app.use(setCacheHeaders);
-  app.use(httpsSecurityMiddleware);
-  checkHeaderMiddleware(app);
-  autoLoader(app);
-
-  console.log(
-    "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n",
-  );
-}
-
 function exposeFolders(app, folderPath, route) {
   // Resolve o caminho combinando o local do arquivo atual com a pasta desejada
   const absolutePath = path.isAbsolute(folderPath)
@@ -296,13 +278,10 @@ module.exports = {
   sanitize,
   SanitizeXSS,
   serverTry,
-  applyAutoMiddlewares,
   exposeFolders,
   exposePublicFolder,
   exposeLogsFolder,
   sanitizeNetworkInterfaces,
-  StatusDashboard,
-  logsDashboard,
   fileExistAndCreate,
   shell
 };

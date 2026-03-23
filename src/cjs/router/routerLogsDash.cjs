@@ -1,27 +1,27 @@
-import express from "express";
-import path from "path";
-import fs from "fs"
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
 const routerLogsDash = express.Router();
 const LOGS_DIR = "logs";
 
 /**
-   * Lista arquivos da pasta /logs
-   */
-  routerLogsDash.get("/", async (req, res) => {
-    try {
-      const files = await fs.promises.readdir(LOGS_DIR);
+ * Lista arquivos da pasta /logs
+ */
+routerLogsDash.get("/", async (req, res) => {
+  try {
+    const files = await fs.promises.readdir(LOGS_DIR);
 
-      const fileLinks = files
-        .map((file) => {
-          return `
+    const fileLinks = files
+      .map((file) => {
+        return `
             <li class="list-group-item">
               <a href="/logs/${file}" target="_blank">${file}</a>
             </li>
           `;
-        })
-        .join("");
+      })
+      .join("");
 
-      res.status(200).send(`
+    res.status(200).send(`
         <!doctype html>
         <html lang="pt-BR">
         <head>
@@ -40,24 +40,24 @@ const LOGS_DIR = "logs";
         </body>
         </html>
       `);
-    } catch (error) {
-      console.error("ERRO REAL:", error);
-      res.status(500).send("Erro ao listar arquivos.");
-    }
-  });
+  } catch (error) {
+    console.error("ERRO REAL:", error);
+    res.status(500).send("Erro ao listar arquivos.");
+  }
+});
 
-  /**
-   * Permite acessar arquivos individuais
-   */
-  routerLogsDash.get("/:filename", (req, res) => {
-    const filePath = path.join(LOGS_DIR, req.params.filename);
+/**
+ * Permite acessar arquivos individuais
+ */
+routerLogsDash.get("/:filename", (req, res) => {
+  const filePath = path.join(LOGS_DIR, req.params.filename);
 
-    // Proteção contra path traversal
-    if (!filePath.startsWith(LOGS_DIR)) {
-      return res.status(403).send("Acesso negado.");
-    }
+  // Proteção contra path traversal
+  if (!filePath.startsWith(LOGS_DIR)) {
+    return res.status(403).send("Acesso negado.");
+  }
 
-    res.sendFile(filePath);
-  });
+  res.sendFile(filePath);
+});
 
 module.exports = routerLogsDash;

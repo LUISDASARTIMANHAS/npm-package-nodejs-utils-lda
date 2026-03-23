@@ -1,3 +1,5 @@
+const express = require("express");
+const routerCheckHeaderMiddleware = express.Router();
 const {
   forbidden,
   validadeApiKey,
@@ -100,4 +102,4 @@ function getKeys() {
 //   }
 // }
 
-module.exports = checkHeaderMiddleware;
+module.exports = routerCheckHeaderMiddleware;

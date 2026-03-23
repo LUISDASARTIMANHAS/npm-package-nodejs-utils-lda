@@ -1,7 +1,7 @@
-import express from "express";
-import { landingPage, sanitizeNetworkInterfaces } from "./utils.mjs";
-import { log } from "./logger/index.mjs";
-import os from "os";
+const express = require("express");
+const { landingPage, sanitizeNetworkInterfaces } = require("../utils.cjs");
+const { log } = require("../logger/index.cjs");
+const os = require("os");
 const routerStatusDash = express.Router();
 
 routerStatusDash.get("/", (req, res) => {
@@ -29,7 +29,6 @@ routerStatusDash.get("/status", (req, res) => {
     res.status(503).json({ message: "ERROR" });
   }
 });
-
 
 /**
  * Converte bytes para KB
