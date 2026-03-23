@@ -5,12 +5,12 @@ import { fwrite } from "./autoFileSysModule.mjs";
 import xss from "xss";
 import { requestLogger } from "./requestLogger.mjs";
 import setCacheHeaders from "./cacheSys.mjs";
-import httpsSecurityMiddleware from "./httpsSecurity.mjs";
+import httpsSecurityMiddleware from "./router/httpsSecurity.mjs";
 import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import { fileURLToPath } from "url";
 import { exec } from "child_process";
-import routerStatusDash from "./routerStatusDash.mjs";
-import routerLogsDash from "./routerLogsDash.mjs";
+import routerStatusDash from "./router/routerStatusDash.mjs";
+import routerLogsDash from "./router/routerLogsDash.mjs";
 const bloqueados = ["cd", "format", "shutdown", "rd", "del", "rmdir", "erase"];
 const modulePath = path.resolve(
   path.join(
@@ -218,16 +218,6 @@ export function exposeLogsFolder(app) {
   const publicItens = path.join("logs");
   const route = "/logs";
   exposeFolders(app, publicItens, route);
-}
-
-/**
- * Registra rota dinâmica para listagem e acesso aos logs
- * @param {import("express").Express} app
- * @returns {boolean}
- */
-export function logsDashboard(mainRouter) {
-  mainRouter.use("/logs", routerLogsDash);
-  return mainRouter;
 }
 
 /**

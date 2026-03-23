@@ -23,7 +23,6 @@ const modulePublicFolder = path.join(
 );
 
 // arquivos que o servidor do usuario poderia ter
-const LOGS_DIR = "logs";
 let forbiddenFilePath = verifyHostedFiles("forbidden");
 let notfoundFilePath = verifyHostedFiles("not-found");
 let landingFilePath = verifyHostedFiles("index");
@@ -46,33 +45,6 @@ function verifyHostedFiles(filePathName) {
     filePath = defaultForbiddenFilePath;
   }
   return filePath;
-}
-
-/**
- * Converte bytes para KB
- * @param {number} bytes
- * @return {string}
- */
-function toKB(bytes) {
-  return (bytes / 1024).toFixed(2);
-}
-
-/**
- * Converte bytes para MB
- * @param {number} bytes
- * @return {string}
- */
-function toMB(bytes) {
-  return (toKB(bytes) / 1024).toFixed(2);
-}
-
-/**
- * Converte bytes para GB
- * @param {number} bytes
- * @return {string}
- */
-function toGB(bytes) {
-  return (toMB(bytes) / 1024).toFixed(2);
 }
 
 function getRandomInt(max) {
@@ -173,35 +145,6 @@ function landingPage(res) {
   res.sendFile(landingFilePath);
 }
 
-function StatusDashboard(app) {
-  app.get("/", (req, res) => {
-    log(`[SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
-    landingPage(res);
-  });
-
-  app.get("/status", (req, res) => {
-    try {
-      const rawInterfaces = os.networkInterfaces();
-
-      res.json({
-        uptime: process.uptime(),
-        message: "OK",
-        timestamp: Date.now(),
-        cpuUsage: os.loadavg(),
-        memoryUsage: process.memoryUsage(),
-        platform: os.platform(),
-        cpuCores: os.cpus().length,
-        totalMemoryGB: toGB(os.totalmem()),
-        freeMemoryGB: toGB(os.freemem()),
-        network: sanitizeNetworkInterfaces(rawInterfaces),
-      });
-    } catch (e) {
-      res.status(503).json({ message: "ERROR" });
-    }
-  });
-  return true;
-}
-
 function unauthorized(res, error) {
   console.error("unauthorized 401");
   res.status(401);
@@ -224,7 +167,7 @@ function serverTry(res, callback) {
 function applyAutoMiddlewares(app) {
   const requestLogger = require("./requestLogger.cjs");
   const setCacheHeaders = require("./cacheSys.cjs");
-  const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
+  const httpsSecurityMiddleware = require("./router/httpsSecurity.cjs");
   const checkHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
   // Middlewares já aplicados ao app
   app.use(requestLogger);
@@ -264,71 +207,6 @@ function exposeLogsFolder(app) {
   const publicItens = path.join("logs");
   const route = "/logs";
   exposeFolders(app, publicItens, route);
-}
-
-/**
- * Registra rota dinâmica para listagem e acesso aos logs
- * @param {import("express").Express} app
- * @returns {boolean}
- */
-function logsDashboard(app) {
-  /**
-   * Lista arquivos da pasta /logs
-   */
-  app.get("/logs", async (req, res) => {
-    try {
-      const files = await fs.promises.readdir(LOGS_DIR);
-
-      const fileLinks = files
-        .map((file) => {
-          return `
-            <li class="list-group-item">
-              <a href="/logs/${file}" target="_blank">${file}</a>
-            </li>
-          `;
-        })
-        .join("");
-
-      res.status(200).send(`
-        <!doctype html>
-        <html lang="pt-BR">
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <title>Logs Dashboard</title>
-          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        </head>
-        <body class="bg-dark text-light">
-          <div class="container py-5">
-            <h1 class="mb-4">Logs Dashboard</h1>
-            <ul class="list-group">
-              ${fileLinks || "<li class='list-group-item'>Nenhum arquivo encontrado</li>"}
-            </ul>
-          </div>
-        </body>
-        </html>
-      `);
-    } catch (error) {
-      console.error("ERRO REAL:", error);
-      res.status(500).send("Erro ao listar arquivos.");
-    }
-  });
-
-  /**
-   * Permite acessar arquivos individuais
-   */
-  app.get("/logs/:filename", (req, res) => {
-    const filePath = path.join(LOGS_DIR, req.params.filename);
-
-    // Proteção contra path traversal
-    if (!filePath.startsWith(LOGS_DIR)) {
-      return res.status(403).send("Acesso negado.");
-    }
-
-    res.sendFile(filePath);
-  });
-
-  return true;
 }
 
 /**

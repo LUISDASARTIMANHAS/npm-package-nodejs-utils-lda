@@ -1,6 +1,6 @@
 import express from "express";
-import { landingPage, sanitizeNetworkInterfaces } from "./utils.mjs";
-import { log } from "./logger/index.mjs";
+import { landingPage, sanitizeNetworkInterfaces } from "../utils.mjs";
+import { log } from "../logger/index.mjs";
 import os from "os";
 const routerStatusDash = express.Router();
 
