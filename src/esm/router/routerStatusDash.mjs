@@ -1,8 +1,8 @@
-import express from "express";
-import { landingPage, sanitizeNetworkInterfaces } from "../utils.mjs";
-import { log } from "../logger/index.mjs";
-import os from "os";
-const routerStatusDash = express.Router();
+import { Router } from "express";
+import { landingPage, sanitizeNetworkInterfaces } from "../utils.cjs";
+import { log } from "../logger/index.cjs";
+import { networkInterfaces, loadavg, platform as _platform, cpus, totalmem, freemem } from "os";
+const routerStatusDash = Router();
 
 routerStatusDash.get("/", (req, res) => {
   log(`[SYSTEM] GET STATUS DASHBOARD: ${req.url}`);
@@ -11,25 +11,24 @@ routerStatusDash.get("/", (req, res) => {
 
 routerStatusDash.get("/status", (req, res) => {
   try {
-    const rawInterfaces = os.networkInterfaces();
+    const rawInterfaces = networkInterfaces();
 
     res.json({
       uptime: process.uptime(),
       message: "OK",
       timestamp: Date.now(),
-      cpuUsage: os.loadavg(),
+      cpuUsage: loadavg(),
       memoryUsage: process.memoryUsage(),
-      platform: os.platform(),
-      cpuCores: os.cpus().length,
-      totalMemoryGB: toGB(os.totalmem()),
-      freeMemoryGB: toGB(os.freemem()),
+      platform: _platform(),
+      cpuCores: cpus().length,
+      totalMemoryGB: toGB(totalmem()),
+      freeMemoryGB: toGB(freemem()),
       network: sanitizeNetworkInterfaces(rawInterfaces),
     });
   } catch (e) {
     res.status(503).json({ message: "ERROR" });
   }
 });
-
 
 /**
  * Converte bytes para KB

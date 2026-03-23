@@ -13,13 +13,13 @@ configExist();
 function getConfig() {
   configExist();
   const config = fopen("config.json");
-  console.log("\n[configExist] load config!\n");
+  console.log("[configExist] load config!");
   return config;
 }
 
 function saveConfig(data) {
   const config = fwrite("config.json", data);
-  console.log("\n[configExist] save config!\n");
+  console.log("[configExist] save config!");
   return config;
 }
 

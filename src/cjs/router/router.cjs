@@ -1,10 +1,9 @@
-const routerCache = require("./cacheSys.cjs");
-const routerLogsDash = require("./routerLogsDash.cjs");
-const routerCheckHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
-const routerStatusDash = require("./routerStatusDash.cjs");
-const  httpsFirewall = require("./httpsFirewall.cjs");
-const routerRequestLogger = require("./requestLoggerMiddleware.cjs");
-const { autoLoader } = require("../autoFileSysModule.cjs");
+import routerCache from "./cacheSys.cjs";
+import routerLogsDash from "./routerLogsDash.cjs";
+import routerCheckHeaderMiddleware from "./checkHeaderMiddleware.cjs";
+import routerStatusDash from "./routerStatusDash.cjs";
+import  httpsFirewall from "./httpsFirewall.cjs";
+import routerRequestLogger from "./requestLoggerMiddleware.cjs";
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs

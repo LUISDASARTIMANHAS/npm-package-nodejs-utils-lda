@@ -1,27 +1,22 @@
-import express from "express";
-const routerCheckHeaderMiddleware = express.Router();
-import {
-  exposeLogsFolder,
-  exposePublicFolder,
-  forbidden,
-  SanitizeXSS,
-  validadeApiKey,
-} from "../utils.mjs";
-import { fopen, fwrite } from "../autoFileSysModule.mjs";
-import { log, logError } from "../logger/index.mjs";
+import { Router } from "express";
+const routerCheckHeaderMiddleware = Router();
+import { forbidden, validadeApiKey, SanitizeXSS, exposePublicFolder, exposeLogsFolder } from "../utils.cjs";
 import { env } from "process";
 import { config } from "dotenv";
-import { checkConfigValue, configExist, getConfig } from "../configHelper.mjs";
+import { checkConfigValue, getConfig } from "../configHelper.cjs";
+import { log, logError } from "../logger/index.cjs";
 const logPath = "authorization.txt";
+
+// Carregar variáveis de ambiente do arquivo .env
 config();
 
-checkConfigValue("blockedRoutes",`["/default/api", "/api/auth"]`)
+checkConfigValue("blockedRoutes", `["/default/api", "/api/auth"]`);
 // configExist();
 // checkConfigIntegrity();
 // DEFAULT STATIC PUBLIC ITENS
-exposePublicFolder(app);
-exposeLogsFolder(app);
-// Middleware para configurar o tipo de conteúdo como JSON
+exposePublicFolder(routerCheckHeaderMiddleware);
+// exposeLogsFolder(routerCheckHeaderMiddleware);
+
 routerCheckHeaderMiddleware.all("/api/*name", (req, res, next) => {
   if (!req.headers["authorization"]) {
     return forbidden(
@@ -71,7 +66,6 @@ function isBlockedRoute(req) {
     return regex.test(req.path);
   });
 }
-
 function getKeys() {
   // Chaves padrão usadas caso nenhuma seja encontrada no .env
   const defaultKeys = ["ROOT:keyBypass"];
@@ -96,7 +90,7 @@ function getKeys() {
 //   // verifica se blockedRoutes não existe
 //   if (!configs.blockedRoutes) {
 //     // caso não exista configura para uma rota padrão
-//     configs.blockedRoutes = ["/default/api", "/api/auth"];
+//     configs.blockedRoutes = ["/default/api","/api/auth"];
 //     // salva novamente
 //     fwrite("config.json", configs);
 //   }

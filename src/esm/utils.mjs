@@ -4,7 +4,7 @@ import express from "express";
 import { fwrite } from "./autoFileSysModule.mjs";
 import xss from "xss";
 import { requestLogger } from "./requestLogger.mjs";
-import setCacheHeaders from "./cacheSys.mjs";
+import setCacheHeaders from "./router/cacheSys.mjs";
 import httpsSecurityMiddleware from "./router/httpsSecurity.mjs";
 import checkHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import { fileURLToPath } from "url";
@@ -178,18 +178,6 @@ export function serverTry(res, callback) {
     res.sendStatus(500);
     console.error(err);
   }
-}
-
-export function applyAutoMiddlewares(app) {
-  // Middlewares já aplicados ao app
-  app.use(requestLogger);
-  app.use(setCacheHeaders);
-  app.use(httpsSecurityMiddleware);
-  checkHeaderMiddleware(app);
-
-  console.log(
-    "\n\t[npm-package-nodejs-utils-lda] Automatic middlewares loaded!\n",
-  );
 }
 
 export function exposeFolders(app, folderPath, route) {

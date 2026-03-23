@@ -18,6 +18,9 @@ export * from "./discordUtils/interactionGetters.mjs";
 // File System
 export * from "./autoFileSysModule.mjs";
 
+// Router
+export * from "./router/router.mjs";
+
 // Utils
 export * from "./utils.mjs";
 
@@ -47,12 +50,8 @@ export * from "./auth/otp.store.mjs";
 // ----------------------------
 export { default as WSChat } from "./WSCHAT/WSChat.mjs";
 export { mongoConnect, select, insert } from "./mongodb.mjs";
-export { default as checkHeaderMiddleware } from "./checkHeaderMiddleware.mjs";
-export { default as setCacheHeaders } from "./cacheSys.mjs";
-export { default as httpsSecurityMiddleware } from "./router/httpsSecurity.mjs";
 export { default as sendFileToDiscord } from "./sendFileToDiscord.mjs";
 export { default as sendMail } from "./emailModule.mjs";
-export { requestLogger } from "./requestLogger.mjs";
 
 console.log(
   figlet.textSync("UTILS LDA", {

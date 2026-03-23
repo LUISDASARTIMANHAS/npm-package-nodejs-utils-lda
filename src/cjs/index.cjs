@@ -29,6 +29,8 @@ const { mongoConnect, select, insert } = require("./mongodb.cjs");
 const {
   registerRoutes,
   applyAutoMiddlewares,
+  requestLoggerMiddleware,
+  httpsFirewallMiddleware,
   logsDashboard,
   StatusDashboard,
   checkHeaderMiddleware,
@@ -53,8 +55,6 @@ const {
   fetchPostAsync,
   fetchPostJsonAsync,
 } = require("./fetchUtils/fetchModuleAsync.cjs");
-
-const httpsSecurityMiddleware = require("./httpsSecurity.cjs");
 
 const {
   configExist,
@@ -124,9 +124,11 @@ module.exports = {
   // Middlewares
   encryptedPayloadMiddleware,
 
-   // router
+  // router
   registerRoutes,
   applyAutoMiddlewares,
+  requestLoggerMiddleware,
+  httpsFirewallMiddleware,
   logsDashboard,
   StatusDashboard,
   checkHeaderMiddleware,
@@ -146,7 +148,7 @@ module.exports = {
   fetchPostAsync,
   fetchPostJsonAsync,
   discordLogs,
-  
+
   // CONFIG HELPER
   configExist,
   getConfig,
@@ -207,13 +209,12 @@ module.exports = {
   WSChat,
 };
 
-
 console.log(
   figlet.textSync("UTILS LDA", {
     font: "Slant",
     horizontalLayout: "default",
     verticalLayout: "default",
-  })
+  }),
 );
 
 console.log("[npm-package-nodejs-utils-lda] CommonJS  loaded 🚀");
