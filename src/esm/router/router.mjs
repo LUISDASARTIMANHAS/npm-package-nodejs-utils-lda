@@ -4,6 +4,7 @@ import routerCheckHeaderMiddleware from "./checkHeaderMiddleware.mjs";
 import routerStatusDash from "./routerStatusDash.mjs";
 import httpsFirewall from "./httpsFirewall.mjs";
 import routerRequestLogger from "./requestLoggerMiddleware.mjs";
+import { exposeLogsFolder, exposePublicFolder } from "../utils.mjs";
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
@@ -12,6 +13,7 @@ import routerRequestLogger from "./requestLoggerMiddleware.mjs";
  */
 export function logsDashboard(mainRouter) {
   mainRouter.use("/logs", routerLogsDash);
+  exposeLogsFolder(mainRouter);
   console.log("\n\t[npm-package-nodejs-utils-lda] [LogsDash] loaded!");
   return mainRouter;
 }
@@ -57,6 +59,7 @@ export function registerRoutes(mainRouter) {
   cacheMiddleware(mainRouter)
   httpsFirewallMiddleware(mainRouter);
   checkHeaderMiddleware(mainRouter);
+  exposePublicFolder(mainRouter);
   logsDashboard(mainRouter);
   StatusDashboard(mainRouter);
 

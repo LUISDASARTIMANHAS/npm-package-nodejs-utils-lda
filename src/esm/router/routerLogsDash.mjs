@@ -1,11 +1,8 @@
 import { Router } from "express";
 import { join } from "path";
 import { promises } from "fs";
-import { exposeLogsFolder } from "../utils.mjs";
 const routerLogsDash = Router();
 const LOGS_DIR = "logs";
-
-exposeLogsFolder(routerLogsDash);
 
 /**
  * Lista arquivos da pasta /logs

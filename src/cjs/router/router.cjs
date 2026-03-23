@@ -5,6 +5,7 @@ const routerStatusDash = require("./routerStatusDash.cjs");
 const httpsFirewall = require("./httpsFirewall.cjs");
 const routerRequestLogger = require("./requestLoggerMiddleware.cjs");
 const { autoLoader } = require("../autoFileSysModule.cjs");
+const { exposeLogsFolder, exposePublicFolder } = require("../utils.cjs");
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
@@ -13,6 +14,7 @@ const { autoLoader } = require("../autoFileSysModule.cjs");
  */
 function logsDashboard(mainRouter) {
   mainRouter.use("/logs", routerLogsDash);
+  exposeLogsFolder(mainRouter);
   console.log("\n\t[npm-package-nodejs-utils-lda] [LogsDash] loaded!");
   return mainRouter;
 }
@@ -60,6 +62,7 @@ function registerRoutes(mainRouter) {
   cacheMiddleware(mainRouter);
   httpsFirewallMiddleware(mainRouter);
   checkHeaderMiddleware(mainRouter);
+  exposePublicFolder(mainRouter);
   logsDashboard(mainRouter);
   StatusDashboard(mainRouter);
 

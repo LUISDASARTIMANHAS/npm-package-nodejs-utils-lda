@@ -42,11 +42,4 @@ routerRequestLogger.all("/", async (req, res, next) => {
   next();
 });
 
-// function checkConfigIntegrity() {
-//   const configs = fopen("config.json");
-//   if (!configs.requestLogger) configs.requestLogger = {};
-//   if (configs.requestLogger.enabled === undefined)
-//     configs.requestLogger.enabled = true;
-//   fwrite("config.json", configs);
-// }
 export default routerRequestLogger;

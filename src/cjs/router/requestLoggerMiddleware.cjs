@@ -4,9 +4,6 @@ const { log } = require("../logger/index.cjs");
 const { checkConfigValue, getConfig } = require("../configHelper.cjs");
 const LOGS_DIR = "requestLogger.txt";
 
-// garante que config.json existe
-// configExist();
-// checkConfigIntegrity();
 checkConfigValue("requestLogger", {
   enabled: true,
 });
@@ -42,11 +39,4 @@ routerRequestLogger.all("/", async (req, res, next) => {
   next();
 });
 
-// function checkConfigIntegrity() {
-//   const configs = fopen("config.json");
-//   if (!configs.requestLogger) configs.requestLogger = {};
-//   if (configs.requestLogger.enabled === undefined)
-//     configs.requestLogger.enabled = true;
-//   fwrite("config.json", configs);
-// }
 module.exports = routerRequestLogger;
