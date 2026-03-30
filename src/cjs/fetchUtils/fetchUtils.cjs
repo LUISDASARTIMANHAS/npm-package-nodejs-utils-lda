@@ -1,7 +1,10 @@
-const { getConfig } = require("../configHelper.cjs");
+const { getConfig, checkConfigValue } = require("../configHelper.cjs");
 const { logError, log } = require("../logger/index.cjs");
+const logPath = "server-requests.txt";
 
 // FUNÇÕES BASICAS MODULARES
+checkConfigValue("userAgent","BACKEND NODE SERVER");
+
 function checkArgs(url, callback) {
   if (!url || !callback) {
     throw new Error(`NO ARGUMENTS TO FETCH! URL OR CALLBACK IS NULL! 
@@ -14,11 +17,12 @@ function checkArgs(url, callback) {
 function buildHeaders(extraHeaders = {}, includeContentType = false) {
   const config = getConfig();
   const envAgent = process.env.SERVER_USER_AGENT;
+  const defaultServerAgent = envAgent || config.userAgent || "BACKEND NODE SERVER"
   const headersDefault = {
     "x-forwarded-proto": "https,http,http",
     "x-forwarded-port": "443,80,80",
     "accept-encoding": "gzip",
-    "User-Agent": envAgent || config.userAgent || "BACKEND NODE SERVER"
+    "User-Agent": defaultServerAgent
   };
 
   const defaultContentType = {
@@ -26,20 +30,22 @@ function buildHeaders(extraHeaders = {}, includeContentType = false) {
   };
 
   // Constrói os headers finais, adicionando Content-Type se necessário
-  return Object.assign(
-    {},
-    headersDefault,
-    includeContentType ? defaultContentType : {},
-    extraHeaders,
-  );
+  const headers = Object.assign(
+      {},
+      headersDefault,
+      includeContentType ? defaultContentType : {},
+      extraHeaders,
+    );
+    log(`The server is using the headers ${headers}`,logPath);
+    return headers;
 }
 
 function requestStatus(response) {
   const status = response.status;
   const contentType = response.headers.get("content-type");
 
-  log(`Status da resposta: ${status} - ${response.statusText}`);
-  log(`Tipo de conteúdo: ${contentType}`);
+  log(`Status da resposta: ${status} - ${response.statusText}`,logPath);
+  log(`Tipo de conteúdo: ${contentType}`,logPath);
 }
 
 function parseFetchResponse(response) {

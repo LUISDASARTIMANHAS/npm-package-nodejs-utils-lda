@@ -13,8 +13,10 @@ const { exposeLogsFolder, exposePublicFolder } = require("../utils.cjs");
  * @returns {boolean}
  */
 function logsDashboard(mainRouter) {
-  mainRouter.use("/logs", routerLogsDash);
+  // e necessario expor a pasta primeiro antes de ter uma rota
   exposeLogsFolder(mainRouter);
+
+  mainRouter.use("/logs", routerLogsDash);
   console.log("\n\t[npm-package-nodejs-utils-lda] [LogsDash] loaded!");
   return mainRouter;
 }
