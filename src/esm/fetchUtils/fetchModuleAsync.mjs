@@ -61,7 +61,7 @@ export async function fetchGetAsync(url, sendHeader = {}) {
     const result = await parseFetchResponse(response);
 
     log(`FETCH GET RECEBIDO! OK ${result.status}`, logPath);
-    log(`Dados recebidos: ${JSON.stringify(result.data)}`, logPath);
+    log(`Dados recebidos: ${JSON.stringify(result.data,null,2)}`, logPath);
 
     return result;
   } catch (error) {
@@ -94,7 +94,7 @@ export async function fetchPostAsync(url, payload, sendHeader = {}) {
     const result = await parseFetchResponse(response);
 
     log(`FETCH POST ENVIADO! OK ${result.status}`, logPath);
-    log(`Dados recebidos: ${JSON.stringify(result.data)}`, logPath);
+    log(`Dados recebidos: ${JSON.stringify(result.data,null,2)}`, logPath);
 
     return result;
   } catch (error) {
@@ -125,7 +125,7 @@ export async function fetchPostJsonAsync(url, payload, sendHeader = {}) {
     const result = await parseFetchResponse(response);
 
     log(`FETCH POST JSON ENVIADO! OK ${result.status}`, logPath);
-    log(`Dados recebidos: ${JSON.stringify(result.data)}`, logPath);
+    log(`Dados recebidos: ${JSON.stringify(result.data,null,2)}`, logPath);
 
     return result;
   } catch (error) {

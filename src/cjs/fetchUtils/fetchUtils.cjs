@@ -36,7 +36,7 @@ function buildHeaders(extraHeaders = {}, includeContentType = false) {
       includeContentType ? defaultContentType : {},
       extraHeaders,
     );
-    log(`The server is using the headers ${headers}`,logPath);
+    log(`The server is using the headers ${JSON.stringify(headers,null,2)}`,logPath,300);
     return headers;
 }
 
