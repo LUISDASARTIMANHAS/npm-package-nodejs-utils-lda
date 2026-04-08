@@ -6,7 +6,11 @@ const logPath = "httpsFirewall.log";
 
 // checkConfigIntegrity();
 
-checkConfigValue("ORIGIN", ["/^https://.+/"]);
+checkConfigValue("ORIGIN", [
+  "/^https://.+/",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+]);
 checkConfigValue("METHODS", "GET,PUT,POST,DELETE");
 checkConfigValue("ALLOWED_HEADERS", [
   "Content-Type",
@@ -49,10 +53,7 @@ async function httpsFirewall(req, res, next) {
   const hstsOptions = makeHstsOptions();
 
   cors(corsOptions)(req, res, () => {
-    if (req.method === "OPTIONS") {
-      configureCorsHeaders(res, corsOptions);
-    }
-    hsts(hstsOptions)(req, res, next);
+    helmet.hsts(hstsOptions)(req, res, next);
   });
 }
 
@@ -89,16 +90,58 @@ function logBlockedUserAgent(userAgent, req) {
   );
 }
 
-function configureCorsHeaders(res, corsOptions) {
-  res.set("Access-Control-Allow-Origin", corsOptions.origin);
-  res.set("Access-Control-Allow-Methods", corsOptions.methods);
-  res.set("Access-Control-Allow-Headers", corsOptions.allowedHeaders);
+/**
+ * Converte strings que representam regex em RegExp real.
+ *
+ * @param {string|string[]|RegExp|RegExp[]} origins
+ * @returns {(string|RegExp)[]}
+ */
+function normalizeOrigins(origins) {
+  const list = Array.isArray(origins) ? origins : [origins];
+
+  return list.map((origin) => {
+    if (origin instanceof RegExp) {
+      return origin;
+    }
+
+    if (
+      typeof origin === "string" &&
+      origin.startsWith("/") &&
+      origin.endsWith("/")
+    ) {
+      const pattern = origin.slice(1, -1);
+      return new RegExp(pattern);
+    }
+
+    return origin;
+  });
 }
 
+/**
+ * Cria opções dinâmicas de CORS.
+ *
+ * @returns {import("cors").CorsOptions}
+ */
 function makeCorsOptions() {
   const configs = getConfig();
+  const allowedOrigins = normalizeOrigins(configs.ORIGIN);
+
   return {
-    origin: configs.ORIGIN,
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+
+      const isAllowed = allowedOrigins.some((allowedOrigin) => {
+        if (allowedOrigin instanceof RegExp) {
+          return allowedOrigin.test(origin);
+        }
+
+        return allowedOrigin === origin;
+      });
+
+      if (isAllowed) return callback(null, true);
+
+      return callback(new Error(`CORS bloqueado para a origem: ${origin}`));
+    },
     methods: configs.METHODS,
     allowedHeaders: configs.ALLOWED_HEADERS,
     optionsSuccessStatus: 204,
@@ -113,53 +156,4 @@ function makeHstsOptions() {
   };
 }
 
-// function checkConfigIntegrity() {
-//   // obtem config.json
-//   const configs = fopen("config.json");
-//   if (!configs.ORIGIN) {
-//     configs.ORIGIN = ["/^https://.+/"];
-//   }
-//   if (!configs.METHODS) {
-//     configs.METHODS = "GET,PUT,POST,DELETE";
-//   }
-//   if (!configs.ALLOWED_HEADERS) {
-//     configs.ALLOWED_HEADERS = [
-//       "Content-Type",
-//       "Access-Control-Allow-Origin",
-//       "authorization",
-//       "id",
-//       "key",
-//       "urlParams",
-//       "cache-control",
-//       "X-Disable-Cache",
-//       "x-nonce",
-//       "x-signature",
-//       "x-timestamp",
-//       "x-ip-info",
-//     ];
-//   }
-//   if (!configs.ALLOWED_USER_AGENTS) {
-//     configs.ALLOWED_USER_AGENTS = [
-//       "Mozilla",
-//       "Chrome",
-//       "Firefox",
-//       "custom/1.0",
-//       "Discordbot",
-//       "iPhone OS",
-//       "WordPress"
-//     ];
-//   }
-//   if (!configs.BLOCKED_USER_AGENTS) {
-//     configs.BLOCKED_USER_AGENTS = [
-//       "CensysInspect",
-//       "Shodan",
-//       "curl",
-//       "python-requests",
-//       "nmap",
-//     ];
-//   }
-
-//   // salva novamente
-//   fwrite("config.json", configs);
-// }
 export default httpsFirewall;
