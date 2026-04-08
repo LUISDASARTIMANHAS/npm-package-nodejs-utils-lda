@@ -57,9 +57,9 @@ export function cacheMiddleware(app) {
  * @returns {import("express").Router | import("express").Express}
  */
 export function registerRoutes(mainRouter) {
+  httpsFirewallMiddleware(mainRouter); // SEMPRE primeiro devido ao cors
   requestLoggerMiddleware(mainRouter);
   cacheMiddleware(mainRouter)
-  httpsFirewallMiddleware(mainRouter);
   checkHeaderMiddleware(mainRouter);
   exposePublicFolder(mainRouter);
   logsDashboard(mainRouter);
