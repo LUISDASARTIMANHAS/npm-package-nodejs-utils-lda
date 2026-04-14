@@ -1,17 +1,27 @@
 const fs = require("fs");
 const nodemailer = require("nodemailer");
-const { fopen, fwrite } = require("./autoFileSysModule.cjs");
-const { configExist } = require("./configHelper.cjs");
+const { configExist, checkConfigValue, getConfig } = require("./configHelper.cjs");
 const { log, logError } = require("./logger/index.cjs");
 configExist();
-const configMail = fopen("config.json").emailSystem;
-let transporter;
 
-checkConfigIntegrity();
+checkConfigValue("emailSystem.service", "Gmail");
+checkConfigValue("emailSystem.host", "smtp.gmail.com");
+checkConfigValue("emailSystem.ssl_port", 465);
+checkConfigValue("emailSystem.tls_port: ", 587);
+checkConfigValue("emailSystem.user: ", "example@gmail.com");
+checkConfigValue("emailSystem.ssl_tls: ", true);
 
-if (nodemailer.createTransport({ service: configMail.service })) {
+const configMail = getConfig().emailSystem;
+let dinamicPort = configMail.ssl_port;
+const useTLS = configMail.ssl_tls;
+
+if (useTLS) {
+  dinamicPort = configMail.tls_port;
+}
+
+if (createTransport({ service: configMail.service })) {
   // Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço
-  transporter = nodemailer.createTransport({
+  transporter = createTransport({
     service: configMail.service || "Gmail",
     auth: {
       user: process.env.email,
@@ -20,9 +30,9 @@ if (nodemailer.createTransport({ service: configMail.service })) {
   });
 } else {
   // Caso contrário, crie o transporte manualmente
-  transporter = nodemailer.createTransport({
+  transporter = createTransport({
     host: configMail.host,
-    port: configMail.port,
+    port: dinamicPort,
     secure: configMail.ssl_tls, // SSL/TLS ativado
     auth: {
       user: process.env.email,
@@ -49,41 +59,8 @@ function sendMail(email, subject, text, callback) {
       }
     });
   } catch (error) {
-    logError("<sendMail>: Erro ao criar email: ", error);
+    logError("SERVIDOR <sendMail>: Erro ao criar email: ", error);
     callback(error, null);
-  }
-}
-
-function checkConfigIntegrity() {
-  // Obter config.json
-  const configs = fopen("config.json");
-  // Verificar se a chave emailSystem existe antes de acessá-la
-  if (!configs.emailSystem) {
-    // Cria emailSystem caso não exista
-    configs.emailSystem = {};
-  }
-  const emailConfig = configs.emailSystem;
-
-  // Verificar e atribuir valores padrão, se necessário
-  if (
-    !emailConfig.service ||
-    !emailConfig.host ||
-    !emailConfig.port ||
-    !emailConfig.ssl_tls ||
-    !emailConfig.user
-  ) {
-    // Verifica cada propriedade individualmente e adiciona valores padrão se faltar
-    configs.emailSystem.service = configs.emailSystem.service || "Gmail";
-    configs.emailSystem.host = configs.emailSystem.host || "smtp.gmail.com";
-    configs.emailSystem.port = configs.emailSystem.port || 25;
-    configs.emailSystem.ssl_tls =
-      configs.emailSystem.ssl_tls !== undefined
-        ? configs.emailSystem.ssl_tls
-        : true;
-    configs.emailSystem.user = configs.emailSystem.user || "example@gmail.com";
-
-    // Salva novamente as configurações no arquivo config.json
-    fwrite("config.json", configs);
   }
 }
 

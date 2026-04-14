@@ -53,7 +53,7 @@ async function httpsFirewall(req, res, next) {
   const hstsOptions = makeHstsOptions();
 
   cors(corsOptions)(req, res, () => {
-    helmet.hsts(hstsOptions)(req, res, next);
+    hsts(hstsOptions)(req, res, next);
   });
 }
 

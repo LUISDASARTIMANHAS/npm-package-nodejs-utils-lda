@@ -16,7 +16,10 @@ const logPath = "authorization.txt";
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();
 
-checkConfigValue("blockedRoutes", `["/default/api", "/api/auth"]`);
+checkConfigValue("blockedRoutes", [
+  "/default/api",
+  "/api/auth"
+]);
 // configExist();
 // checkConfigIntegrity();
 // DEFAULT STATIC PUBLIC ITENS
