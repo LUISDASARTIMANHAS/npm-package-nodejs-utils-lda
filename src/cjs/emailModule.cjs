@@ -19,9 +19,9 @@ if (useTLS) {
   dinamicPort = configMail.tls_port;
 }
 
-if (createTransport({ service: configMail.service })) {
+if (nodemailer.createTransport({ service: configMail.service })) {
   // Se o serviço estiver entre os suportados pelo Nodemailer, use createTransport com o serviço
-  transporter = createTransport({
+  transporter = nodemailer.createTransport({
     service: configMail.service || "Gmail",
     auth: {
       user: process.env.email,
@@ -30,7 +30,7 @@ if (createTransport({ service: configMail.service })) {
   });
 } else {
   // Caso contrário, crie o transporte manualmente
-  transporter = createTransport({
+  transporter = nodemailer.createTransport({
     host: configMail.host,
     port: dinamicPort,
     secure: configMail.ssl_tls, // SSL/TLS ativado

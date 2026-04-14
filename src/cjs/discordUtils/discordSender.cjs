@@ -1,4 +1,4 @@
-const { getConfig } = require("../configHelper.mjs");
+const { getConfig } = require("../configHelper.cjs");
 const { fetchPost } = require("../fetchUtils/fetchModule.cjs");
 const { logError } = require("../logger/index.cjs");
 const setEmbed = require("./discordEmbed.cjs");

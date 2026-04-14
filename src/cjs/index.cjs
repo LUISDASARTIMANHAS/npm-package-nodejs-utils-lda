@@ -91,6 +91,8 @@ const {
   encryptedPayloadMiddleware,
 } = require("./security/encryptedPayload.middleware.cjs");
 
+const antiReplyMiddleware = require("./security/antiReplay.cjs");
+
 const {
   decryptAESGCM,
   decryptAESKey,
