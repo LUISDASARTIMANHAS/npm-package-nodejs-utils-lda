@@ -1,13 +1,13 @@
-# Função para verificar se o PowerShell está rodando com permissões de administrador
+# Funï¿½ï¿½o para verificar se o PowerShell estï¿½ rodando com permissï¿½es de administrador
 function Check-Admin {
     $isAdmin = (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Host "O script não está sendo executado como Administrador. Tentando reiniciar com privilégios de Administrador..." -ForegroundColor yellow
+        Write-Host "O script nÃ£o esta sendo executado como Administrador. Tentando reiniciar com privilegios de Administrador..." -ForegroundColor yellow
         
         # Obter o caminho completo do script atual
         $scriptPath = $MyInvocation.MyCommand.Path
         if (-not $scriptPath) {
-            $scriptPath = $PSCommandPath  # Se o caminho não for encontrado, tentamos uma abordagem alternativa
+            $scriptPath = $PSCommandPath  # Se o caminho nï¿½o for encontrado, tentamos uma abordagem alternativa
         }
         
         if ($scriptPath) {
@@ -16,19 +16,21 @@ function Check-Admin {
             Start-Process powershell -ArgumentList $arguments -Verb runAs
             exit
         } else {
-            Write-Host "Erro: Não foi possível obter o caminho do script." -ForegroundColor red
+            Write-Host "Erro: NÃ£o foi possivel obter o caminho do script." -ForegroundColor red
             exit
         }
     }
 }
 
-# Função principal de despublicação
+# Funï¿½ï¿½o principal de despublicando
 function DespublicarVersao {
     # Nome do pacote
     $packageName = "npm-package-nodejs-utils-lda"
+    $url = "https://registry.npmjs.org/$packageName"
 
+    Write-Host "Buscando... $url" -ForegroundColor green
     # Baixar os dados JSON do pacote
-    $response = Invoke-RestMethod -Uri "https://registry.npmjs.org/$packageName"
+    $response = Invoke-RestMethod -Uri "$url" -Method Get
 
     # Verificar se a resposta foi obtida com sucesso
     if ($response) {
@@ -38,53 +40,53 @@ function DespublicarVersao {
         exit
     }
 
-    # Exibir as versões disponíveis
-    Write-Host "Exibindo versões disponíveis:"
+    # Exibir as versoes disponiveis
+    Write-Host "Exibindo versoes disponiveis:"
     $versions = $response.versions.PSObject.Properties.Name
     $counter = 1
 
-    # Exibir as versões para o usuário
+    # Exibir as versoes para o usuario
     foreach ($version in $versions) {
         Write-Host "$counter - $version" -ForegroundColor blue
         $counter++
     }
 
-    # Solicitar ao usuário para escolher uma versão
-    $choice = Read-Host "Escolha a versão para despublicar (1-para despublicar versão)"
+    # Solicitar ao usuario para escolher uma versao
+    $choice = Read-Host "Escolha a versao para despublicar (1-para despublicar versao)"
 
     # Validar a escolha
     if ($choice -ge 1 -and $choice -le $versions.Count) {
         $versionToDelete = $versions[$choice - 1]
-        Write-Host "Você escolheu despublicar a versão: $versionToDelete"
+        Write-Host "Voce escolheu despublicar a versao: $versionToDelete"
 
-        # Confirmar despublicação
-        $confirm = Read-Host "Tem certeza que deseja despublicar esta versão? (s/n)"
+        # Confirmar despublicando
+        $confirm = Read-Host "Tem certeza que deseja despublicar esta versao? (s/n)"
 
         if ($confirm -eq "s") {
-            Write-Host "Despublicando a versão $versionToDelete..." -ForegroundColor Yellow 
+            Write-Host "Despublicando a versao $versionToDelete..." -ForegroundColor Yellow 
             Write-Host "Command: npm unpublish $packageName@$versionToDelete" -ForegroundColor red 
 
-            # Descomente a linha abaixo para executar o comando de despublicação
+            # Descomente a linha abaixo para executar o comando de despublicando
              npm unpublish $packageName@$versionToDelete
-            Write-Host "Versão Despublicada!" -ForegroundColor red 
+            Write-Host "Versao Despublicada!" -ForegroundColor red 
             pause
         } else {
-            Write-Host "Despublicação cancelada."
+            Write-Host "Despublicando cancelada."
         }
     } else {
-        Write-Host "Escolha inválida."
+        Write-Host "Escolha invalida."
     }
 }
 
-# Verifica se está sendo executado como Administrador
+# Verifica se estï¿½ sendo executado como Administrador
 Check-Admin
 
 # Loop principal
 do {
     DespublicarVersao
     
-    # Perguntar se o usuário deseja despublicar outra versão
-    # $continue = Read-Host "Deseja despublicar outra versão? (s/n)"
+    # Perguntar se o usuario deseja despublicar outra versao
+    # $continue = Read-Host "Deseja despublicar outra versao? (s/n)"
     $continue = "s"
     clear
 } while ($continue -eq "s")

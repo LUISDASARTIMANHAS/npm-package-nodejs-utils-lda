@@ -14,11 +14,8 @@ checkConfigValue("blockedRoutes", [
   "/default/api",
   "/api/auth"
 ]);
-// configExist();
-// checkConfigIntegrity();
 // DEFAULT STATIC PUBLIC ITENS
 exposePublicFolder(routerCheckHeaderMiddleware);
-// exposeLogsFolder(routerCheckHeaderMiddleware);
 
 routerCheckHeaderMiddleware.all("/api/*name", (req, res, next) => {
   if (!req.headers["authorization"]) {
@@ -86,17 +83,5 @@ function getKeys() {
 
   return finalKeys;
 }
-
-// function checkConfigIntegrity() {
-//   // obtem config.json
-//   const configs = fopen("config.json");
-//   // verifica se blockedRoutes não existe
-//   if (!configs.blockedRoutes) {
-//     // caso não exista configura para uma rota padrão
-//     configs.blockedRoutes = ["/default/api","/api/auth"];
-//     // salva novamente
-//     fwrite("config.json", configs);
-//   }
-// }
 
 export default routerCheckHeaderMiddleware;

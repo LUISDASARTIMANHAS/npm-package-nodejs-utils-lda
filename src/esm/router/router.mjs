@@ -1,6 +1,7 @@
 import routerCache from "./cacheSys.mjs";
 import routerLogsDash from "./routerLogsDash.mjs";
 import routerCheckHeaderMiddleware from "./checkHeaderMiddleware.mjs";
+import routerAntiReplyMiddleware from "../security/antiReplay.mjs";
 import routerStatusDash from "./routerStatusDash.mjs";
 import httpsFirewall from "./httpsFirewall.mjs";
 import routerRequestLogger from "./requestLoggerMiddleware.mjs";
@@ -39,8 +40,15 @@ export function httpsFirewallMiddleware(app) {
 }
 
 export function checkHeaderMiddleware(app) {
-  app.use(routerCheckHeaderMiddleware);
+  antiReplyMiddleware(app); // 🔥 primeiro (segurança)
+  app.use(routerCheckHeaderMiddleware); // depois auth
   console.log("\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!");
+  return app;
+}
+
+export function antiReplyMiddleware(app) {
+  app.use(routerAntiReplyMiddleware);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [antiReplyMiddleware] loaded!");
   return app;
 }
 

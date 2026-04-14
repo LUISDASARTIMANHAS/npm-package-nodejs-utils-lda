@@ -1,6 +1,7 @@
 const routerCache = require("./cacheSys.cjs");
 const routerLogsDash = require("./routerLogsDash.cjs");
 const routerCheckHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
+const routerAntiReplyMiddleware = require("../security/antiReplay.cjs");
 const routerStatusDash = require("./routerStatusDash.cjs");
 const httpsFirewall = require("./httpsFirewall.cjs");
 const routerRequestLogger = require("./requestLoggerMiddleware.cjs");
@@ -40,9 +41,18 @@ function httpsFirewallMiddleware(app) {
 }
 
 function checkHeaderMiddleware(app) {
-  app.use(routerCheckHeaderMiddleware);
+  antiReplyMiddleware(app); // 🔥 primeiro (segurança)
+  app.use(routerCheckHeaderMiddleware); // depois auth
   console.log(
     "\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!",
+  );
+  return app;
+}
+
+function antiReplyMiddleware(app) {
+  app.use(routerAntiReplyMiddleware);
+  console.log(
+    "\n\t[npm-package-nodejs-utils-lda] [antiReplyMiddleware] loaded!",
   );
   return app;
 }
@@ -95,4 +105,5 @@ module.exports = {
   StatusDashboard,
   checkHeaderMiddleware,
   cacheMiddleware,
+  antiReplyMiddleware,
 };

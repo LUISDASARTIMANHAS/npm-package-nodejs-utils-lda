@@ -133,6 +133,7 @@ module.exports = {
   StatusDashboard,
   checkHeaderMiddleware,
   cacheMiddleware,
+  antiReplyMiddleware,
 
   // Security / crypto
   decryptAESGCM,
