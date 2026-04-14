@@ -23,14 +23,35 @@ export function saveConfig(data) {
   return config;
 }
 
-export function checkConfigValue(key,value){
-// obtem config.json
+/**
+ * Define valor no config usando path (ex: "discordLogs.color")
+ * @param {string} key
+ * @param {any} value
+ * @returns {void}
+ */
+export function checkConfigValue(key, value) {
   const configs = getConfig();
-  // verifica se existe a config
-  if (!configs[key]) {
-    // caso não exista configura
-    configs[key] = value;
-    // salva novamente
-    saveConfig(configs)
+
+  const keys = key.split(".");
+  let current = configs;
+
+  // percorre até a última chave
+  for (let i = 0; i < keys.length - 1; i++) {
+    const k = keys[i];
+
+    // se não existir, cria objeto
+    if (!current[k] || typeof current[k] !== "object") {
+      current[k] = {};
+    }
+
+    current = current[k];
+  }
+
+  const lastKey = keys[keys.length - 1];
+
+  // só define se não existir
+  if (current[lastKey] === undefined) {
+    current[lastKey] = value;
+    saveConfig(configs);
   }
 }

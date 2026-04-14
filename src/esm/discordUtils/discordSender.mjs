@@ -1,10 +1,10 @@
-import { fopen, fwrite } from "../autoFileSysModule.mjs";
+import { getConfig } from "../configHelper.mjs";
 import { fetchPost } from "../fetchUtils/fetchModule.mjs";
 import { logError } from "../logger/index.mjs";
 import setEmbed from "./discordEmbed.mjs";
 
 export function discordLogs(title, mensagem, footerText) {
-  const configs = fopen("config.json").discordLogs;
+  const configs = getConfig().discordLogs
   const date = new Date();
   const ano = date.getFullYear();
   const webhookUrl = process.env.DISCORD_LOGS_WEBHOOK_URL;

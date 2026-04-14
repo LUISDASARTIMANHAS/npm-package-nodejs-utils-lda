@@ -1,9 +1,10 @@
-const { fopen, fwrite } = require("../autoFileSysModule.cjs");
+const { getConfig } = require("../configHelper.mjs");
 const { fetchPost } = require("../fetchUtils/fetchModule.cjs");
 const { logError } = require("../logger/index.cjs");
 const setEmbed = require("./discordEmbed.cjs");
+
 function discordLogs(title, mensagem, footerText) {
-  const configs = fopen("config.json").discordLogs;
+  const configs = getConfig().discordLogs;
   const date = new Date();
   const ano = date.getFullYear();
   const webhookUrl = process.env.DISCORD_LOGS_WEBHOOK_URL;
