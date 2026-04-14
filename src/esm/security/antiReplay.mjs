@@ -1,5 +1,7 @@
 import { Router } from "express";
+import { log, logError } from "../logger/index.mjs";
 const routerAntiReplyMiddleware = Router();
+const logPath = "securityAntiReply.log";
 
 const recentNonces = new Map();
 
@@ -69,7 +71,7 @@ function antiReplayHandler(req, res, next) {
   const diff = Math.abs(now - timestamp);
 
   if (diff > TIME_LIMIT_MS) {
-    console.warn(
+    log(
       `[ANTI-REPLAY WARN] Timestamp inválido (${diff}ms). Origem: ${originIP} em ${originUrl}`
     );
 
@@ -82,7 +84,7 @@ function antiReplayHandler(req, res, next) {
   /* ===== 3. Replay attack ===== */
 
   if (recentNonces.has(nonce)) {
-    console.error(
+    logError(
       `[ANTI-REPLAY ALERT] Nonce reutilizado: ${nonce}. Origem: ${originIP} em ${originUrl}`
     );
 

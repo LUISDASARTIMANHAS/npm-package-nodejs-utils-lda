@@ -1,6 +1,7 @@
 const express = require("express");
+const { logError, log } = require("../logger/index.cjs");
 const routerAntiReplyMiddleware = express.Router();
-
+const logPath = "securityAntiReply.log";
 const recentNonces = new Map();
 
 /**
@@ -69,8 +70,9 @@ function antiReplayHandler(req, res, next) {
   const diff = Math.abs(now - timestamp);
 
   if (diff > TIME_LIMIT_MS) {
-    console.warn(
-      `[ANTI-REPLAY WARN] Timestamp inválido (${diff}ms). Origem: ${originIP} em ${originUrl}`
+    log(
+      `[ANTI-REPLAY WARN] Timestamp inválido (${diff}ms). Origem: ${originIP} em ${originUrl}`,
+      logPath,
     );
 
     return res.status(401).json({
@@ -82,8 +84,9 @@ function antiReplayHandler(req, res, next) {
   /* ===== 3. Replay attack ===== */
 
   if (recentNonces.has(nonce)) {
-    console.error(
-      `[ANTI-REPLAY ALERT] Nonce reutilizado: ${nonce}. Origem: ${originIP} em ${originUrl}`
+    logError(
+      `[ANTI-REPLAY ALERT] Nonce reutilizado: ${nonce}. Origem: ${originIP} em ${originUrl}`,
+      logPath,
     );
 
     return res.status(401).json({
