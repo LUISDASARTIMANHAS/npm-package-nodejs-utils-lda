@@ -6,6 +6,8 @@ lista de funções disponiveis para discord na blibioteca npm-package-nodejs-uti
 // general
 function setEmbed(title, description, colorHex, footerText, footerURL);
 function discordLogs(title, mensagem, footerText);
+// shell execute via discord
+async function discordHandleExecTemplate(interaction, execCommand,parameters = "")
 
 // utils
 function getUsersCount(bot);
