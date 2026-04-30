@@ -4,6 +4,7 @@ import { ActivityType, Routes } from "discord.js";
 import { isDM } from "./interactionGetters.mjs";
 import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
 import { fopen } from "../autoFileSysModule.mjs";
+import setEmbed from "./discordEmbed.mjs";
 import os from "os";
 // exporters pre commands
 export * from "./defaultCommands/setStatus.mjs";
@@ -12,6 +13,8 @@ export * from "./defaultCommands/nslookup.mjs";
 export * from "./defaultCommands/tracert.mjs";
 export * from "./defaultCommands/curl.mjs";
 export * from "./defaultCommands/ping.mjs";
+export * from "./ticketUtils.mjs";
+export { setEmbed };
 
 /**
  * Retorna o número de usuários que o bot consegue ver.
@@ -186,7 +189,11 @@ export async function replyWarning(interaction, message, isPrivate = true) {
   });
 }
 
-export async function discordHandleExecTemplate(interaction, execCommand,parameters = "") {
+export async function discordHandleExecTemplate(
+  interaction,
+  execCommand,
+  parameters = "",
+) {
   try {
     const command = `${execCommand} ${parameters || ""}`.trim();
     // avisar que vai responder depois, isso invalida .reply()

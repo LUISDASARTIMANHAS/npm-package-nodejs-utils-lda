@@ -1,3 +1,4 @@
+// permissionValidators.mjs
 import { replyWarning } from "./discordUtils.mjs";
 import { getGuildByInteraction } from "./interactionGetters.mjs";
 import { PermissionsBitField } from "discord.js";
