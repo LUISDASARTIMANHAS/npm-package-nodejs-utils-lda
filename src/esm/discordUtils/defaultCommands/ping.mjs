@@ -26,7 +26,7 @@ async function handlePing(interaction) {
     const domain = interaction.options.getString("domain");
     const args = interaction.options.getString("args");
 
-    await discordHandleExecTemplate(interaction, `ping ${args} ${domain}`);
+    await discordHandleExecTemplate(interaction, `ping ${domain}`,args);
   }
 }
 

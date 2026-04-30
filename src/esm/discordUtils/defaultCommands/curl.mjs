@@ -23,11 +23,8 @@ async function handleCurl(interaction) {
   if (interaction.commandName === "curl") {
     const domain = interaction.options.getString("domain");
     const args = interaction.options.getString("args");
-    if (args) {
-      await discordHandleExecTemplate(interaction, `curl ${args} ${domain}`);
-    } else {
-      await discordHandleExecTemplate(interaction, `curl ${domain}`);
-    }
+
+    await discordHandleExecTemplate(interaction, `curl ${domain}`, args);
   }
 }
 

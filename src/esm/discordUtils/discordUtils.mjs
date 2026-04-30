@@ -186,18 +186,19 @@ export async function replyWarning(interaction, message, isPrivate = true) {
   });
 }
 
-export async function discordHandleExecTemplate(interaction, execCommand) {
+export async function discordHandleExecTemplate(interaction, execCommand,parameters = "") {
   try {
+    const command = `${execCommand} ${parameters || ""}`.trim();
     // avisar que vai responder depois, isso invalida .reply()
     await interaction.deferReply();
 
     // mostra mensagem de processamento
-    await interaction.editReply(`⏳ Executing ${execCommand}...
-		⏳ Executando ${execCommand}...`);
+    await interaction.editReply(`⏳ Executing ${command}...
+		⏳ Executando ${command}...`);
 
-    const resultado = await shell(execCommand);
+    const resultado = await shell(command);
     await interaction.editReply({
-      content: `🖥️ ${execCommand}:\n\`\`\`\n${resultado.slice(0, 1900)}\n\`\`\``,
+      content: `🖥️ ${command}:\n\`\`\`\n${resultado.slice(0, 1900)}\n\`\`\``,
     });
   } catch (err) {
     console.error(err);
