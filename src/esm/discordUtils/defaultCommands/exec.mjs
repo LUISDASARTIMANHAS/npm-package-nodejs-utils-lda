@@ -1,3 +1,4 @@
+import { SlashCommandBuilder } from "discord.js";
 import { discordHandleExecTemplate } from "../discordUtils.mjs";
 
 let execCommand = new SlashCommandBuilder()
