@@ -91,6 +91,15 @@ function getCreatedTimestamp(interaction);
 function isDM(interaction);
 
 /* -----------------------------
+	TICKET SYSTEM
+----------------------------- */
+function hasOpenTicket(userId);
+function registerTicket(userId, channelId);
+function removeTicketByChannel(channelId);
+async function createTicketChannelFromInteraction(interaction, options);
+async function closeTicket(interaction);
+
+/* -----------------------------
 	 SUMMARY GETTER
 ----------------------------- */
 // Retorna um resumo completo da interação (útil para logs/debug).
