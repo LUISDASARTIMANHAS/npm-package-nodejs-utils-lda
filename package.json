@@ -29,7 +29,7 @@
   "dependencies": {
     "@discordjs/builders": "^1.14.1",
     "@discordjs/rest": "^2.6.1",
-    "@google/genai": "^1.51.0",
+    "@google/genai": "^2.0.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.6",
     "discord.js": "^14.26.3",
