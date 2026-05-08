@@ -1,3 +1,4 @@
+// discordUtils\defaultCommands\curl.mjs
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { discordHandleExecTemplate } from "../discordUtils.mjs";
 

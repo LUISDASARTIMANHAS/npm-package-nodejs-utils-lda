@@ -1,5 +1,6 @@
 // interactionGetters.js
 import { ChannelType } from "discord.js";
+import { discordAwaitReply } from "./discordUtils.mjs";
 
 /* -----------------------------
 	 GUILD GETTERS
@@ -206,6 +207,7 @@ export function isDM(interaction) {
  * @returns {object}
  */
 export function getInteractionSummary(interaction) {
+  discordAwaitReply(interaction); // ACK IMEDIATO para evitar timeouts em logs detalhados
   console.log("\n[getInteractionSummary]:\n");
   return {
     guildId: getGuildIdByInteraction(interaction),

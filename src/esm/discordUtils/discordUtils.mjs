@@ -171,6 +171,14 @@ export async function validateInteractionChannel(interaction) {
   return false;
 }
 
+export async function discordAwaitReply(interaction){
+   // ACK IMEDIATO
+    if (!interaction.deferred && !interaction.replied) {
+      // avisar que vai responder depois, isso invalida .reply()
+      await interaction.deferReply();
+    }
+}
+
 /**
  * Envia uma mensagem de aviso para o usuário dentro da interação.
  *
@@ -195,9 +203,8 @@ export async function discordHandleExecTemplate(
   parameters = "",
 ) {
   try {
+    await discordAwaitReply();
     const command = `${execCommand} ${parameters || ""}`.trim();
-    // avisar que vai responder depois, isso invalida .reply()
-    await interaction.deferReply();
 
     // mostra mensagem de processamento
     await interaction.editReply(`⏳ Executing ${command}...
