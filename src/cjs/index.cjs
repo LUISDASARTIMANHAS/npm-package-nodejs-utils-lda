@@ -215,13 +215,7 @@ module.exports = {
   shell,
 
   // User system
-  insertUser,
-  selectUser,
-  alterUser,
-  deleteUser,
-  disableUser,
-  reactivateUser,
-  ordenarUsuario,
+	...require("./userSystem/index.cjs"),
 
   // MongoDB
   mongoConnect,

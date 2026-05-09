@@ -25,7 +25,7 @@ export * from "./router/router.mjs";
 export * from "./utils.mjs";
 
 // User System
-export * from "./userSystem.mjs";
+export * from "./userSystem/index.mjs";
 
 // Fetch Modules
 export * from "./fetchUtils/fetchModule.mjs";

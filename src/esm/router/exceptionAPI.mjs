@@ -2,7 +2,7 @@ export function sendAPIError(res, statusCode, message, details = {}) {
   console.error(statusCode, message, details);
   return res.status(statusCode).json({
     error: message,
-    ...details,
+    details: details,
   });
 }
 
