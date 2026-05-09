@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { join } from "path";
 import { promises } from "fs";
+import { httpForbidden, httpInternalServerError } from "./exceptionAPI.mjs";
 const routerLogsDash = Router();
 const LOGS_DIR = "logs";
 
@@ -42,7 +43,7 @@ routerLogsDash.get("/", async (req, res) => {
       `);
   } catch (error) {
     console.error("ERRO REAL:", error);
-    res.status(500).send("Erro ao listar arquivos.");
+    httpInternalServerError(res,"Erro ao listar arquivos.");
   }
 });
 
@@ -54,7 +55,7 @@ routerLogsDash.get("/:filename", (req, res) => {
 
   // Proteção contra path traversal
   if (!filePath.startsWith(LOGS_DIR)) {
-    return res.status(403).send("Acesso negado.");
+    return httpForbidden(res, "Acesso negado.");
   }
 
   res.sendFile(filePath);

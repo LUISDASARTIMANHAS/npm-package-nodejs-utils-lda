@@ -1,5 +1,9 @@
 const express = require("express");
 const { logError, log } = require("../logger/index.cjs");
+const {
+  httpBadRequest,
+  httpUnauthorized,
+} = require("../router/exceptionAPI.cjs");
 const routerAntiReplyMiddleware = express.Router();
 const logPath = "securityAntiReply.log";
 const recentNonces = new Map();
@@ -49,8 +53,7 @@ function antiReplayHandler(req, res, next) {
   /* ===== 1. Validação de presença ===== */
 
   if (!nonce || !timestampRaw) {
-    return res.status(400).json({
-      error: "Headers obrigatórios ausentes.",
+    return httpBadRequest(res, "Headers obrigatórios ausentes.", {
       required_headers: {
         "x-nonce": "string (único por requisição)",
         "x-timestamp": "number (ms)",
@@ -59,9 +62,7 @@ function antiReplayHandler(req, res, next) {
   }
 
   if (isNaN(timestamp)) {
-    return res.status(400).json({
-      error: "x-timestamp inválido.",
-    });
+    return httpBadRequest(res, null, "x-timestamp inválido.");
   }
 
   /* ===== 2. Validação de tempo ===== */
@@ -75,10 +76,11 @@ function antiReplayHandler(req, res, next) {
       logPath,
     );
 
-    return res.status(401).json({
-      error: "Timestamp expirado.",
-      details: `Diferença de ${diff}ms (limite ${TIME_LIMIT_MS}ms)`,
-    });
+    return httpUnauthorized(
+      res,
+      "Timestamp expirado",
+      `Diferença de ${diff}ms (limite ${TIME_LIMIT_MS}ms)`,
+    );
   }
 
   /* ===== 3. Replay attack ===== */
@@ -89,10 +91,11 @@ function antiReplayHandler(req, res, next) {
       logPath,
     );
 
-    return res.status(401).json({
-      error: "Replay attack detectado.",
-      details: "Nonce já utilizado recentemente.",
-    });
+    return httpUnauthorized(
+      res,
+      "Replay attack detectado.",
+      "Nonce já utilizado recentemente.",
+    );
   }
 
   /* ===== 4. Armazenamento */

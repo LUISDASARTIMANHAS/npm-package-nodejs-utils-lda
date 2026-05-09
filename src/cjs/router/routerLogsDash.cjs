@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const { httpInternalServerError } = require("../router/exceptionAPI.cjs");
 const routerLogsDash = express.Router();
 const LOGS_DIR = "logs";
 
@@ -42,7 +43,7 @@ routerLogsDash.get("/", async (req, res) => {
       `);
   } catch (error) {
     console.error("ERRO REAL:", error);
-    res.status(500).send("Erro ao listar arquivos.");
+    httpInternalServerError(res,"Erro ao listar arquivos.");
   }
 });
 

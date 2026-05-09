@@ -2,6 +2,7 @@ import { Router } from "express";
 import { landingPage, sanitizeNetworkInterfaces } from "../utils.mjs";
 import { log } from "../logger/index.mjs";
 import { networkInterfaces, loadavg, platform as _platform, cpus, totalmem, freemem } from "os";
+import { httpServiceUnavailable } from "./exceptionAPI.mjs";
 const routerStatusDash = Router();
 
 routerStatusDash.get("/", (req, res) => {
@@ -26,7 +27,7 @@ routerStatusDash.get("/status", (req, res) => {
       network: sanitizeNetworkInterfaces(rawInterfaces),
     });
   } catch (e) {
-    res.status(503).json({ message: "ERROR" });
+    httpServiceUnavailable(res,null,e);
   }
 });
 

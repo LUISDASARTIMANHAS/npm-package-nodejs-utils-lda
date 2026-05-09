@@ -1,6 +1,7 @@
 const express = require("express");
 const { landingPage, sanitizeNetworkInterfaces } = require("../utils.cjs");
 const { log } = require("../logger/index.cjs");
+const { sendAPIError } = require("./exceptionAPI.cjs");
 const os = require("os");
 const routerStatusDash = express.Router();
 
@@ -26,7 +27,7 @@ routerStatusDash.get("/status", (req, res) => {
       network: sanitizeNetworkInterfaces(rawInterfaces),
     });
   } catch (e) {
-    res.status(503).json({ message: "ERROR" });
+    return sendAPIError(res, 503, "ERROR");
   }
 });
 

@@ -1,4 +1,5 @@
 import express from "express";
+import { httpInternalServerError } from "../router/exceptionAPI.mjs";
 const storageRouter = express.Router();
 
 storageRouter.post("/upload", async (req, res) => {
@@ -7,8 +8,7 @@ storageRouter.post("/upload", async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "500 - INTERNAL SERVER ERROR" });
+    return httpInternalServerError(res,null,err);
   }
 });
 
@@ -16,8 +16,7 @@ storageRouter.get("/", async (req, res) => {
   try {
     return res.send("Storage API is running!");
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "500 - INTERNAL SERVER ERROR" });
+    return httpInternalServerError(res,null,err);
   }
 });
 
@@ -25,8 +24,7 @@ storageRouter.delete("/delete", async (req, res) => {
   try {
     return res.send("Storage API is running!");
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "500 - INTERNAL SERVER ERROR" });
+    return httpInternalServerError(res,null,err);
   }
 });
 

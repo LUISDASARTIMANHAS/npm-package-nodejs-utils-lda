@@ -37,6 +37,23 @@ const {
   cacheMiddleware,
 } = require("./router/router.cjs");
 
+const {
+  sendAPIError,
+  httpBadRequest,
+  httpUnauthorized,
+  httpForbidden,
+  httpNotFound,
+  httpMethodNotAllowed,
+  httpConflict,
+  httpUnprocessableEntity,
+  httpTooManyRequests,
+  httpInternalServerError,
+  httpNotImplemented,
+  httpBadGateway,
+  httpServiceUnavailable,
+  httpGatewayTimeout,
+} = require("./router/exceptionAPI.cjs")
+
 const sendFileToDiscord = require("./sendFileToDiscord.cjs");
 const sendMail = require("./emailModule.cjs");
 
@@ -136,6 +153,22 @@ module.exports = {
   checkHeaderMiddleware,
   cacheMiddleware,
   antiReplyMiddleware,
+
+  // API EXCEPTIONS
+  sendAPIError,
+  httpBadRequest,
+  httpUnauthorized,
+  httpForbidden,
+  httpNotFound,
+  httpMethodNotAllowed,
+  httpConflict,
+  httpUnprocessableEntity,
+  httpTooManyRequests,
+  httpInternalServerError,
+  httpNotImplemented,
+  httpBadGateway,
+  httpServiceUnavailable,
+  httpGatewayTimeout,
 
   // Security / crypto
   decryptAESGCM,

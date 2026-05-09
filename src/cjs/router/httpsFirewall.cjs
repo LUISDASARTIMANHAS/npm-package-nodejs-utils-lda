@@ -2,6 +2,7 @@ const { log } = require("../logger/index.cjs");
 const cors = require("cors");
 const helmet = require("helmet");
 const { getConfig, checkConfigValue } = require("../configHelper.cjs");
+const { httpForbidden } = require("./exceptionAPI.cjs");
 const logPath = "httpsFirewall.log";
 
 checkConfigValue("ORIGIN", [
@@ -65,7 +66,7 @@ async function checkUserAgent(req, res, userAgent) {
 
   if (!isAllowed || isBlocked) {
     logBlockedUserAgent(userAgent, req);
-    res.status(403).send("User-Agent not authorized.");
+    httpForbidden(res,"User-Agent not authorized.")
     return true; // Bloqueado
   }
   return false; // Permitido
