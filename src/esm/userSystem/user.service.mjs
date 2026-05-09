@@ -11,6 +11,7 @@ import {
 } from "./validators.mjs";
 
 import { defaultUserSchema } from "./user.types.mjs";
+import { SYSTEM_ROLES } from "./roles.mjs";
 
 initDatabase();
 
@@ -60,6 +61,56 @@ export function createUser(data) {
 	writeUsers(users);
 
 	return user;
+}
+
+
+/**
+ * Cria usuário comum
+ * @param {Object} data
+ */
+export function createDefaultUser(data) {
+	return createUser({
+		...data,
+		roles: [SYSTEM_ROLES.USER],
+	});
+}
+
+/**
+ * Cria moderador
+ * @param {Object} data
+ */
+export function createModerator(data) {
+	return createUser({
+		...data,
+		roles: [SYSTEM_ROLES.USER, SYSTEM_ROLES.MODERATOR],
+	});
+}
+
+/**
+ * Cria administrador
+ * @param {Object} data
+ */
+export function createAdmin(data) {
+	return createUser({
+		...data,
+		roles: [SYSTEM_ROLES.USER, SYSTEM_ROLES.MODERATOR, SYSTEM_ROLES.ADMIN],
+	});
+}
+
+/**
+ * Cria owner
+ * @param {Object} data
+ */
+export function createOwner(data) {
+	return createUser({
+		...data,
+		roles: [
+			SYSTEM_ROLES.USER,
+			SYSTEM_ROLES.MODERATOR,
+			SYSTEM_ROLES.ADMIN,
+			SYSTEM_ROLES.OWNER,
+		],
+	});
 }
 
 /**

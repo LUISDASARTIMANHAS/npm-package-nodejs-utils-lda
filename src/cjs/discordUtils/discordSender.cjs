@@ -38,4 +38,4 @@ function discordLogs(title, mensagem, footerText) {
   });
 }
 
-module.exports = discordLogs;
+module.exports = { discordLogs };

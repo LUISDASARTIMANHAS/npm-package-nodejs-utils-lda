@@ -1,19 +1,12 @@
 const crypto = require("crypto");
 
-const {
-	initDatabase,
-	readUsers,
-	writeUsers,
-} = require("./database.cjs");
+const { SYSTEM_ROLES } = require("./roles.cjs");
 
-const {
-	validateUsername,
-	validateEmail,
-} = require("./validators.cjs");
+const { initDatabase, readUsers, writeUsers } = require("./database.cjs");
 
-const {
-	defaultUserSchema,
-} = require("./user.types.cjs");
+const { validateUsername, validateEmail } = require("./validators.cjs");
+
+const { defaultUserSchema } = require("./user.types.cjs");
 
 initDatabase();
 
@@ -28,22 +21,15 @@ function createUser(data) {
 	validateEmail(data.email);
 
 	const usernameExists = users.some(
-		(u) =>
-			u.username.toLowerCase() ===
-			data.username.toLowerCase(),
+		(u) => u.username.toLowerCase() === data.username.toLowerCase(),
 	);
 
 	if (usernameExists) {
-		throw new Error(
-			"Username já existe",
-		);
+		throw new Error("Username já existe");
 	}
 
 	const emailExists = users.some(
-		(u) =>
-			u.email &&
-			u.email.toLowerCase() ===
-				data.email?.toLowerCase(),
+		(u) => u.email && u.email.toLowerCase() === data.email?.toLowerCase(),
 	);
 
 	if (emailExists) {
@@ -70,6 +56,55 @@ function createUser(data) {
 }
 
 /**
+ * Cria usuário comum
+ * @param {Object} data
+ */
+function createDefaultUser(data) {
+	return createUser({
+		...data,
+		roles: [SYSTEM_ROLES.USER],
+	});
+}
+
+/**
+ * Cria moderador
+ * @param {Object} data
+ */
+function createModerator(data) {
+	return createUser({
+		...data,
+		roles: [SYSTEM_ROLES.USER, SYSTEM_ROLES.MODERATOR],
+	});
+}
+
+/**
+ * Cria administrador
+ * @param {Object} data
+ */
+function createAdmin(data) {
+	return createUser({
+		...data,
+		roles: [SYSTEM_ROLES.USER, SYSTEM_ROLES.MODERATOR, SYSTEM_ROLES.ADMIN],
+	});
+}
+
+/**
+ * Cria owner
+ * @param {Object} data
+ */
+function createOwner(data) {
+	return createUser({
+		...data,
+		roles: [
+			SYSTEM_ROLES.USER,
+			SYSTEM_ROLES.MODERATOR,
+			SYSTEM_ROLES.ADMIN,
+			SYSTEM_ROLES.OWNER,
+		],
+	});
+}
+
+/**
  * Atualiza usuário
  * @param {string} id
  * @param {Object} updates
@@ -77,32 +112,23 @@ function createUser(data) {
 function updateUser(id, updates) {
 	const users = readUsers();
 
-	const index = users.findIndex(
-		(u) => u.id === id,
-	);
+	const index = users.findIndex((u) => u.id === id);
 
 	if (index === -1) {
-		throw new Error(
-			"Usuário não encontrado",
-		);
+		throw new Error("Usuário não encontrado");
 	}
 
 	if (updates.username) {
-		validateUsername(
-			updates.username,
-		);
+		validateUsername(updates.username);
 
 		const exists = users.some(
 			(u) =>
 				u.id !== id &&
-				u.username.toLowerCase() ===
-					updates.username.toLowerCase(),
+				u.username.toLowerCase() === updates.username.toLowerCase(),
 		);
 
 		if (exists) {
-			throw new Error(
-				"Username já está em uso",
-			);
+			throw new Error("Username já está em uso");
 		}
 	}
 
@@ -153,9 +179,14 @@ function reactivateUser(id) {
 }
 
 module.exports = {
-	createUser,
-	updateUser,
-	deleteUser,
-	disableUser,
-	reactivateUser,
+  createUser,
+  createDefaultUser,
+  createModerator,
+  createAdmin,
+  createOwner,
+
+  updateUser,
+  deleteUser,
+  disableUser,
+  reactivateUser,
 };

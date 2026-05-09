@@ -2,107 +2,11 @@
 // IMPORTS
 // ----------------------------
 const figlet = require("figlet");
-const {
-  fopen,
-  fwrite,
-  freadBin,
-  fwriteBin,
-  stringToBinary,
-  binaryToString,
-  autoLoader,
-} = require("./autoFileSysModule.cjs");
 
 const WSChat = require("./WSCHAT/WSChat.cjs");
 
-const {
-  insertUser,
-  selectUser,
-  alterUser,
-  deleteUser,
-  disableUser,
-  reactivateUser,
-  ordenarUsuario,
-} = require("./userSystem.cjs");
-
-const { mongoConnect, select, insert } = require("./mongodb.cjs");
-
-const {
-  registerRoutes,
-  applyAutoMiddlewares,
-  requestLoggerMiddleware,
-  httpsFirewallMiddleware,
-  logsDashboard,
-  StatusDashboard,
-  checkHeaderMiddleware,
-  cacheMiddleware,
-} = require("./router/router.cjs");
-
-const {
-  sendAPIError,
-  httpBadRequest,
-  httpUnauthorized,
-  httpForbidden,
-  httpNotFound,
-  httpMethodNotAllowed,
-  httpConflict,
-  httpUnprocessableEntity,
-  httpTooManyRequests,
-  httpInternalServerError,
-  httpNotImplemented,
-  httpBadGateway,
-  httpServiceUnavailable,
-  httpGatewayTimeout,
-} = require("./router/exceptionAPI.cjs")
-
 const sendFileToDiscord = require("./sendFileToDiscord.cjs");
 const sendMail = require("./emailModule.cjs");
-
-const discordLogs = require("./discordUtils/discordSender.cjs");
-
-const {
-  fetchGet,
-  fetchDownloadStream,
-  fetchPost,
-  fetchPostJson,
-} = require("./fetchUtils/fetchModule.cjs");
-
-const {
-  fetchDownloadStreamAsync,
-  fetchGetAsync,
-  fetchPostAsync,
-  fetchPostJsonAsync,
-} = require("./fetchUtils/fetchModuleAsync.cjs");
-
-const {
-  configExist,
-  getConfig,
-  saveConfig,
-  checkConfigValue,
-} = require("./configHelper.cjs");
-
-const {
-  getRandomInt,
-  getRandomBin,
-  getRandomHex,
-  generateToken,
-  validadeApiKey,
-  unauthorized,
-  forbidden,
-  landingPage,
-  formatDate,
-  conversorSimEnao,
-  spaceUsed,
-  notfound,
-  sanitize,
-  SanitizeXSS,
-  serverTry,
-  sanitizeNetworkInterfaces,
-  exposeFolders,
-  exposePublicFolder,
-  exposeLogsFolder,
-  fileExistAndCreate,
-  shell,
-} = require("./utils.cjs");
 
 const {
   encryptedPayloadMiddleware,
@@ -110,20 +14,10 @@ const {
 
 const antiReplyMiddleware = require("./security/antiReplay.cjs");
 
-const {
-  decryptAESGCM,
-  decryptAESKey,
-} = require("./security/crypto.service.cjs");
-
 const { saveFile, saveBot } = require("./storage/index.cjs");
 
 // logger
 const { log } = require("./logger/index.cjs");
-
-// auth
-const { requestAuthCode } = require("./auth/auth.service.cjs");
-const { verifyAuthCode } = require("./auth/auth.verify.cjs");
-const { saveOTP, getOTP, deleteOTP } = require("./auth/otp.store.cjs");
 
 // ----------------------------
 // EXPORTS (API PÚBLICA)
@@ -131,112 +25,50 @@ const { saveOTP, getOTP, deleteOTP } = require("./auth/otp.store.cjs");
 
 module.exports = {
   // File system
-  fopen,
-  fwrite,
-  freadBin,
-  fwriteBin,
-  stringToBinary,
-  binaryToString,
-  autoLoader,
-  log,
+  ...require("./autoFileSysModule.cjs"),
 
   // Middlewares
   encryptedPayloadMiddleware,
 
   // router
-  registerRoutes,
-  applyAutoMiddlewares,
-  requestLoggerMiddleware,
-  httpsFirewallMiddleware,
-  logsDashboard,
-  StatusDashboard,
-  checkHeaderMiddleware,
-  cacheMiddleware,
-  antiReplyMiddleware,
+  ...require("./router/router.cjs"),
 
   // API EXCEPTIONS
-  sendAPIError,
-  httpBadRequest,
-  httpUnauthorized,
-  httpForbidden,
-  httpNotFound,
-  httpMethodNotAllowed,
-  httpConflict,
-  httpUnprocessableEntity,
-  httpTooManyRequests,
-  httpInternalServerError,
-  httpNotImplemented,
-  httpBadGateway,
-  httpServiceUnavailable,
-  httpGatewayTimeout,
+  ...require("./router/exceptionAPI.cjs"),
 
   // Security / crypto
-  decryptAESGCM,
-  decryptAESKey,
+  ...require("./security/crypto.service.cjs"),
 
   // Fetch
-  fetchGet,
-  fetchDownloadStream,
-  fetchPost,
-  fetchPostJson,
-  fetchDownloadStreamAsync,
-  fetchGetAsync,
-  fetchPostAsync,
-  fetchPostJsonAsync,
-  discordLogs,
+  ...require("./fetchUtils/fetchModule.cjs"),
+  ...require("./fetchUtils/fetchModuleAsync.cjs"),
 
   // CONFIG HELPER
-  configExist,
-  getConfig,
-  saveConfig,
-  checkConfigValue,
+  ...require("./configHelper.cjs"),
 
   // Utils
-  getRandomInt,
-  getRandomBin,
-  getRandomHex,
-  generateToken,
-  validadeApiKey,
-  unauthorized,
-  forbidden,
-  landingPage,
-  formatDate,
-  conversorSimEnao,
-  spaceUsed,
-  notfound,
-  sanitize,
-  SanitizeXSS,
-  serverTry,
-  sanitizeNetworkInterfaces,
-  exposeFolders,
-  exposePublicFolder,
-  exposeLogsFolder,
-  fileExistAndCreate,
-  shell,
+  ...require("./utils.cjs"),
 
   // User system
-	...require("./userSystem/index.cjs"),
+  ...require("./userSystem/index.cjs"),
 
   // MongoDB
-  mongoConnect,
-  select,
-  insert,
+  ...require("./mongodb.cjs"),
 
   // storage
   saveFile,
   saveBot,
 
   // Auth
-  requestAuthCode,
-  saveOTP,
-  getOTP,
-  deleteOTP,
-  verifyAuthCode,
+  ...require("./auth/auth.service.cjs"),
+  ...require("./auth/auth.verify.cjs"),
+  ...require("./auth/otp.store.cjs"),
 
   // Misc
   sendFileToDiscord,
   sendMail,
   WSChat,
+  ...require("./discordUtils/discordSender.cjs"),
 };
 
 console.log(
