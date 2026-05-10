@@ -5,6 +5,7 @@ import { env } from "process";
 import { config } from "dotenv";
 import { checkConfigValue, getConfig } from "../configHelper.mjs";
 import { log, logError } from "../logger/index.mjs";
+import { httpForbidden } from "./exceptionAPI.mjs";
 const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env
@@ -19,9 +20,10 @@ exposePublicFolder(routerCheckHeaderMiddleware);
 
 routerCheckHeaderMiddleware.all("/api/*name", (req, res, next) => {
   if (!req.headers["authorization"]) {
-    return forbidden(
+    return httpForbidden(
       res,
       "[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] Autorização de acesso minima faltante para essa rota! Minimum access authorization is missing for this route!",
+      { header: "authorization is required" },
     );
   }
   res.set("Content-Type", "application/json");

@@ -11,15 +11,13 @@ const { env } = require("process");
 const dotenv = require("dotenv");
 const { checkConfigValue, getConfig } = require("../configHelper.cjs");
 const { log, logError } = require("../logger/index.cjs");
+const { httpForbidden } = require("./exceptionAPI.cjs");
 const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();
 
-checkConfigValue("blockedRoutes", [
-  "/default/api",
-  "/api/auth"
-]);
+checkConfigValue("blockedRoutes", ["/default/api", "/api/auth"]);
 // configExist();
 // checkConfigIntegrity();
 // DEFAULT STATIC PUBLIC ITENS
@@ -28,9 +26,10 @@ exposePublicFolder(routerCheckHeaderMiddleware);
 
 routerCheckHeaderMiddleware.all("/api/*name", (req, res, next) => {
   if (!req.headers["authorization"]) {
-    return forbidden(
+    return httpForbidden(
       res,
-      "[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] Autorização de acesso minima faltante para essa rota! Minimum access authorization is missing for this route!",
+      "[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] Autorização de acesso minima faltante para essa rota! // Minimum access authorization is missing for this route!",
+      { header: "authorization is required" },
     );
   }
   res.set("Content-Type", "application/json");

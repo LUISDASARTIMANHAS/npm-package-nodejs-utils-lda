@@ -5,6 +5,7 @@ import { fwrite } from "./autoFileSysModule.mjs";
 import xss from "xss";
 import { fileURLToPath } from "url";
 import { exec } from "child_process";
+import { httpForbidden } from "./router/exceptionAPI.mjs";
 const bloqueados = ["cd", "format", "shutdown", "rd", "del", "rmdir", "erase"];
 const modulePath = path.resolve(
   path.join(
@@ -116,11 +117,11 @@ export function validadeApiKey(req, res, key) {
   const authApi = keyHeader && key.includes(keyHeader);
 
   if (!authApi) {
-    forbidden(res, {
-      error:
-        "[npm-package-nodejs-utils-lda] [validadeApiKey] Acesso negado para API Chave invalida para essa API! Access denied for API. Invalid key for this API!",
-      keyHeader: keyHeader,
-    });
+    httpForbidden(
+      res,
+      "[npm-package-nodejs-utils-lda] [validadeApiKey] Acesso negado para API // Access denied for API.",
+      { header: "authorization is Invalid key for this API" },
+    );
   }
 }
 

@@ -17,6 +17,16 @@ function selectUserByID(id) {
 
 /**
  * Busca usuário por username
+ * @param {string} email
+ */
+function selectUserByEmail(email) {
+	const users = readUsers();
+
+	return users.find((u) => u.email === email) || null;
+}
+
+/**
+ * Busca usuário por username
  * @param {string} username
  */
 function selectUserByUsername(
@@ -51,6 +61,7 @@ function listActiveUsers() {
 
 module.exports = {
 	selectUserByID,
+	selectUserByEmail,
 	selectUserByUsername,
 	listUsers,
 	listActiveUsers,

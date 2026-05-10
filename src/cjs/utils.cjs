@@ -5,6 +5,7 @@ const express = require("express");
 const { fwrite, autoLoader } = require("./autoFileSysModule.cjs");
 const xss = require("xss");
 const { log, logError } = require("./logger/index.cjs");
+const { httpForbidden } = require("./router/exceptionAPI.cjs");
 const modulePath = path.resolve(
   path.join(
     "node_modules",
@@ -110,11 +111,11 @@ function validadeApiKey(req, res, key) {
   const authApi = keyHeader && key.includes(keyHeader);
 
   if (!authApi) {
-    forbidden(res, {
-      error:
-        "[npm-package-nodejs-utils-lda] [validadeApiKey] Acesso negado para API Chave invalida para essa API! Access denied for API. Invalid key for this API!",
-      keyHeader: keyHeader,
-    });
+    httpForbidden(
+      res,
+      "[npm-package-nodejs-utils-lda] [validadeApiKey] Acesso negado para API // Access denied for API.",
+      { header: "authorization is Invalid key for this API" },
+    );
   }
 }
 
@@ -216,7 +217,7 @@ function sanitizeNetworkInterfaces(interfaces) {
   };
 }
 
-function fileExistAndCreate(filePath,defaultContent = []) {
+function fileExistAndCreate(filePath, defaultContent = []) {
   if (!fs.existsSync(filePath)) {
     fwrite(filePath, defaultContent);
   }
@@ -283,5 +284,5 @@ module.exports = {
   exposeLogsFolder,
   sanitizeNetworkInterfaces,
   fileExistAndCreate,
-  shell
+  shell,
 };

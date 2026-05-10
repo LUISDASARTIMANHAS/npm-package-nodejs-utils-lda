@@ -12,6 +12,16 @@ export function selectUserByID(id) {
 
 /**
  * Busca usuário por username
+ * @param {string} email
+ */
+export function selectUserByEmail(email) {
+	const users = readUsers();
+
+	return users.find((u) => u.email === email) || null;
+}
+
+/**
+ * Busca usuário por username
  * @param {string} username
  */
 export function selectUserByUsername(username) {
