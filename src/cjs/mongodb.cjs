@@ -1,3 +1,4 @@
+// src\cjs\mongodb.cjs
 require("dotenv/config");
 const { MongoClient } = require("mongodb");
 const { discordLogs } = require("./discordUtils/discordSender.cjs");
