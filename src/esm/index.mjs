@@ -45,11 +45,13 @@ export * from "./logger/index.mjs";
 export { requestAuthCode } from "./auth/auth.service.mjs";
 export { verifyAuthCode } from "./auth/auth.verify.mjs";
 export * from "./auth/otp.store.mjs";
+
+// MONGODB
+export * from "./mongodb/index.mjs";
 // ----------------------------
 // EXPORTAÇÃO DE MÓDULOS ÚNICOS
 // ----------------------------
 export { default as WSChat } from "./WSCHAT/WSChat.mjs";
-export { mongoConnect, select, insert } from "./mongodb.mjs";
 export { default as sendFileToDiscord } from "./sendFileToDiscord.mjs";
 export { default as sendMail } from "./emailModule.mjs";
 

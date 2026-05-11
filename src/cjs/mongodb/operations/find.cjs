@@ -10,19 +10,14 @@ const { getCollection } = require("../collection.cjs");
  * @returns {Promise<Array>}
  */
 async function findDocuments(
-	databaseName,
-	collectionName,
-	query = {},
-	options = {},
+  databaseName,
+  collectionName,
+  query = {},
+  options = {},
 ) {
-	const collection = await getCollection(
-		databaseName,
-		collectionName,
-	);
+  const collection = await getCollection(databaseName, collectionName);
 
-	return collection
-		.find(query, options)
-		.toArray();
+  return collection.find(query, options).toArray();
 }
 
 /**
@@ -35,20 +30,17 @@ async function findDocuments(
  * @returns {Promise<object|null>}
  */
 async function findOneDocument(
-	databaseName,
-	collectionName,
-	query = {},
-	options = {},
+  databaseName,
+  collectionName,
+  query = {},
+  options = {},
 ) {
-	const collection = await getCollection(
-		databaseName,
-		collectionName,
-	);
+  const collection = await getCollection(databaseName, collectionName);
 
-	return collection.findOne(query, options);
+  return collection.findOne(query, options);
 }
 
 module.exports = {
-	findDocuments,
-	findOneDocument,
+  findDocuments,
+  findOneDocument,
 };
