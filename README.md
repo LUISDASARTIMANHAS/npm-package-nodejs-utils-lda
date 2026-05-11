@@ -255,19 +255,16 @@ app.post("/upload/bot", saveBot.single("file"), (req, res) => {
 ```
 
 # mongo DB
+[MongoDB Utils Functions](./mongoUtils.md)
+
 ```js
-mongoConnect(connectionString)
+import { connectMongo, findDocuments, insertDocument } from 'npm-package-nodejs-utils-lda';
 
 // SET 'MONGO_CONNECTION_STRING' VARIABLE IN .ENV FILE FOR SECURE AND AUTOMATIC CONNECTION
-mongoConnect()
+const client = await connectMongo();
 
-// connection = await mongoConnect(connectionString);
-select(connection, database, table)
-return all data of selected table
-
-insert(connection, database, table, data)
-
-return mongoClient or connection
+const docs = await findDocuments('myDB', 'myCollection', { status: 'active' });
+const result = await insertDocument('myDB', 'myCollection', { name: 'New Doc' });
 ```
 
 # AUTH

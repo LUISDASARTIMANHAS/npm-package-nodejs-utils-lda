@@ -18,6 +18,7 @@ function renderTemplate(template, variables);
 function changeStatus(bot);
 async function commandsSYNC(token,CLIENT_ID,restartSec);
 async function validateInteractionChannel(interaction);
+async function discordAwaitReply(interaction);
 async function replyWarning(interaction, message, isPrivate = true);
 
 // permissionValidators
