@@ -1,7 +1,8 @@
-import { log } from "../logger/index.mjs";
+import { log, logRequest } from "../logger/index.mjs";
 import cors from "cors";
 import { hsts } from "helmet";
 import { getConfig, checkConfigValue } from "../configHelper.mjs";
+import { httpForbidden } from "./exceptionAPI.mjs";
 const logPath = "httpsFirewall.log";
 
 // checkConfigIntegrity();
@@ -49,7 +50,7 @@ async function httpsFirewall(req, res, next) {
 
   if (await checkUserAgent(req, res, userAgent)) return;
 
-  const corsOptions = makeCorsOptions();
+  const corsOptions = makeCorsOptions(req);
   const hstsOptions = makeHstsOptions();
 
   cors(corsOptions)(req, res, () => {
@@ -66,8 +67,8 @@ async function checkUserAgent(req, res, userAgent) {
   const isBlocked = isUserAgentBlocked(userAgent, BLOCKED_USER_AGENTS);
 
   if (!isAllowed || isBlocked) {
-    logBlockedUserAgent(userAgent, req);
-    res.status(403).send("User-Agent not authorized.");
+    logRequest(req, "Blocked UA", logPath);
+    httpForbidden(res, "User-Agent not authorized.");
     return true; // Bloqueado
   }
   return false; // Permitido
@@ -81,13 +82,6 @@ function isUserAgentAllowed(userAgent, allowedAgents) {
 
 function isUserAgentBlocked(userAgent, blockedAgents) {
   return blockedAgents.some((blocked) => userAgent.includes(blocked));
-}
-
-function logBlockedUserAgent(userAgent, req) {
-  log(
-    `Blocked UA: '${userAgent}' | IP: ${req.ip} | URL: ${req.originalUrl}`,
-    logPath,
-  );
 }
 
 /**
@@ -122,7 +116,7 @@ function normalizeOrigins(origins) {
  *
  * @returns {import("cors").CorsOptions}
  */
-function makeCorsOptions() {
+function makeCorsOptions(req) {
   const configs = getConfig();
   const allowedOrigins = normalizeOrigins(configs.ORIGIN);
 
@@ -140,7 +134,12 @@ function makeCorsOptions() {
 
       if (isAllowed) return callback(null, true);
 
-      return callback(new Error(`CORS bloqueado para a origem: ${origin}`));
+      logRequest(req, "blocked by CORS policy", logPath);
+      return callback(
+        new Error(
+          `CORS bloqueado para a origem: ${origin}, allowedOrigins: ${allowedOrigins}`,
+        ),
+      );
     },
     methods: configs.METHODS,
     allowedHeaders: configs.ALLOWED_HEADERS,

@@ -51,8 +51,8 @@ function writeLogFile(filepath, message) {
  */
 function baseLog({
   message,
-  filename = "logs.txt",
-  maxLength = 200,
+  filename = "logs.log",
+  maxLength = 300,
   level = "info",
   consoleFn = console.log,
 }) {
@@ -62,7 +62,7 @@ function baseLog({
   const filepath = path.join(logsDir, filename);
 
   const normalized = normalizeMessage(message, maxLength);
-  const finalMessage = `\t[npm-package-nodejs-utils-lda] [${level}] ${normalized}`;
+  const finalMessage = `\t[${new Date().toISOString()}] [npm-package-nodejs-utils-lda] [${level}] ${normalized}`;
 
   writeLogFile(filepath, finalMessage);
   consoleFn(finalMessage);
