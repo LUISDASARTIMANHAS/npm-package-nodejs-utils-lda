@@ -1,3 +1,4 @@
+// @ts-check
 // permissionValidators.mjs
 import { replyWarning } from "./discordUtils.mjs";
 import { getGuildByInteraction } from "./interactionGetters.mjs";

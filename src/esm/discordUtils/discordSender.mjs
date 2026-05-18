@@ -1,3 +1,4 @@
+// @ts-check
 import { getConfig } from "../configHelper.mjs";
 import { fetchPost } from "../fetchUtils/fetchModule.mjs";
 import { logError } from "../logger/index.mjs";

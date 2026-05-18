@@ -1,3 +1,4 @@
+// @ts-check
 import { checkConfigValue, configExist, getConfig } from "../configHelper.mjs";
 configExist();
 

@@ -1,3 +1,4 @@
+// @ts-check
 // src\esm\discordUtils\discordUtils.mjs
 import { REST } from "@discordjs/rest";
 import { ActivityType, Routes } from "discord.js";
@@ -158,6 +159,13 @@ export function changeStatus(bot) {
  * @returns {Promise<boolean | void>} Retorna false se for em DM, ou void se o canal for válido.
  */
 export async function validateInteractionChannel(interaction) {
+  // ACK IMEDIATO
+  const ok = await discordAwaitReply(interaction);
+
+  if (!ok) {
+    return true;
+  }
+
   if (isDM(interaction)) {
     await replyWarning(
       interaction,
@@ -171,12 +179,34 @@ export async function validateInteractionChannel(interaction) {
   return false;
 }
 
-export async function discordAwaitReply(interaction){
-   // ACK IMEDIATO
-    if (!interaction.deferred && !interaction.replied) {
-      // avisar que vai responder depois, isso invalida .reply()
-      await interaction.deferReply();
+export async function discordAwaitReply(interaction) {
+  try {
+    if (!interaction) {
+      throw new Error("interaction undefined");
     }
+
+    if (interaction.deferred || interaction.replied) {
+      return true;
+    }
+
+    await interaction.deferReply();
+
+    return true;
+  } catch (err) {
+    // interaction expirada
+    if (err?.code === 10062 || err?.rawError?.code === 10062) {
+      console.warn("[safeDeferReply] interaction expired");
+      return false;
+    }
+
+    // already acknowledged
+    if (err?.code === 40060 || err?.rawError?.code === 40060) {
+      console.warn("[safeDeferReply] interaction already acknowledged");
+      return true;
+    }
+
+    throw err;
+  }
 }
 
 /**
@@ -189,12 +219,16 @@ export async function discordAwaitReply(interaction){
  */
 
 export async function replyWarning(interaction, message, isPrivate = true) {
-  if (interaction.replied || interaction.deferred) return;
-
-  await interaction.reply({
+  const payload = {
     content: `:warning: ${message}`,
-    flags: isPrivate ? 64 : 0, // 64 = EPHEMERAL
-  });
+    flags: isPrivate ? 64 : 0,
+  };
+
+  if (interaction.deferred || interaction.replied) {
+    return interaction.editReply(payload);
+  }
+
+  return interaction.reply(payload);
 }
 
 export async function discordHandleExecTemplate(
@@ -203,7 +237,11 @@ export async function discordHandleExecTemplate(
   parameters = "",
 ) {
   try {
-    await discordAwaitReply();
+    const ok = await discordAwaitReply(interaction);
+
+    if (!ok) {
+      return;
+    }
     const command = `${execCommand} ${parameters || ""}`.trim();
 
     // mostra mensagem de processamento

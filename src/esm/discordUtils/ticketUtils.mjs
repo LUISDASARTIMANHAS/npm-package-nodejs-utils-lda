@@ -1,3 +1,4 @@
+// @ts-check
 import { ChannelType, PermissionFlagsBits } from "discord.js";
 import {
   getGuildByInteraction,

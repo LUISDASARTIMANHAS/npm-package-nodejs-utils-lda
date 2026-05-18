@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { freadBin, fwriteBin } from "../autoFileSysModule.cjs";
+import { freadBin, fwriteBin } from "../autoFileSysModule.mjs";
 
 const DATA_DIR = path.resolve("./data");
 const USERS_PATH = path.join(DATA_DIR, "users.bin");

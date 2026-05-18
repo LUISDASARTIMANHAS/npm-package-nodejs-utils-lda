@@ -1,3 +1,4 @@
+// @ts-check
 const { getConfig } = require("../configHelper.cjs");
 const { fetchPost } = require("../fetchUtils/fetchModule.cjs");
 const { logError } = require("../logger/index.cjs");

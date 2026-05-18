@@ -1,3 +1,4 @@
+// @ts-check
 // interactionGetters.js
 import { ChannelType } from "discord.js";
 import { discordAwaitReply } from "./discordUtils.mjs";

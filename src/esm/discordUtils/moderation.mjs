@@ -1,4 +1,4 @@
-
+// @ts-check
 import { PermissionsBitField } from "discord.js";
 import { verifyBotPermission } from "./permissionValidators.mjs";
 

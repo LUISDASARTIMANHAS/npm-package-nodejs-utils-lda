@@ -1,3 +1,4 @@
+// @ts-check
 const { checkConfigValue, configExist, getConfig } = require("../configHelper.cjs");
 configExist();
 
