@@ -2,7 +2,7 @@
 import { checkConfigValue, configExist, getConfig } from "../configHelper.mjs";
 configExist();
 
-function setEmbed(title, description, colorHex, footerText, footerURL) {
+function setEmbed(title, description, colorHex, footerText, footerURL, fields) {
   const date = new Date();
   const ano = date.getFullYear();
   const configs = getConfig().discordLogs;
@@ -17,11 +17,15 @@ function setEmbed(title, description, colorHex, footerText, footerURL) {
       }`,
       icon_url: footerURL || configs.footerURL,
     },
+    fields: fields || [],
   };
   return embed;
 }
-checkConfigValue("discordLogs.color","FF00FF")
-checkConfigValue("discordLogs.footerText",null)
-checkConfigValue("discordLogs.footerUrl","https://cdn.discordapp.com/attachments/952004420265205810/1188643212378787940/pingobras-logo-fundo.png?ex=6682a481&is=66815301&hm=cc9c387ac2aad7fa8040738f47ae0ab43e2b77027d188e272a147b1829e3a53f&")
+checkConfigValue("discordLogs.color", "FF00FF");
+checkConfigValue("discordLogs.footerText", null);
+checkConfigValue(
+  "discordLogs.footerUrl",
+  "https://cdn.discordapp.com/attachments/952004420265205810/1188643212378787940/pingobras-logo-fundo.png?ex=6682a481&is=66815301&hm=cc9c387ac2aad7fa8040738f47ae0ab43e2b77027d188e272a147b1829e3a53f&",
+);
 
 export default setEmbed;

@@ -14,6 +14,7 @@ export * from "./defaultCommands/nslookup.mjs";
 export * from "./defaultCommands/tracert.mjs";
 export * from "./defaultCommands/curl.mjs";
 export * from "./defaultCommands/ping.mjs";
+export * from "./defaultCommands/status.mjs";
 export * from "./ticketUtils.mjs";
 export { setEmbed };
 

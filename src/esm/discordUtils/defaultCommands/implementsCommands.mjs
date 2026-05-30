@@ -5,6 +5,7 @@ import { handleNslookup, nslookupCommand } from "./nslookup.mjs";
 import { handlePing, pingCommand } from "./ping.mjs";
 import { handleSetStatus, setStatusCommand } from "./setStatus.mjs";
 import { handleTracert, tracertCommand } from "./tracert.mjs";
+import { statusCommand, handleStatus } from "./status.mjs";
 
 export const defaultCommandHandlers = {
 	ping: handlePing,
@@ -13,6 +14,7 @@ export const defaultCommandHandlers = {
 	nslookup: handleNslookup,
 	tracert: handleTracert,
 	curl: handleCurl,
+	status: handleStatus,
 };
 export const defaultCommands = [
 	pingCommand,
@@ -21,6 +23,7 @@ export const defaultCommands = [
 	nslookupCommand,
 	tracertCommand,
 	curlCommand,
+	statusCommand,
 ];
 
 
