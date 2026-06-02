@@ -94,11 +94,18 @@ function isDM(interaction);
 /* -----------------------------
 	TICKET SYSTEM
 ----------------------------- */
+function buildTicketCloseCustomId(ticketType, logChannelId);
+function buildTicketCreateCustomId(ticketType, categoryId, staffRoleId, logChannelId);
+async function closeTicket(interaction);
+async function createTicketChannelFromInteraction(interaction, options);
+function formatTicketChannelTopic(ticketType, userTag);
+function getStaffDiscussionThreadName();
+function getTicketCustomIdParts(customId);
 function hasOpenTicket(userId);
+function parseTicketCloseCustomId(customId);
+function parseTicketCreateCustomId(customId);
 function registerTicket(userId, channelId);
 function removeTicketByChannel(channelId);
-async function createTicketChannelFromInteraction(interaction, options);
-async function closeTicket(interaction);
 
 /* -----------------------------
 	 SUMMARY GETTER
