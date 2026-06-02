@@ -2,7 +2,7 @@
 import { getConfig } from "../configHelper.mjs";
 import { fetchPost } from "../fetchUtils/fetchModule.mjs";
 import { logError } from "../logger/index.mjs";
-import setEmbed from "./discordEmbed.mjs";
+import { setEmbed } from "./discordEmbed.mjs";
 
 export function discordLogs(title, mensagem, footerText) {
   const configs = getConfig().discordLogs

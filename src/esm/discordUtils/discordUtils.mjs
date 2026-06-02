@@ -5,7 +5,6 @@ import { ActivityType, Routes } from "discord.js";
 import { isDM } from "./interactionGetters.mjs";
 import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
 import { fopen } from "../autoFileSysModule.mjs";
-import setEmbed from "./discordEmbed.mjs";
 import os from "os";
 // exporters pre commands
 export * from "./defaultCommands/setStatus.mjs";
@@ -16,7 +15,7 @@ export * from "./defaultCommands/curl.mjs";
 export * from "./defaultCommands/ping.mjs";
 export * from "./defaultCommands/status.mjs";
 export * from "./ticketUtils.mjs";
-export { setEmbed };
+export * from "./discordEmbed.mjs";
 
 /**
  * Retorna o número de usuários que o bot consegue ver.

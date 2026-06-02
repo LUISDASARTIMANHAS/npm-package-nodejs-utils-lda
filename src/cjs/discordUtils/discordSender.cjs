@@ -2,7 +2,7 @@
 const { getConfig } = require("../configHelper.cjs");
 const { fetchPost } = require("../fetchUtils/fetchModule.cjs");
 const { logError } = require("../logger/index.cjs");
-const setEmbed = require("./discordEmbed.cjs");
+const { setEmbed } = require("./discordEmbed.cjs");
 
 function discordLogs(title, mensagem, footerText) {
   const configs = getConfig().discordLogs;
