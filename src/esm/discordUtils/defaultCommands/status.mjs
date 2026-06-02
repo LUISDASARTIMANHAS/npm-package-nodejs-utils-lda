@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
+  createField,
   getChannelsCount,
   getGuildsCount,
   getUsersCount,
@@ -47,16 +48,12 @@ async function handleStatus(interaction) {
     "Status",
     "",
     [
-      { name: "Servidores", value: `${guilds}`, inline: true },
-      { name: "Usuários", value: `${users}`, inline: true },
-      { name: "Canais", value: `${channels}`, inline: true },
-      { name: "Ping", value: `${ping} ms`, inline: true },
-      { name: "Uptime", value: `${uptime}`, inline: true },
-      {
-        name: "Memória",
-        value: `${heapUsed} / ${heapTotal} MB`,
-        inline: true,
-      },
+      createField("Servidores", `${guilds}`, true),
+      createField("Usuários", `${users}`, true),
+      createField("Canais", `${channels}`, true),
+      createField("Ping", `${ping} ms`, true),
+      createField("Uptime", `${uptime}`, true),
+      createField("Memória", `${heapUsed} / ${heapTotal} MB`, true),
     ],
   );
 
