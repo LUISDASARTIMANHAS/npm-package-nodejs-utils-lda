@@ -5,6 +5,7 @@ import routerAntiReplyMiddleware from "../security/antiReplay.mjs";
 import routerStatusDash from "./routerStatusDash.mjs";
 import httpsFirewall from "./httpsFirewall.mjs";
 import routerRequestLogger from "./requestLoggerMiddleware.mjs";
+import routerDiscordRequestLogger from "./discordRequestLoggerMiddleware.mjs";
 import { exposeLogsFolder, exposePublicFolder } from "../utils.mjs";
 
 /**
@@ -30,6 +31,12 @@ export function StatusDashboard(mainRouter) {
 export function requestLoggerMiddleware(mainRouter) {
   mainRouter.use(routerRequestLogger);
   console.log("\n\t[npm-package-nodejs-utils-lda] [requestLogger] loaded!");
+  return mainRouter;
+}
+
+export function discordRequestLoggerMiddleware(mainRouter) {
+  mainRouter.use(routerDiscordRequestLogger);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [Discord RequestLogger] loaded!");
   return mainRouter;
 }
 
@@ -67,6 +74,7 @@ export function cacheMiddleware(app) {
 export function registerRoutes(mainRouter) {
   httpsFirewallMiddleware(mainRouter); // SEMPRE primeiro devido ao cors
   requestLoggerMiddleware(mainRouter);
+  discordRequestLoggerMiddleware(mainRouter);
   cacheMiddleware(mainRouter)
   checkHeaderMiddleware(mainRouter);
   exposePublicFolder(mainRouter);
