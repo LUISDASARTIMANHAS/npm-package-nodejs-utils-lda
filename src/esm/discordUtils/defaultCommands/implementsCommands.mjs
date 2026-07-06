@@ -6,6 +6,7 @@ import { handlePing, pingCommand } from "./ping.mjs";
 import { handleSetStatus, setStatusCommand } from "./setStatus.mjs";
 import { handleTracert, tracertCommand } from "./tracert.mjs";
 import { statusCommand, handleStatus } from "./status.mjs";
+import { nmapCommand, handleNmap } from "./nmap.mjs";
 
 export const defaultCommandHandlers = {
 	ping: handlePing,
@@ -15,6 +16,7 @@ export const defaultCommandHandlers = {
 	tracert: handleTracert,
 	curl: handleCurl,
 	status: handleStatus,
+	nmap: handleNmap,
 };
 export const defaultCommands = [
 	pingCommand,
@@ -24,6 +26,7 @@ export const defaultCommands = [
 	tracertCommand,
 	curlCommand,
 	statusCommand,
+	nmapCommand,
 ];
 
 
