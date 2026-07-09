@@ -28,14 +28,15 @@ export async function connectMongo(connectionString) {
 			deprecationErrors: true,
 		},
 
-		maxPoolSize: 20,
-		minPoolSize: 2,
+		maxPoolSize: 30,
+		minPoolSize: 10,
 
 		retryWrites: true,
 
-		connectTimeoutMS: 10000,
-		socketTimeoutMS: 30000,
-		serverSelectionTimeoutMS: 5000,
+		connectTimeoutMS: 60000,
+		socketTimeoutMS: 60000,
+		serverSelectionTimeoutMS: 60000,
+		family: 4, // Use IPv4, skip trying IPv6
 	});
 
 	await client.connect();
