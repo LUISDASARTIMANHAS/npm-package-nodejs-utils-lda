@@ -28,4 +28,17 @@ async function deleteManyDocuments(databaseName, collectionName, filter);
 
 // Aggregation
 async function aggregateDocuments(databaseName, collectionName, pipeline = [], options = {});
+
+// Repository Creation
+function createRepository({ database, collection });
+/*
+  Returns a repository object with the following methods bound to the configured database and collection:
+  - async find(filter = {})
+  - async insert(data)
+  - async insertMany(data = [])
+  - async update(filter, data)
+  - async delete(filter)
+  - async count(filter = {})
+  - async exists(filter = {})
+*/
 ```

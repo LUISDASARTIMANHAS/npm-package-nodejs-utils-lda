@@ -1,5 +1,7 @@
 export * from "./connection.mjs";
 
+export * from "./createRepository.mjs";
+
 export * from "./operations/find.mjs";
 export * from "./operations/insert.mjs";
 export * from "./operations/update.mjs";

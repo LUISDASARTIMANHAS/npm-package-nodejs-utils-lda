@@ -75,6 +75,7 @@ async function updateManyDocuments(databaseName, collectionName, filter, update,
 async function deleteOneDocument(databaseName, collectionName, filter);
 async function deleteManyDocuments(databaseName, collectionName, filter);
 async function aggregateDocuments(databaseName, collectionName, pipeline, options);
+function createRepository({ database, collection });
 ```
 
 # Discord Utils

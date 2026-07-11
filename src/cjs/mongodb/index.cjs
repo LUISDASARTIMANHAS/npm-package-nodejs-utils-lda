@@ -1,6 +1,8 @@
 module.exports = {
   ...require("./connection.cjs"),
 
+  ...require("./createRepository.cjs"),
+
   ...require("./operations/find.cjs"),
   ...require("./operations/insert.cjs"),
   ...require("./operations/update.cjs"),
