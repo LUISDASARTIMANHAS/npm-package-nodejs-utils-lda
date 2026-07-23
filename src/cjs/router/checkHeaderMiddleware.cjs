@@ -17,7 +17,14 @@ const logPath = "authorization.txt";
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();
 
-checkConfigValue("blockedRoutes", ["/default/api", "/api/auth"]);
+checkConfigValue("requireValidKeyRoutes", [
+  "/default/api",
+  "/api/auth",
+  "/api/discord",
+  "/api/mongodb",
+  "/api/users",
+  "/api/youtube",
+]);
 // configExist();
 // checkConfigIntegrity();
 // DEFAULT STATIC PUBLIC ITENS
@@ -28,7 +35,7 @@ routerCheckHeaderMiddleware.all("/api/*name", (req, res, next) => {
   if (!req.headers["authorization"]) {
     return httpForbidden(
       res,
-      "[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] Autorização de acesso minima faltante para essa rota! // Minimum access authorization is missing for this route!",
+      "[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] Autorização de acesso minima faltante para essa rota! Minimum access authorization is missing for this route!",
       { header: "authorization is required" },
     );
   }
@@ -41,13 +48,13 @@ routerCheckHeaderMiddleware.all("/api/*name", (req, res, next) => {
  */
 routerCheckHeaderMiddleware.all("/*name", (req, res, next) => {
   const origin = req.headers.referer || req.headers.referrer;
-  const blockRoutesPresent = isBlockedRoute(req);
+  const requireValidKeyRoutesPresent = isRequireValidKeyRoutesRoute(req);
   const payload = JSON.stringify(req.body, null, 2);
   const headers = req.headers;
 
   // Combinar chaves padrão e do .env filtradas
   const keys = getKeys();
-  if (blockRoutesPresent) {
+  if (requireValidKeyRoutesPresent) {
     return validadeApiKey(req, res, keys);
   } else {
     log("-------------------------", logPath);
@@ -56,7 +63,7 @@ routerCheckHeaderMiddleware.all("/*name", (req, res, next) => {
     log(`SYSTEM <PAYLOAD>: ${payload}`, logPath, 1000);
     log(`SYSTEM <HEADERS>: ${JSON.stringify(headers)}`, logPath, 2000);
     log(
-      `SYSTEM <REQUIRED VALID KEY>: ${blockRoutesPresent}, change in config.blockedRoutes`,
+      `SYSTEM <REQUIRED VALID KEY>: ${requireValidKeyRoutesPresent}, change in config.requireValidKeyRoutes`,
       logPath,
     );
 
@@ -65,10 +72,10 @@ routerCheckHeaderMiddleware.all("/*name", (req, res, next) => {
   }
 });
 
-function isBlockedRoute(req) {
+function isRequireValidKeyRoutesRoute(req) {
   const configs = getConfig();
-  const arrayBlockedRoutes = configs.blockedRoutes || [];
-  return arrayBlockedRoutes.some((route) => {
+  const arrayRequireValidKeyRoutes = configs.requireValidKeyRoutes || [];
+  return arrayRequireValidKeyRoutes.some((route) => {
     // Trata rotas com curingas
     const regex = new RegExp(`^${route.replace(/\*/g, ".*")}$`);
     return regex.test(req.path);

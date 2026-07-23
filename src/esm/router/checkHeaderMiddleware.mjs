@@ -1,6 +1,12 @@
 import { Router } from "express";
 const routerCheckHeaderMiddleware = Router();
-import { forbidden, validadeApiKey, SanitizeXSS, exposePublicFolder, exposeLogsFolder } from "../utils.mjs";
+import {
+  forbidden,
+  validadeApiKey,
+  SanitizeXSS,
+  exposePublicFolder,
+  exposeLogsFolder,
+} from "../utils.mjs";
 import { env } from "process";
 import { config } from "dotenv";
 import { checkConfigValue, getConfig } from "../configHelper.mjs";
@@ -11,9 +17,13 @@ const logPath = "authorization.txt";
 // Carregar variáveis de ambiente do arquivo .env
 config();
 
-checkConfigValue("blockedRoutes", [
+checkConfigValue("requireValidKeyRoutes", [
   "/default/api",
-  "/api/auth"
+  "/api/auth",
+  "/api/discord",
+  "/api/mongodb",
+  "/api/users",
+  "/api/youtube",
 ]);
 // DEFAULT STATIC PUBLIC ITENS
 exposePublicFolder(routerCheckHeaderMiddleware);
@@ -35,13 +45,13 @@ routerCheckHeaderMiddleware.all("/api/*name", (req, res, next) => {
  */
 routerCheckHeaderMiddleware.all("/*name", (req, res, next) => {
   const origin = req.headers.referer || req.headers.referrer;
-  const blockRoutesPresent = isBlockedRoute(req);
+  const requireValidKeyRoutesPresent = isRequireValidKeyRoutesRoute(req);
   const payload = JSON.stringify(req.body, null, 2);
   const headers = req.headers;
 
   // Combinar chaves padrão e do .env filtradas
   const keys = getKeys();
-  if (blockRoutesPresent) {
+  if (requireValidKeyRoutesPresent) {
     return validadeApiKey(req, res, keys);
   } else {
     log("-------------------------", logPath);
@@ -50,7 +60,7 @@ routerCheckHeaderMiddleware.all("/*name", (req, res, next) => {
     log(`SYSTEM <PAYLOAD>: ${payload}`, logPath, 1000);
     log(`SYSTEM <HEADERS>: ${JSON.stringify(headers)}`, logPath, 2000);
     log(
-      `SYSTEM <REQUIRED VALID KEY>: ${blockRoutesPresent}, change in config.blockedRoutes`,
+      `SYSTEM <REQUIRED VALID KEY>: ${requireValidKeyRoutesPresent}, change in config.requireValidKeyRoutes`,
       logPath,
     );
 
@@ -59,10 +69,10 @@ routerCheckHeaderMiddleware.all("/*name", (req, res, next) => {
   }
 });
 
-function isBlockedRoute(req) {
+function isRequireValidKeyRoutesRoute(req) {
   const configs = getConfig();
-  const arrayBlockedRoutes = configs.blockedRoutes || [];
-  return arrayBlockedRoutes.some((route) => {
+  const arrayRequireValidKeyRoutes = configs.requireValidKeyRoutes || [];
+  return arrayRequireValidKeyRoutes.some((route) => {
     // Trata rotas com curingas
     const regex = new RegExp(`^${route.replace(/\*/g, ".*")}$`);
     return regex.test(req.path);
