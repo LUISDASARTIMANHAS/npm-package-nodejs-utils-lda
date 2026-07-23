@@ -6,6 +6,7 @@ import routerStatusDash from "./routerStatusDash.mjs";
 import httpsFirewall from "./httpsFirewall.mjs";
 import routerRequestLogger from "./requestLoggerMiddleware.mjs";
 import routerDiscordRequestLogger from "./discordRequestLoggerMiddleware.mjs";
+import routerDefault from "./routerDefault.mjs";
 import { exposeLogsFolder, exposePublicFolder } from "../utils.mjs";
 
 /**
@@ -65,6 +66,12 @@ export function cacheMiddleware(app) {
   return app;
 }
 
+export function defaultRoutesMiddleware(app) {
+  app.use(routerDefault);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [DEFAULT ROUTES] loaded!");
+  return app;
+}
+
 /**
  * Registra todas as rotas e middlewares principais.
  *
@@ -80,6 +87,7 @@ export function registerRoutes(mainRouter) {
   exposePublicFolder(mainRouter);
   logsDashboard(mainRouter);
   StatusDashboard(mainRouter);
+  defaultRoutesMiddleware(mainRouter);
 
   console.log(
     "\n\t[npm-package-nodejs-utils-lda] [registerRoutes] Registered!\n",

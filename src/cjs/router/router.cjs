@@ -8,6 +8,7 @@ const routerRequestLogger = require("./requestLoggerMiddleware.cjs");
 const routerDiscordRequestLogger = require("./discordRequestLoggerMiddleware.cjs");
 const { autoLoader } = require("../autoFileSysModule.cjs");
 const { exposeLogsFolder, exposePublicFolder } = require("../utils.cjs");
+const routerDefault  = require("./routerDefault.cjs");
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
@@ -70,6 +71,13 @@ function cacheMiddleware(app) {
   return app;
 }
 
+
+function defaultRoutesMiddleware(mainRouter) {
+  mainRouter.use(routerDefault);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [DEFAULT ROUTES] loaded!");
+  return mainRouter;
+}
+
 /**
  * Registra todas as rotas e middlewares principais.
  *
@@ -85,6 +93,7 @@ function registerRoutes(mainRouter) {
   exposePublicFolder(mainRouter);
   logsDashboard(mainRouter);
   StatusDashboard(mainRouter);
+  defaultRoutesMiddleware(mainRouter);
 
   console.log(
     "\n\t[npm-package-nodejs-utils-lda] [registerRoutes] Registered!\n",
