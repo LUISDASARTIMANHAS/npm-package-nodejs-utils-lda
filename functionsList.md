@@ -18,14 +18,12 @@ function getConfig();
 function saveConfig(data);
 function checkConfigValue(key, value);
 
-function checkHeaderMiddleware(app);
 function sendMail(email, subject, text, function(error,data));
 function fetchGet(url, header, callback);
 function fetchDownloadStream(url, callback);
 function fetchPost(url, payload, header, function(error,data));
 // only JSON
 function fetchPostJson(url, payload, header, callback);
-function httpsSecurityMiddleware(req, res, next);
 function setCacheHeaders(req, res, next);
 function getRandomInt(max);
 function getRandomBin(max);
@@ -52,7 +50,17 @@ function deleteOTP(email);
 function saveOTP(email, hash, expiresAt);
 async function verifyAuthCode(email, code);
 
-// dashboard
+// ROUTER & MIDDLEWARES
+function antiReplyMiddleware(app);
+function applyAutoMiddlewares(app);
+function cacheMiddleware(app);
+function checkHeaderMiddleware(app);
+function defaultRoutesMiddleware(app);
+function discordRequestLoggerMiddleware(mainRouter);
+function httpsFirewallMiddleware(app);
+function httpsSecurityMiddleware(req, res, next);
+function registerRoutes(mainRouter);
+function requestLoggerMiddleware(mainRouter);
 function StatusDashboard(app);
 
 // expose folders
