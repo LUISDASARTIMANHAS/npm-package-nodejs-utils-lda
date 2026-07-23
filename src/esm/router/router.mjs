@@ -6,7 +6,7 @@ import routerStatusDash from "./routerStatusDash.mjs";
 import httpsFirewall from "./httpsFirewall.mjs";
 import routerRequestLogger from "./requestLoggerMiddleware.mjs";
 import routerDiscordRequestLogger from "./discordRequestLoggerMiddleware.mjs";
-import routerDefault from "./routerDefault.mjs";
+import registerDefaultRoutes from "./routerDefault.mjs";
 import { exposeLogsFolder, exposePublicFolder } from "../utils.mjs";
 
 /**
@@ -67,7 +67,7 @@ export function cacheMiddleware(app) {
 }
 
 export function defaultRoutesMiddleware(app) {
-  app.use(routerDefault);
+  registerDefaultRoutes(app);
   console.log("\n\t[npm-package-nodejs-utils-lda] [DEFAULT ROUTES] loaded!");
   return app;
 }
