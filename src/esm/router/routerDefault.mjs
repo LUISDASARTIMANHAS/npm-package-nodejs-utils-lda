@@ -2,6 +2,7 @@ import { Router } from "express";
 import { join } from "path";
 import { promises } from "fs";
 import { httpForbidden, httpInternalServerError } from "./exceptionAPI.mjs";
+import { fopen } from "../autoFileSysModule.mjs";
 const routerDefault = Router();
 const LOGS_DIR = "logs";
 
@@ -10,6 +11,66 @@ function registerDefaultRoutes(app) {
     const stack = app.router?.stack ?? app._router?.stack ?? [];
 
     res.json(getRoutes(stack));
+  });
+
+  app.get("/headers", (req, res) => {
+    res.json(req.headers);
+  });
+
+  app.get("/request", (req, res) => {
+    res.json({
+      method: req.method,
+      url: req.originalUrl,
+      protocol: req.protocol,
+      secure: req.secure,
+      ip: req.ip,
+      ips: req.ips,
+      hostname: req.hostname,
+      headers: req.headers,
+      query: req.query,
+      params: req.params,
+    });
+  });
+
+  app.get("/health", (req, res) => {
+    res.json({
+      status: "UP",
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  app.get("/ip", (req, res) => {
+    res.json({
+      ip: req.ip,
+      ips: req.ips,
+      remoteAddress: req.socket.remoteAddress,
+    });
+  });
+
+  app.get("/version", async (req, res) => {
+    try {
+      const packageJson = fopen("package.json");
+
+      res.json({
+        name: packageJson.name,
+        version: packageJson.version,
+      });
+    } catch {
+      httpInternalServerError(
+        res,
+        "Não foi possível obter a versão da aplicação.",
+      );
+    }
+  });
+
+  app.get("/time", (req, res) => {
+    const now = new Date();
+
+    res.json({
+      timestamp: now.getTime(),
+      iso: now.toISOString(),
+      locale: now.toLocaleString(),
+    });
   });
 }
 
