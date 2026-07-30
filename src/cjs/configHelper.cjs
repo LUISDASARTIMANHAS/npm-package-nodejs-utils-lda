@@ -39,22 +39,33 @@ function checkConfigValue(key, value) {
     throw new Error("[checkConfigValue] key must be a non-empty string");
   }
 
-  const configs = getConfig();
+  const loadedConfig = getConfig();
   const keys = key.split(".");
 
   if (keys.some((segment) => !segment || isUnsafeKeySegment(segment))) {
     throw new Error("[checkConfigValue] invalid or unsafe config key path");
   }
 
-  let current = configs;
+  const safeConfigs = Object.create(null);
+  if (loadedConfig && typeof loadedConfig === "object" && !Array.isArray(loadedConfig)) {
+    Object.assign(safeConfigs, loadedConfig);
+  }
+
+  let current = safeConfigs;
 
   // percorre até a última chave
   for (let i = 0; i < keys.length - 1; i++) {
     const k = keys[i];
+    const next = current[k];
+    const isSafeObject =
+      next &&
+      typeof next === "object" &&
+      !Array.isArray(next) &&
+      (Object.getPrototypeOf(next) === null || Object.getPrototypeOf(next) === Object.prototype);
 
-    // se não existir, cria objeto
-    if (!current[k] || typeof current[k] !== "object") {
-      current[k] = {};
+    // se não existir ou não for objeto simples/seguro, cria objeto sem protótipo
+    if (!isSafeObject) {
+      current[k] = Object.create(null);
     }
 
     current = current[k];
@@ -65,7 +76,7 @@ function checkConfigValue(key, value) {
   // só define se não existir
   if (current[lastKey] === undefined) {
     current[lastKey] = value;
-    saveConfig(configs);
+    saveConfig(safeConfigs);
   }
 }
 
