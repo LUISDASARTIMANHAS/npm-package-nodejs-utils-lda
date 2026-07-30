@@ -52,9 +52,13 @@ function checkConfigValue(key, value) {
   for (let i = 0; i < keys.length - 1; i++) {
     const k = keys[i];
 
-    // se não existir, cria objeto
-    if (!current[k] || typeof current[k] !== "object") {
-      current[k] = {};
+    // se não existir ou não for objeto simples, cria objeto sem protótipo
+    if (
+      !current[k] ||
+      typeof current[k] !== "object" ||
+      Array.isArray(current[k])
+    ) {
+      current[k] = Object.create(null);
     }
 
     current = current[k];
