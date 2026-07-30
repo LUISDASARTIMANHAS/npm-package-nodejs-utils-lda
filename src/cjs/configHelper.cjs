@@ -56,15 +56,16 @@ function checkConfigValue(key, value) {
   // percorre até a última chave
   for (let i = 0; i < keys.length - 1; i++) {
     const k = keys[i];
-    const next = current[k];
+    const hasOwn = Object.prototype.hasOwnProperty.call(current, k);
+    const next = hasOwn ? current[k] : undefined;
     const isSafeObject =
       next &&
       typeof next === "object" &&
       !Array.isArray(next) &&
       (Object.getPrototypeOf(next) === null || Object.getPrototypeOf(next) === Object.prototype);
 
-    // se não existir ou não for objeto simples/seguro, cria objeto sem protótipo
-    if (!isSafeObject) {
+    // só faz merge recursivo em propriedade própria e objeto seguro; caso contrário cria objeto sem protótipo
+    if (!hasOwn || !isSafeObject) {
       current[k] = Object.create(null);
     }
 
@@ -73,8 +74,11 @@ function checkConfigValue(key, value) {
 
   const lastKey = keys[keys.length - 1];
 
-  // só define se não existir
-  if (current[lastKey] === undefined) {
+  // só define se não existir como propriedade própria ou se estiver undefined
+  if (
+    !Object.prototype.hasOwnProperty.call(current, lastKey) ||
+    current[lastKey] === undefined
+  ) {
     current[lastKey] = value;
     saveConfig(safeConfigs);
   }
