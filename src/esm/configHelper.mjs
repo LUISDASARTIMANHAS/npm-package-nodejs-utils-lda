@@ -74,6 +74,11 @@ export function checkConfigValue(key, value) {
     return;
   }
 
+  // defesa em profundidade no sink: nunca grava em alvo inseguro
+  if (isUnsafeKey(lastKey) || !hasOwn(Object(current), lastKey) && !isPlainObject(current)) {
+    return;
+  }
+
   // só define se não existir como propriedade própria
   if (!hasOwn(current, lastKey)) {
     current[lastKey] = value;
