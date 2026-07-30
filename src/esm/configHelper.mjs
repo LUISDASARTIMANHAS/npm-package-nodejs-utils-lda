@@ -36,6 +36,7 @@ export function checkConfigValue(key, value) {
   const isUnsafeKey = (k) => blockedKeys.has(k);
   const hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
   const isPlainObject = (obj) => obj !== null && typeof obj === "object" && !Array.isArray(obj);
+  const isValidSegment = (seg) => typeof seg === "string" && seg.trim() !== "" && !isUnsafeKey(seg);
 
   if (typeof key !== "string" || key.trim() === "") {
     console.warn("[checkConfigValue] invalid key path");
@@ -43,7 +44,7 @@ export function checkConfigValue(key, value) {
   }
 
   const keys = key.split(".");
-  if (keys.some((seg) => seg.length === 0 || isUnsafeKey(seg))) {
+  if (keys.some((seg) => !isValidSegment(seg))) {
     console.warn("[checkConfigValue] unsafe or invalid key path blocked");
     return;
   }
@@ -53,6 +54,10 @@ export function checkConfigValue(key, value) {
   // percorre até a última chave
   for (let i = 0; i < keys.length - 1; i++) {
     const k = keys[i];
+
+    if (!isPlainObject(current)) {
+      return;
+    }
 
     // só permite descer/criar em propriedade própria
     if (!hasOwn(current, k)) {
@@ -65,6 +70,9 @@ export function checkConfigValue(key, value) {
   }
 
   const lastKey = keys[keys.length - 1];
+  if (!isValidSegment(lastKey) || !isPlainObject(current)) {
+    return;
+  }
 
   // só define se não existir como propriedade própria
   if (!hasOwn(current, lastKey)) {
