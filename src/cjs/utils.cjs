@@ -232,7 +232,7 @@ function fileExistAndCreate(filePath, defaultContent = []) {
 function sanitizeInput(input) {
   if (typeof input !== "string") throw new Error("Input must be a string");
   // permite apenas letras, números, pontos, hífens e dois-pontos (para IPs)
-  const sanitized = input.replace(/[^a-zA-Z0-9.-:]/g, "");
+  const sanitized = input.replace(/[^a-zA-Z0-9.:-]/g, "");
   if (!sanitized) throw new Error("Invalid input after sanitization");
   return sanitized;
 }
