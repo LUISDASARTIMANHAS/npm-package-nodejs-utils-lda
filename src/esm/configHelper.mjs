@@ -34,22 +34,31 @@ export function checkConfigValue(key, value) {
 
   const blockedKeys = new Set(["__proto__", "constructor", "prototype"]);
   const isUnsafeKey = (k) => blockedKeys.has(k);
+  const hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+  const isPlainObject = (obj) => obj !== null && typeof obj === "object" && !Array.isArray(obj);
+
+  if (typeof key !== "string" || key.trim() === "") {
+    console.warn("[checkConfigValue] invalid key path");
+    return;
+  }
 
   const keys = key.split(".");
+  if (keys.some((seg) => seg.length === 0 || isUnsafeKey(seg))) {
+    console.warn("[checkConfigValue] unsafe or invalid key path blocked");
+    return;
+  }
+
   let current = configs;
 
   // percorre até a última chave
   for (let i = 0; i < keys.length - 1; i++) {
     const k = keys[i];
 
-    if (isUnsafeKey(k)) {
-      console.warn(`[checkConfigValue] unsafe key blocked: ${k}`);
+    // só permite descer/criar em propriedade própria
+    if (!hasOwn(current, k)) {
+      current[k] = Object.create(null);
+    } else if (!isPlainObject(current[k])) {
       return;
-    }
-
-    // se não existir, cria objeto
-    if (!current[k] || typeof current[k] !== "object") {
-      current[k] = {};
     }
 
     current = current[k];
@@ -57,13 +66,8 @@ export function checkConfigValue(key, value) {
 
   const lastKey = keys[keys.length - 1];
 
-  if (isUnsafeKey(lastKey)) {
-    console.warn(`[checkConfigValue] unsafe key blocked: ${lastKey}`);
-    return;
-  }
-
-  // só define se não existir
-  if (current[lastKey] === undefined) {
+  // só define se não existir como propriedade própria
+  if (!hasOwn(current, lastKey)) {
     current[lastKey] = value;
     saveConfig(configs);
   }
