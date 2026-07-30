@@ -30,10 +30,22 @@ function saveConfig(data) {
  * @param {any} value
  * @returns {void}
  */
-function checkConfigValue(key, value) {
-  const configs = getConfig();
+function isUnsafeKeySegment(segment) {
+  return segment === "__proto__" || segment === "prototype" || segment === "constructor";
+}
 
+function checkConfigValue(key, value) {
+  if (typeof key !== "string" || key.trim() === "") {
+    throw new Error("[checkConfigValue] key must be a non-empty string");
+  }
+
+  const configs = getConfig();
   const keys = key.split(".");
+
+  if (keys.some((segment) => !segment || isUnsafeKeySegment(segment))) {
+    throw new Error("[checkConfigValue] invalid or unsafe config key path");
+  }
+
   let current = configs;
 
   // percorre até a última chave
