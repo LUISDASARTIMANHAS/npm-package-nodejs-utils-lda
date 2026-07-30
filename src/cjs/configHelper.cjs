@@ -74,6 +74,21 @@ function checkConfigValue(key, value) {
 
   const lastKey = keys[keys.length - 1];
 
+  if (isUnsafeKeySegment(lastKey)) {
+    throw new Error("[checkConfigValue] invalid or unsafe config key path");
+  }
+
+  const currentProto = Object.getPrototypeOf(current);
+  const isSafeCurrentContainer =
+    current &&
+    typeof current === "object" &&
+    !Array.isArray(current) &&
+    (currentProto === null || currentProto === Object.prototype);
+
+  if (!isSafeCurrentContainer) {
+    throw new Error("[checkConfigValue] refusing to write into unsafe object");
+  }
+
   // só define se não existir como propriedade própria ou se estiver undefined
   if (
     !Object.prototype.hasOwnProperty.call(current, lastKey) ||
