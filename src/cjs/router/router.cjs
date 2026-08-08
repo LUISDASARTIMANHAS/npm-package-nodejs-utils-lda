@@ -8,6 +8,7 @@ const defaultRoutesMiddleware = require("./middlewares/defaultRoutesMiddleware.c
 const routerStatusMiddleware = require("./middlewares/routerStatusMiddleware.cjs");
 const { exposePublicFolder, exposeLogsFolder } = require("../utils.cjs");
 const routerLogsDash = require("./routerLogsDash.cjs");
+const { autoLoader } = require("../autoFileSysModule.cjs");
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
@@ -66,7 +67,7 @@ module.exports = {
   requestLoggerMiddleware,
   httpsFirewallMiddleware,
   logsDashboard,
-  StatusDashboard,
+  routerStatusMiddleware,
   checkHeaderMiddleware,
   cacheMiddleware,
 };
