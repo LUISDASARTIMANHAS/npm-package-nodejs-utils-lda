@@ -6,12 +6,12 @@ const {
   SanitizeXSS,
   exposePublicFolder,
   exposeLogsFolder,
-} = require("../utils.cjs");
+} = require("../../utils.cjs");
 const { env } = require("process");
 const dotenv = require("dotenv");
-const { checkConfigValue, getConfig } = require("../configHelper.cjs");
-const { log, logError } = require("../logger/index.cjs");
-const { httpForbidden } = require("./exceptionAPI.cjs");
+const { checkConfigValue, getConfig } = require("../../configHelper.cjs");
+const { log, logError } = require("../../logger/index.cjs");
+const { httpForbidden } = require("../exceptionAPI.cjs");
 const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env
@@ -111,4 +111,13 @@ function getKeys() {
 //   }
 // }
 
-module.exports = routerCheckHeaderMiddleware;
+function checkHeaderMiddleware(app) {
+  antiReplyMiddleware(app); // 🔥 primeiro (segurança)
+  app.use(routerCheckHeaderMiddleware); // depois auth
+  console.log(
+    "\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!",
+  );
+  return app;
+}
+
+module.exports = checkHeaderMiddleware;

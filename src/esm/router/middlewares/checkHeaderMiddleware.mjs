@@ -12,6 +12,7 @@ import { config } from "dotenv";
 import { checkConfigValue, getConfig } from "../../configHelper.mjs";
 import { log, logError } from "../../logger/index.mjs";
 import { httpForbidden } from "../exceptionAPI.mjs";
+import antiReplyMiddleware from "../../security/antiReplay.mjs";
 const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env
@@ -96,4 +97,11 @@ function getKeys() {
   return finalKeys;
 }
 
-export default routerCheckHeaderMiddleware;
+export function checkHeaderMiddleware(app) {
+  antiReplyMiddleware(app); // 🔥 primeiro (segurança)
+  app.use(routerCheckHeaderMiddleware); // depois auth
+  console.log("\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!");
+  return app;
+}
+
+export default checkHeaderMiddleware;

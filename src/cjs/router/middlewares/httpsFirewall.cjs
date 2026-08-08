@@ -1,8 +1,8 @@
-const { log, logRequest } = require("../logger/index.cjs");
+const { log, logRequest } = require("../../logger/index.cjs");
 const cors = require("cors");
 const helmet = require("helmet");
-const { getConfig, checkConfigValue } = require("../configHelper.cjs");
-const { httpForbidden } = require("./exceptionAPI.cjs");
+const { getConfig, checkConfigValue } = require("../../configHelper.cjs");
+const { httpForbidden } = require("../exceptionAPI.cjs");
 const logPath = "httpsFirewall.log";
 
 checkConfigValue("ORIGIN", [
@@ -153,4 +153,10 @@ function makeHstsOptions() {
   };
 }
 
-module.exports = httpsFirewall;
+function httpsFirewallMiddleware(app) {
+  app.use(httpsFirewall);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [httpsFirewall] loaded!");
+  return app;
+}
+
+module.exports = httpsFirewallMiddleware;

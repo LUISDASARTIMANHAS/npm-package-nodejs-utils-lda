@@ -1,8 +1,8 @@
 const express = require("express");
 const routerCache = express.Router();
 const dotenv = require("dotenv");
-const { getConfig, checkConfigValue } = require("../configHelper.cjs");
-const { log } = require("../logger/index.cjs");
+const { getConfig, checkConfigValue } = require("../../configHelper.cjs");
+const { log } = require("../../logger/index.cjs");
 
 const logPath = "cache.txt";
 
@@ -49,4 +49,10 @@ routerCache.get("/*name", (req, res, next) => {
   next();
 });
 
-module.exports = routerCache;
+function cacheMiddleware(app) {
+  app.use(routerCache);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [cacheMiddleware] loaded!");
+  return app;
+}
+
+module.exports = cacheMiddleware;

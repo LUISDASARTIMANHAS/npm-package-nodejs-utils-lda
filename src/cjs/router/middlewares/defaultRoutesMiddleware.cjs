@@ -1,8 +1,8 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const { httpInternalServerError } = require("../router/exceptionAPI.cjs");
-const { fopen } = require("../autoFileSysModule.cjs");
+const { httpInternalServerError } = require("../exceptionAPI.cjs");
+const { fopen } = require("../../autoFileSysModule.cjs");
 const routerDefault = express.Router();
 const LOGS_DIR = "logs";
 
@@ -95,4 +95,10 @@ function getRoutes(stack, prefix = "") {
   return routes;
 }
 
-module.exports = registerDefaultRoutes;
+function defaultRoutesMiddleware(app) {
+  registerDefaultRoutes(app);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [DEFAULT ROUTES] loaded!");
+  return app;
+}
+
+module.exports = defaultRoutesMiddleware;

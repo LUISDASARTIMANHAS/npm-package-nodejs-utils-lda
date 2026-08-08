@@ -1,8 +1,8 @@
 // cjs\router\discordRequestLoggerMiddleware.cjs
 const express = require("express");
 const routerDiscordRequestLogger = express.Router();
-const { checkConfigValue, getConfig } = require("../configHelper.cjs");
-const { discordLogs } = require("../discordUtils/discordSender.cjs");
+const { checkConfigValue, getConfig } = require("../../configHelper.cjs");
+const { discordLogs } = require("../../discordUtils/discordSender.cjs");
 
 checkConfigValue("discordRequestLogger", {
   enabled: true,
@@ -57,4 +57,10 @@ routerDiscordRequestLogger.use("/api", (req, res, next) => {
   next();
 });
 
-module.exports = routerDiscordRequestLogger;
+function discordRequestLoggerMiddleware(mainRouter) {
+  mainRouter.use(routerDiscordRequestLogger);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [Discord RequestLogger] loaded!");
+  return mainRouter;
+}
+
+module.exports = discordRequestLoggerMiddleware;

@@ -110,4 +110,12 @@ function antiReplayHandler(req, res, next) {
  */
 routerAntiReplyMiddleware.all("/api/*name", antiReplayHandler);
 
-module.exports = routerAntiReplyMiddleware;
+function antiReplyMiddleware(app) {
+  app.use(routerAntiReplyMiddleware);
+  console.log(
+    "\n\t[npm-package-nodejs-utils-lda] [antiReplyMiddleware] loaded!",
+  );
+  return app;
+}
+
+module.exports = antiReplyMiddleware;

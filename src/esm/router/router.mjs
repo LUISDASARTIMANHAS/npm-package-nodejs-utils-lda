@@ -1,16 +1,18 @@
-
+import { exposePublicFolder } from "../utils.mjs";
+import cacheMiddleware from "./middlewares/cacheSys.mjs";
+import defaultRoutesMiddleware from "./middlewares/defaultRoutesMiddleware.mjs";
+import checkHeaderMiddleware from "./middlewares/checkHeaderMiddleware.mjs";
+import discordRequestLoggerMiddleware from "./middlewares/discordRequestLoggerMiddleware.mjs";
+import httpsFirewallMiddleware from "./middlewares/httpsFirewall.mjs";
+import rateLimitMiddleware from "./middlewares/rateLimitMiddleware.mjs";
+import requestLoggerMiddleware from "./middlewares/requestLoggerMiddleware.mjs";
+import logsDashboardMiddleWare from "./middlewares/routerLogsDash.mjs";
+import routerStatusDash from "./middlewares/routerStatusDash.mjs";
 
 export function StatusDashboard(mainRouter) {
   mainRouter.use("/", routerStatusDash);
   console.log("\n\t[npm-package-nodejs-utils-lda] [StatusDash] loaded!");
   return mainRouter;
-}
-
-export function checkHeaderMiddleware(app) {
-  antiReplyMiddleware(app); // 🔥 primeiro (segurança)
-  app.use(routerCheckHeaderMiddleware); // depois auth
-  console.log("\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!");
-  return app;
 }
 
 /**

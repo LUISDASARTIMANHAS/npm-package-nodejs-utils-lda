@@ -1,8 +1,8 @@
 // cjs\router\requestLoggerMiddleware.cjs
 const express = require("express");
 const routerRequestLogger = express.Router();
-const { log, logRequest } = require("../logger/index.cjs");
-const { checkConfigValue, getConfig } = require("../configHelper.cjs");
+const { log, logRequest } = require("../../logger/index.cjs");
+const { checkConfigValue, getConfig } = require("../../configHelper.cjs");
 const LOGS_DIR = "requestLogger.log";
 
 checkConfigValue("requestLogger", {
@@ -26,4 +26,10 @@ routerRequestLogger.all("/*name", async (req, res, next) => {
   next();
 });
 
-module.exports = routerRequestLogger;
+function requestLoggerMiddleware(mainRouter) {
+  mainRouter.use(routerRequestLogger);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [requestLogger] loaded!");
+  return mainRouter;
+}
+
+module.exports = requestLoggerMiddleware;

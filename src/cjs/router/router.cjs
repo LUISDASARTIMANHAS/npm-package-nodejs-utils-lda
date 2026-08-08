@@ -1,14 +1,11 @@
-const routerCache = require("./cacheSys.cjs");
-const routerLogsDash = require("./routerLogsDash.cjs");
-const routerCheckHeaderMiddleware = require("./checkHeaderMiddleware.cjs");
-const routerAntiReplyMiddleware = require("../security/antiReplay.cjs");
-const routerStatusDash = require("./routerStatusDash.cjs");
-const httpsFirewall = require("./httpsFirewall.cjs");
-const routerRequestLogger = require("./requestLoggerMiddleware.cjs");
-const routerDiscordRequestLogger = require("./discordRequestLoggerMiddleware.cjs");
-const { autoLoader } = require("../autoFileSysModule.cjs");
-const { exposeLogsFolder, exposePublicFolder } = require("../utils.cjs");
-const registerDefaultRoutes  = require("./routerDefault.cjs");
+const rateLimitMiddleware = require("./middlewares/rateLimitMiddleware.cjs");
+const httpsFirewallMiddleware = require("./middlewares/httpsFirewall.cjs");
+const requestLoggerMiddleware = require("./middlewares/requestLoggerMiddleware.cjs");
+const discordRequestLoggerMiddleware = require("./middlewares/discordRequestLoggerMiddleware.cjs");
+const cacheMiddleware = require("./middlewares/cacheMiddleware.cjs");
+const checkHeaderMiddleware = require("./middlewares/checkHeaderMiddleware.cjs");
+const defaultRoutesMiddleware = require("./middlewares/defaultRoutesMiddleware.cjs");
+const { exposePublicFolder, exposeLogsFolder } = require("../utils.cjs");
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
@@ -30,54 +27,6 @@ function StatusDashboard(mainRouter) {
   return mainRouter;
 }
 
-function requestLoggerMiddleware(mainRouter) {
-  mainRouter.use(routerRequestLogger);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [requestLogger] loaded!");
-  return mainRouter;
-}
-
-function discordRequestLoggerMiddleware(mainRouter) {
-  mainRouter.use(routerDiscordRequestLogger);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [Discord RequestLogger] loaded!");
-  return mainRouter;
-}
-
-function httpsFirewallMiddleware(app) {
-  app.use(httpsFirewall);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [httpsFirewall] loaded!");
-  return app;
-}
-
-function checkHeaderMiddleware(app) {
-  antiReplyMiddleware(app); // 🔥 primeiro (segurança)
-  app.use(routerCheckHeaderMiddleware); // depois auth
-  console.log(
-    "\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!",
-  );
-  return app;
-}
-
-function antiReplyMiddleware(app) {
-  app.use(routerAntiReplyMiddleware);
-  console.log(
-    "\n\t[npm-package-nodejs-utils-lda] [antiReplyMiddleware] loaded!",
-  );
-  return app;
-}
-
-function cacheMiddleware(app) {
-  app.use(routerCache);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [cacheMiddleware] loaded!");
-  return app;
-}
-
-
-function defaultRoutesMiddleware(app) {
-  registerDefaultRoutes(app);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [DEFAULT ROUTES] loaded!");
-  return app;
-}
-
 /**
  * Registra todas as rotas e middlewares principais.
  *
@@ -86,6 +35,8 @@ function defaultRoutesMiddleware(app) {
  */
 function registerRoutes(mainRouter) {
   httpsFirewallMiddleware(mainRouter); // SEMPRE primeiro devido ao cors
+  rateLimitMiddleware(mainRouter);
+
   requestLoggerMiddleware(mainRouter);
   discordRequestLoggerMiddleware(mainRouter);
   cacheMiddleware(mainRouter);
