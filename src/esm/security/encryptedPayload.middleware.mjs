@@ -1,17 +1,21 @@
 import { decryptAESKey, decryptAESGCM } from "./crypto.service.mjs";
 
 const recentNonces = new Set();
-const TIME_LIMIT_MS = 30000; // 30 segundos
+const TIME_LIMIT_MS = 30_000;
 
-// 💡 Função auxiliar para validar e coletar erros (Clean Code)
 /**
- * @function validatePayloadFields
- * @description Verifica a presença de todos os campos criptográficos necessários.
+ * Valida a presença dos campos necessários do payload.
  *
- * @param {object} body - O corpo da requisição Express (req.body).
- * @returns {string[] | null} Uma array de strings com os campos faltantes, ou null se tudo estiver ok.
+ * Os detalhes dessa estrutura não são expostos ao cliente.
+ *
+ * @param {object} body
+ * @returns {boolean}
  */
-function validatePayloadFields(body) {
+function hasRequiredPayloadFields(body) {
+  if (!body || typeof body !== "object") {
+    return false;
+  }
+
   const requiredFields = [
     "encryptedData",
     "encryptedKey",
@@ -21,120 +25,173 @@ function validatePayloadFields(body) {
     "nonce",
   ];
 
-  const missingFields = requiredFields.filter((field) => !body[field]);
-
-  return missingFields.length > 0 ? missingFields : null;
+  return requiredFields.every((field) => {
+    return (
+      body[field] !== undefined && body[field] !== null && body[field] !== ""
+    );
+  });
 }
 
 /**
- * 🛡️ Middleware Express para processar payloads criptografados com validação detalhada e logs de segurança.
+ * 🛡️ Middleware Express para processar payloads criptografados.
  *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
+ * Segurança:
+ * - Não expõe detalhes da implementação criptográfica.
+ * - Não retorna err.message para o cliente.
+ * - Não informa quais componentes criptográficos falharam.
+ * - Não expõe o formato interno do payload.
+ * - Mantém os detalhes técnicos apenas nos logs do servidor.
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
  * @returns {void}
  */
 export function encryptedPayloadMiddleware(req, res, next) {
-  // Captura o IP de origem e a URL original para logs de segurança
   const originIP = req.ip || "N/A";
   const originUrl = req.originalUrl;
 
   try {
     const { encryptedData, encryptedKey, iv, authTag, timestamp, nonce } =
-      req.body;
+      req.body || {};
 
-    /* ===== 1. Validação básica (Payload Incompleto) ===== */
+    /* =========================================================
+     * 1. Validação estrutural
+     * ======================================================= */
 
-    const missing = validatePayloadFields(req.body);
-
-    if (missing) {
-      const errorMsg = `Payload criptografado incompleto. Campos faltantes: ${missing.join(
-        ", "
-      )}. Certifique-se de enviar todos os componentes criptográficos.`;
-
-      // ⚠️ Log para o Administrador (Falha de Cliente)
+    if (!hasRequiredPayloadFields(req.body)) {
       console.warn(
-        `[CRYPTO WARN | 400] Payload incompleto. Faltando: ${missing.join(
-          ", "
-        )}. Origem: ${originIP} em ${originUrl}`
+        `[CRYPTO WARN | 400] Payload criptográfico inválido. ` +
+          `Origem: ${originIP} em ${originUrl}`,
       );
 
       return res.status(400).json({
-        error: errorMsg,
-        missing_fields: missing,
-        required_format: {
-          encryptedData: "string (base64)",
-          encryptedKey: "string (base64)",
-          iv: "string (base64)",
-          authTag: "string (base64)",
-          timestamp: "number (ms)",
-          nonce: "string",
-        },
+        error: "Payload inválido.",
       });
     }
 
-    /* ===== 2. Validação de tempo (Time/Sync Fail) ===== */
+    /* =========================================================
+     * 2. Validação do timestamp
+     * ======================================================= */
+
+    if (typeof timestamp !== "number" || !Number.isFinite(timestamp)) {
+      console.warn(
+        `[CRYPTO WARN | 401] Timestamp inválido. ` +
+          `Origem: ${originIP} em ${originUrl}`,
+      );
+
+      return res.status(401).json({
+        error: "Requisição inválida ou expirada.",
+      });
+    }
 
     const now = Date.now();
     const timeDiff = Math.abs(now - timestamp);
 
     if (timeDiff > TIME_LIMIT_MS) {
-      // ⚠️ Log para o Administrador (Falha de Sincronia)
       console.warn(
-        `[CRYPTO WARN | 401] Timestamp inválido. Diferença de ${timeDiff}ms (Limite: ${TIME_LIMIT_MS}ms). Origem: ${originIP} em ${originUrl}`
+        `[CRYPTO WARN | 401] Payload expirado. ` +
+          `Diferença: ${timeDiff}ms. ` +
+          `Origem: ${originIP} em ${originUrl}`,
       );
 
       return res.status(401).json({
-        error: "Timestamp inválido ou expirado.",
-        details: `Diferença de tempo de ${timeDiff}ms, excedendo o limite de ${TIME_LIMIT_MS}ms (30 segundos). Verifique a sincronia do seu relógio.`,
+        error: "Requisição inválida ou expirada.",
       });
     }
 
-    /* ===== 3. Proteção contra replay (Ataque Potencial) ===== */
+    /* =========================================================
+     * 3. Proteção contra replay
+     * ======================================================= */
 
     if (recentNonces.has(nonce)) {
-      // 🔥 Log de ALERTA DE SEGURANÇA para o Administrador (Ataque de Replay)
-      console.error(
-        `[CRYPTO SECURITY ALERT | 401] Nonce Reutilizado (Replay Attack Detectado!). Nonce: ${nonce}. Origem: ${originIP} em ${originUrl}`
+      console.warn(
+        `[CRYPTO SECURITY | 401] Possível replay detectado. ` +
+          `Origem: ${originIP} em ${originUrl}`,
       );
 
       return res.status(401).json({
-        error: "Nonce reutilizado (Replay Attack Detected).",
-        details:
-          "Este Nonce foi usado recentemente. Gere um novo Nonce único para cada requisição.",
+        error: "Requisição inválida.",
       });
     }
 
+    /*
+     * Registra o nonce antes da descriptografia.
+     *
+     * Isso impede que o mesmo payload seja reutilizado
+     * em múltiplas tentativas dentro da janela de validade.
+     */
     recentNonces.add(nonce);
-    setTimeout(() => recentNonces.delete(nonce), TIME_LIMIT_MS);
 
-    /* ===== 4. Descriptografia ===== */
+    setTimeout(() => {
+      recentNonces.delete(nonce);
+    }, TIME_LIMIT_MS);
+
+    /* =========================================================
+     * 4. Descriptografia
+     * ======================================================= */
 
     const aesKey = decryptAESKey(encryptedKey);
+
     const plaintext = decryptAESGCM(encryptedData, aesKey, iv, authTag);
 
-    // ✅ Log de SUCESSO
+    /* =========================================================
+     * 5. Parse do conteúdo descriptografado
+     * ======================================================= */
+
+    let decryptedBody;
+
+    try {
+      decryptedBody = JSON.parse(plaintext);
+    } catch (parseError) {
+      console.warn(
+        `[CRYPTO WARN | 400] Payload descriptografado inválido. ` +
+          `Origem: ${originIP} em ${originUrl}`,
+      );
+
+      return res.status(400).json({
+        error: "Payload inválido.",
+      });
+    }
+
+    /* =========================================================
+     * 6. Sucesso
+     * ======================================================= */
+
     console.log(
-      `[CRYPTO SUCCESS | 200] Payload descriptografado com sucesso. Origem: ${originIP} em ${originUrl}`
+      `[CRYPTO SUCCESS | 200] Payload descriptografado com sucesso. ` +
+        `Origem: ${originIP} em ${originUrl}`,
     );
 
-    /**
-     * 🔑 Dado descriptografado disponível
-     * para as próximas rotas/middlewares
-     */
-    req.decryptedBody = JSON.parse(plaintext);
+    req.decryptedBody = decryptedBody;
 
-    next();
+    return next();
   } catch (err) {
-    // ❌ Log de Erro Grave (Falha de Descriptografia)
+    /*
+     * IMPORTANTE:
+     *
+     * Nunca enviar err.message para o cliente.
+     *
+     * O erro original pode revelar informações sobre:
+     * - algoritmo criptográfico;
+     * - provider utilizado;
+     * - autenticação GCM;
+     * - IV;
+     * - AuthTag;
+     * - Base64;
+     * - estrutura esperada do payload.
+     */
+
     console.error(
-      `[CRYPTO FATAL ERROR | 400] Falha ao descriptografar payload. Causa: ${err.message}. Origem: ${originIP} em ${originUrl}`
+      `[CRYPTO ERROR | 400] Falha ao processar payload criptográfico. ` +
+        `Origem: ${originIP} em ${originUrl}`,
+      {
+        error: err,
+      },
     );
 
     return res.status(400).json({
-      error: "Falha ao descriptografar payload.",
-      details:
-        "Verifique se a chave de criptografia, IV ou AuthTag estão corretos e se o formato Base64 é válido.",
+      error: "Não foi possível processar a requisição.",
     });
   }
 }
