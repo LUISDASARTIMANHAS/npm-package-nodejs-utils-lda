@@ -5,8 +5,9 @@ const discordRequestLoggerMiddleware = require("./middlewares/discordRequestLogg
 const cacheMiddleware = require("./middlewares/cacheMiddleware.cjs");
 const checkHeaderMiddleware = require("./middlewares/checkHeaderMiddleware.cjs");
 const defaultRoutesMiddleware = require("./middlewares/defaultRoutesMiddleware.cjs");
-const { exposePublicFolder, exposeLogsFolder } = require("../utils.cjs");
 const routerStatusMiddleware = require("./middlewares/routerStatusMiddleware.cjs");
+const { exposePublicFolder, exposeLogsFolder } = require("../utils.cjs");
+const routerLogsDash = require("./routerLogsDash.cjs");
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
