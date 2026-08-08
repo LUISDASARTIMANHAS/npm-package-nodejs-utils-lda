@@ -16,8 +16,42 @@ const defaultRateLimiter = rateLimit({
   standardHeaders: "draft-7",
   legacyHeaders: false,
 
+  statusCode: 429,
+
   message: {
-    error: "Muitas requisições. Tente novamente mais tarde.",
+    type: "[RateLimit]",
+    error:
+      "[npm-package-nodejs-utils-lda] Muitas requisições. Tente novamente mais tarde.",
+  },
+
+  /**
+   * Executado quando o limite é atingido.
+   *
+   * Mantemos o log no servidor e não expomos
+   * informações internas ao cliente.
+   */
+  handler: (req, res, next, options) => {
+    const userAgent = req.get("user-agent") || "N/A";
+    const origin = req.get("referer") || req.get("referrer") || "N/A";
+
+    console.warn(
+      `[RateLimit] Request blocked | ` +
+        `IP: ${req.ip || "N/A"} | ` +
+        `Method: ${req.method} | ` +
+        `URL: ${req.originalUrl || "N/A"} | ` +
+        `User-Agent: ${userAgent} | ` +
+        `Referer: ${origin}`,
+    );
+
+    res.status(options.statusCode).json(options.message);
+  },
+
+  /**
+   * Executado quando uma requisição é aceita
+   * e o rate limiter atualiza o contador.
+   */
+  requestWasSuccessful: (req, res) => {
+    return res.statusCode < 400;
   },
 });
 
