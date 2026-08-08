@@ -59,12 +59,35 @@ export function getBotTag(bot) {
 
 /**
  * Renderiza uma string substituindo ${variavel}
+ *
  * @param {string} template
  * @param {Object} variables
  * @returns {string}
  */
 export function renderTemplate(template, variables) {
-  return template.replace(/\$\{(.*?)\}/g, (_, key) => {
+  if (typeof template !== "string") {
+    throw new TypeError("Template deve ser uma string");
+  }
+
+  if (!variables || typeof variables !== "object") {
+    throw new TypeError("Variables deve ser um objeto");
+  }
+
+  /*
+   * Limite defensivo para evitar processamento excessivo
+   * de templates arbitrariamente grandes.
+   */
+  if (template.length > 100_000) {
+    throw new Error("Template muito grande");
+  }
+
+  /*
+   * Captura apenas o conteúdo entre ${ e }.
+   *
+   * [^}] evita o uso de .*? e impede que a expressão
+   * procure repetidamente pelo fechamento do placeholder.
+   */
+  return template.replace(/\$\{([^}]*)\}/g, (_, key) => {
     return variables[key.trim()] ?? "";
   });
 }
