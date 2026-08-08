@@ -12,6 +12,7 @@ const dotenv = require("dotenv");
 const { checkConfigValue, getConfig } = require("../../configHelper.cjs");
 const { log, logError } = require("../../logger/index.cjs");
 const { httpForbidden } = require("../exceptionAPI.cjs");
+const antiReplyMiddleware = require("../../security/antiReplay.cjs");
 const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env
