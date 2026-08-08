@@ -6,6 +6,7 @@ const cacheMiddleware = require("./middlewares/cacheMiddleware.cjs");
 const checkHeaderMiddleware = require("./middlewares/checkHeaderMiddleware.cjs");
 const defaultRoutesMiddleware = require("./middlewares/defaultRoutesMiddleware.cjs");
 const { exposePublicFolder, exposeLogsFolder } = require("../utils.cjs");
+const routerStatusMiddleware = require("./middlewares/routerStatusMiddleware.cjs");
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
@@ -18,12 +19,6 @@ function logsDashboard(mainRouter) {
 
   mainRouter.use("/logs", routerLogsDash);
   console.log("\n\t[npm-package-nodejs-utils-lda] [LogsDash] loaded!");
-  return mainRouter;
-}
-
-function StatusDashboard(mainRouter) {
-  mainRouter.use("/", routerStatusDash);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [StatusDash] loaded!");
   return mainRouter;
 }
 
@@ -43,7 +38,7 @@ function registerRoutes(mainRouter) {
   checkHeaderMiddleware(mainRouter);
   exposePublicFolder(mainRouter);
   logsDashboard(mainRouter);
-  StatusDashboard(mainRouter);
+  routerStatusMiddleware(mainRouter);
   defaultRoutesMiddleware(mainRouter);
 
   console.log(

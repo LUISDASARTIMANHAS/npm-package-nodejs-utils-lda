@@ -1,7 +1,7 @@
 const express = require("express");
-const { landingPage, sanitizeNetworkInterfaces } = require("../utils.cjs");
-const { log } = require("../logger/index.cjs");
-const { sendAPIError } = require("./exceptionAPI.cjs");
+const { landingPage, sanitizeNetworkInterfaces } = require("../../utils.cjs");
+const { log } = require("../../logger/index.cjs");
+const { sendAPIError } = require("../exceptionAPI.cjs");
 const os = require("os");
 const routerStatusDash = express.Router();
 
@@ -58,4 +58,10 @@ function toGB(bytes) {
   return (toMB(bytes) / 1024).toFixed(2);
 }
 
-module.exports = routerStatusDash;
+function routerStatusMiddleware(mainRouter) {
+  mainRouter.use("/", routerStatusDash);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [StatusDash] loaded!");
+  return mainRouter;
+}
+
+module.exports = routerStatusMiddleware;

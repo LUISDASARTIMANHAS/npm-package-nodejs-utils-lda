@@ -8,12 +8,7 @@ import rateLimitMiddleware from "./middlewares/rateLimitMiddleware.mjs";
 import requestLoggerMiddleware from "./middlewares/requestLoggerMiddleware.mjs";
 import logsDashboardMiddleWare from "./middlewares/routerLogsDash.mjs";
 import routerStatusDash from "./middlewares/routerStatusDash.mjs";
-
-export function StatusDashboard(mainRouter) {
-  mainRouter.use("/", routerStatusDash);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [StatusDash] loaded!");
-  return mainRouter;
-}
+import routerStatusMiddleware from "./middlewares/routerStatusMiddleware.mjs";
 
 /**
  * Registra todas as rotas e middlewares principais.
@@ -31,7 +26,7 @@ export function registerRoutes(mainRouter) {
   checkHeaderMiddleware(mainRouter);
   exposePublicFolder(mainRouter);
   logsDashboardMiddleWare(mainRouter);
-  StatusDashboard(mainRouter);
+  routerStatusMiddleware(mainRouter);
   defaultRoutesMiddleware(mainRouter);
 
   console.log(

@@ -58,4 +58,10 @@ function toGB(bytes) {
   return (toMB(bytes) / 1024).toFixed(2);
 }
 
-export default routerStatusDash;
+export function routerStatusMiddleware(mainRouter) {
+  mainRouter.use("/", routerStatusDash);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [StatusDash] loaded!");
+  return mainRouter;
+}
+
+export default routerStatusMiddleware;
