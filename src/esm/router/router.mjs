@@ -1,27 +1,4 @@
-import routerCache from "./cacheSys.mjs";
-import routerLogsDash from "./routerLogsDash.mjs";
-import routerCheckHeaderMiddleware from "./checkHeaderMiddleware.mjs";
-import routerAntiReplyMiddleware from "../security/antiReplay.mjs";
-import routerStatusDash from "./routerStatusDash.mjs";
-import httpsFirewall from "./httpsFirewall.mjs";
-import routerRequestLogger from "./requestLoggerMiddleware.mjs";
-import routerDiscordRequestLogger from "./discordRequestLoggerMiddleware.mjs";
-import registerDefaultRoutes from "./routerDefault.mjs";
-import { exposeLogsFolder, exposePublicFolder } from "../utils.mjs";
 
-/**
- * Registra rota dinâmica para listagem e acesso aos logs
- * @param {import("express").Express} app
- * @returns {boolean}
- */
-export function logsDashboard(mainRouter) {
-  // e necessario expor a pasta primeiro antes de ter uma rota
-  exposeLogsFolder(mainRouter);
-
-  mainRouter.use("/logs", routerLogsDash);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [LogsDash] loaded!");
-  return mainRouter;
-}
 
 export function StatusDashboard(mainRouter) {
   mainRouter.use("/", routerStatusDash);
@@ -29,46 +6,10 @@ export function StatusDashboard(mainRouter) {
   return mainRouter;
 }
 
-export function requestLoggerMiddleware(mainRouter) {
-  mainRouter.use(routerRequestLogger);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [requestLogger] loaded!");
-  return mainRouter;
-}
-
-export function discordRequestLoggerMiddleware(mainRouter) {
-  mainRouter.use(routerDiscordRequestLogger);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [Discord RequestLogger] loaded!");
-  return mainRouter;
-}
-
-export function httpsFirewallMiddleware(app) {
-  app.use(httpsFirewall);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [httpsFirewall] loaded!");
-  return app;
-}
-
 export function checkHeaderMiddleware(app) {
   antiReplyMiddleware(app); // 🔥 primeiro (segurança)
   app.use(routerCheckHeaderMiddleware); // depois auth
   console.log("\n\t[npm-package-nodejs-utils-lda] [checkHeaderMiddleware] loaded!");
-  return app;
-}
-
-export function antiReplyMiddleware(app) {
-  app.use(routerAntiReplyMiddleware);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [antiReplyMiddleware] loaded!");
-  return app;
-}
-
-export function cacheMiddleware(app) {
-  app.use(routerCache);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [cacheMiddleware] loaded!");
-  return app;
-}
-
-export function defaultRoutesMiddleware(app) {
-  registerDefaultRoutes(app);
-  console.log("\n\t[npm-package-nodejs-utils-lda] [DEFAULT ROUTES] loaded!");
   return app;
 }
 
@@ -80,12 +21,14 @@ export function defaultRoutesMiddleware(app) {
  */
 export function registerRoutes(mainRouter) {
   httpsFirewallMiddleware(mainRouter); // SEMPRE primeiro devido ao cors
+  rateLimitMiddleware(mainRouter);
+
   requestLoggerMiddleware(mainRouter);
   discordRequestLoggerMiddleware(mainRouter);
   cacheMiddleware(mainRouter)
   checkHeaderMiddleware(mainRouter);
   exposePublicFolder(mainRouter);
-  logsDashboard(mainRouter);
+  logsDashboardMiddleWare(mainRouter);
   StatusDashboard(mainRouter);
   defaultRoutesMiddleware(mainRouter);
 

@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { join } from "path";
 import { promises } from "fs";
-import { httpForbidden, httpInternalServerError } from "./exceptionAPI.mjs";
+import { httpForbidden, httpInternalServerError } from "../exceptionAPI.mjs";
+import { exposeLogsFolder } from "../../utils.mjs";
 const routerLogsDash = Router();
 const LOGS_DIR = "logs";
 
@@ -61,4 +62,18 @@ routerLogsDash.get("/:filename", (req, res) => {
   res.sendFile(filePath);
 });
 
-export default routerLogsDash;
+/**
+ * Registra rota dinâmica para listagem e acesso aos logs
+ * @param {import("express").Express} app
+ * @returns {boolean}
+ */
+export function logsDashboardMiddleWare(mainRouter) {
+  // e necessario expor a pasta primeiro antes de ter uma rota
+  exposeLogsFolder(mainRouter);
+
+  mainRouter.use("/logs", routerLogsDash);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [LogsDash] loaded!");
+  return mainRouter;
+}
+
+export default logsDashboardMiddleWare;

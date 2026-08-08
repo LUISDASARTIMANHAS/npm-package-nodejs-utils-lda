@@ -1,8 +1,8 @@
-import { log, logRequest } from "../logger/index.mjs";
+import { log, logRequest } from "../../logger/index.mjs";
 import cors from "cors";
 import { hsts } from "helmet";
-import { getConfig, checkConfigValue } from "../configHelper.mjs";
-import { httpForbidden } from "./exceptionAPI.mjs";
+import { getConfig, checkConfigValue } from "../../configHelper.mjs";
+import { httpForbidden } from "../exceptionAPI.mjs";
 const logPath = "httpsFirewall.log";
 
 // checkConfigIntegrity();
@@ -155,4 +155,10 @@ function makeHstsOptions() {
   };
 }
 
-export default httpsFirewall;
+export function httpsFirewallMiddleware(app) {
+  app.use(httpsFirewall);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [httpsFirewall] loaded!");
+  return app;
+}
+
+export default httpsFirewallMiddleware;

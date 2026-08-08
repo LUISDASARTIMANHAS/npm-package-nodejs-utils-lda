@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { landingPage, sanitizeNetworkInterfaces } from "../utils.mjs";
-import { log } from "../logger/index.mjs";
+import { landingPage, sanitizeNetworkInterfaces } from "../../utils.mjs";
+import { log } from "../../logger/index.mjs";
 import { networkInterfaces, loadavg, platform as _platform, cpus, totalmem, freemem } from "os";
-import { httpServiceUnavailable } from "./exceptionAPI.mjs";
+import { httpServiceUnavailable } from "../exceptionAPI.mjs";
 const routerStatusDash = Router();
 
 routerStatusDash.get("/", (req, res) => {

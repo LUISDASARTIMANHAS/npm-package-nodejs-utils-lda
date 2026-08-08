@@ -6,12 +6,12 @@ import {
   SanitizeXSS,
   exposePublicFolder,
   exposeLogsFolder,
-} from "../utils.mjs";
+} from "../../utils.mjs";
 import { env } from "process";
 import { config } from "dotenv";
-import { checkConfigValue, getConfig } from "../configHelper.mjs";
-import { log, logError } from "../logger/index.mjs";
-import { httpForbidden } from "./exceptionAPI.mjs";
+import { checkConfigValue, getConfig } from "../../configHelper.mjs";
+import { log, logError } from "../../logger/index.mjs";
+import { httpForbidden } from "../exceptionAPI.mjs";
 const logPath = "authorization.txt";
 
 // Carregar variáveis de ambiente do arquivo .env

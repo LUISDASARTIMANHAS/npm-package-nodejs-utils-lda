@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { join } from "path";
 import { promises } from "fs";
-import { httpForbidden, httpInternalServerError } from "./exceptionAPI.mjs";
-import { fopen } from "../autoFileSysModule.mjs";
+import { httpForbidden, httpInternalServerError } from "../exceptionAPI.mjs";
+import { fopen } from "../../autoFileSysModule.mjs";
 const routerDefault = Router();
 const LOGS_DIR = "logs";
 
@@ -95,4 +95,9 @@ function getRoutes(stack, prefix = "") {
   return routes;
 }
 
-export default registerDefaultRoutes;
+export function defaultRoutesMiddleware(app) {
+  registerDefaultRoutes(app);
+  console.log("\n\t[npm-package-nodejs-utils-lda] [DEFAULT ROUTES] loaded!");
+  return app;
+}
+export default defaultRoutesMiddleware;
