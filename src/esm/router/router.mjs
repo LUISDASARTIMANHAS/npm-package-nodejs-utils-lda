@@ -9,6 +9,7 @@ import requestLoggerMiddleware from "./middlewares/requestLoggerMiddleware.mjs";
 import logsDashboardMiddleWare from "./middlewares/routerLogsDash.mjs";
 import routerStatusDash from "./middlewares/routerStatusDash.mjs";
 import routerStatusMiddleware from "./middlewares/routerStatusMiddleware.mjs";
+import { pathTraversalMiddleware } from "./middlewares/pathTraversalMiddleware.mjs";
 
 /**
  * Registra todas as rotas e middlewares principais.
@@ -19,6 +20,7 @@ import routerStatusMiddleware from "./middlewares/routerStatusMiddleware.mjs";
 export function registerRoutes(mainRouter) {
   httpsFirewallMiddleware(mainRouter); // SEMPRE primeiro devido ao cors
   rateLimitMiddleware(mainRouter);
+  pathTraversalMiddleware(mainRouter);
 
   requestLoggerMiddleware(mainRouter);
   discordRequestLoggerMiddleware(mainRouter);

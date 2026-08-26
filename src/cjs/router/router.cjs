@@ -9,6 +9,7 @@ const routerStatusMiddleware = require("./middlewares/routerStatusMiddleware.cjs
 const { exposePublicFolder, exposeLogsFolder } = require("../utils.cjs");
 const routerLogsDash = require("./routerLogsDash.cjs");
 const { autoLoader } = require("../autoFileSysModule.cjs");
+const { pathTraversalMiddleware } = require("./middlewares/pathTraversalMiddleware.cjs");
 
 /**
  * Registra rota dinâmica para listagem e acesso aos logs
@@ -33,6 +34,7 @@ function logsDashboard(mainRouter) {
 function registerRoutes(mainRouter) {
   httpsFirewallMiddleware(mainRouter); // SEMPRE primeiro devido ao cors
   rateLimitMiddleware(mainRouter);
+  pathTraversalMiddleware(mainRouter);
 
   requestLoggerMiddleware(mainRouter);
   discordRequestLoggerMiddleware(mainRouter);

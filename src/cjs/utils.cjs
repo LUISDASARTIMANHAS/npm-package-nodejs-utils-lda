@@ -264,6 +264,21 @@ async function shell(cmd, args = []) {
   });
 }
 
+/**
+ * Obtém o endereço IP do cliente.
+ *
+ * @param {Object} req Requisição Express.
+ * @returns {string} Endereço IP detectado.
+ */
+function getClientIp(req) {
+    return (
+        req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+        req.socket?.remoteAddress ||
+        req.connection?.remoteAddress ||
+        "IP não detectado"
+    );
+}
+
 module.exports = {
   getRandomInt,
   getRandomBin,
@@ -285,4 +300,5 @@ module.exports = {
   sanitizeNetworkInterfaces,
   fileExistAndCreate,
   shell,
+  getClientIp,
 };
