@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { discordHandleExecTemplate } from "npm-package-nodejs-utils-lda";
+import { discordHandleExecTemplate } from "../discordUtils.mjs";
+
 
 let agyCommand = new SlashCommandBuilder()
 	.setName("agy")
@@ -19,8 +20,9 @@ agyCommand = agyCommand.toJSON();
 async function handleAgy(interaction) {
 	if (interaction.commandName === "agy") {
 		const prompt = interaction.options.getString("prompt");
+		const quotedPrompt = JSON.stringify(prompt ?? "");
 
-		await discordHandleExecTemplate(interaction, "agy -p", prompt);
+		await discordHandleExecTemplate(interaction, "agy -p", quotedPrompt);
 	}
 }
 

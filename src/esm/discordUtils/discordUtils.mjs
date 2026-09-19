@@ -273,6 +273,25 @@ export async function replyWarning(interaction, message, isPrivate = true) {
   }
 }
 
+function splitContent(content, maxLength = 2000) {
+  const chunks = [];
+
+  for (let index = 0; index < content.length; index += maxLength) {
+    chunks.push(content.slice(index, index + maxLength));
+  }
+
+  return chunks.length > 0 ? chunks : [""];
+}
+
+async function editReplyWithChunks(interaction, content) {
+  const chunks = splitContent(String(content));
+  await interaction.editReply({ content: chunks.shift() });
+
+  for (const chunk of chunks) {
+    await interaction.followUp({ content: chunk });
+  }
+}
+
 export async function discordHandleExecTemplate(
   interaction,
   execCommand,
@@ -291,9 +310,22 @@ export async function discordHandleExecTemplate(
 		⏳ Executando ${command}...`);
 
     const resultado = await shell(command);
-    await interaction.editReply({
-      content: `🖥️ ${command}:\n\`\`\`\n${resultado.slice(0, 1900)}\n\`\`\``,
+  const resultPrefix = `🖥️ ${command}:\n\`\`\`\n`;
+  const resultSuffix = "\n\`\`\`";
+  const resultChunkLength = Math.max(
+    1,
+    2000 - resultPrefix.length - resultSuffix.length,
+  );
+  const resultChunks = splitContent(String(resultado), resultChunkLength);
+
+  await interaction.editReply({
+    content: `${resultPrefix}${resultChunks.shift()}${resultSuffix}`,
+  });
+  for (const chunk of resultChunks) {
+    await interaction.followUp({
+      content: `${resultPrefix}${chunk}${resultSuffix}`,
     });
+  }
   } catch (err) {
     console.error(err);
     try {
@@ -301,9 +333,10 @@ export async function discordHandleExecTemplate(
         return;
       }
 
-      await interaction.editReply({
-        content: `⚠️ Error while running/Erro ao executar:\n\`\`\`\n${(err.message || String(err)).slice(0, 1900)}\n\`\`\``,
-      });
+      await editReplyWithChunks(
+        interaction,
+        `⚠️ Error while running/Erro ao executar:\n\`\`\`\n${err.message || String(err)}\n\`\`\``,
+      );
     } catch (replyError) {
       console.error("[discordHandleExecTemplate] response failed", replyError);
     }
