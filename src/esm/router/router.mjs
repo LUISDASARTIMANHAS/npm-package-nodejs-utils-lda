@@ -7,7 +7,6 @@ import httpsFirewallMiddleware from "./middlewares/httpsFirewall.mjs";
 import rateLimitMiddleware from "./middlewares/rateLimitMiddleware.mjs";
 import requestLoggerMiddleware from "./middlewares/requestLoggerMiddleware.mjs";
 import logsDashboardMiddleWare from "./middlewares/routerLogsDash.mjs";
-import routerStatusDash from "./middlewares/routerStatusDash.mjs";
 import routerStatusMiddleware from "./middlewares/routerStatusMiddleware.mjs";
 import { pathTraversalMiddleware } from "./middlewares/pathTraversalMiddleware.mjs";
 
