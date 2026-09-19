@@ -1,6 +1,6 @@
 {
   "name": "npm-package-nodejs-utils-lda",
-  "version": "1.0.94",
+  "version": "1.0.95",
   "description": "Este projeto tem como fins de criar e abstrair módulos basicos e utilidades para o node js",
   "exports": {
     ".": {
@@ -11,7 +11,7 @@
   "homepage": "https://github.com/LUISDASARTIMANHAS/npm-package-nodejs-utils",
   "scripts": {
     "test": "jest",
-    "update": "npx npm-check-updates -u && npm install",
+    "update": "npm update && npx npm-check-updates -u",
     "structure": "npx tree -a -I \"node_modules|.git\" > structure.txt"
   },
   "repository": {
@@ -29,29 +29,29 @@
   "dependencies": {
     "@discordjs/builders": "^1.14.1",
     "@discordjs/rest": "^2.6.3",
-    "@google/genai": "^2.13.0",
+    "@google/genai": "^2.23.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.6",
     "discord.js": "^14.27.0",
-    "dotenv": "^18.0.0",
+    "dotenv": "^18.0.1",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.6.2",
-    "figlet": "^1.11.3",
+    "express-rate-limit": "^8.7.0",
+    "figlet": "^1.11.4",
     "form-data": "^4.0.6",
     "helmet": "^8.3.0",
-    "mongodb": "^7.5.0",
-    "multer": "^2.2.0",
+    "mongodb": "^7.6.0",
+    "multer": "^2.4.0",
     "node-fetch": "3.3.2",
     "node-forge": "^1.4.0",
-    "nodemailer": "^10.0.0",
+    "nodemailer": "^10.0.10",
     "os": "^0.1.2",
     "path": "^0.12.7",
     "url": "^0.11.4",
-    "uuid": "^14.0.1",
-    "ws": "^8.21.1",
+    "uuid": "^14.0.2",
+    "ws": "^8.21.3",
     "xss": "^1.0.15"
   },
   "devDependencies": {
-    "jest": "^30.4.2"
+    "jest": "^30.5.2"
   }
 }
