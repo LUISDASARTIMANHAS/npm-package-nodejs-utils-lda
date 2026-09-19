@@ -208,7 +208,9 @@ export function isDM(interaction) {
  * @returns {object}
  */
 export function getInteractionSummary(interaction) {
-  discordAwaitReply(interaction); // ACK IMEDIATO para evitar timeouts em logs detalhados
+  void discordAwaitReply(interaction).catch((err) => {
+    console.error("[getInteractionSummary] interaction ACK failed", err);
+  });
   console.log("\n[getInteractionSummary]:\n");
   return {
     guildId: getGuildIdByInteraction(interaction),

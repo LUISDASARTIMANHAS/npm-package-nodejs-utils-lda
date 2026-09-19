@@ -20,7 +20,7 @@ async function handleAgy(interaction) {
 	if (interaction.commandName === "agy") {
 		const prompt = interaction.options.getString("prompt");
 
-		discordHandleExecTemplate(interaction, "agy", prompt);
+		await discordHandleExecTemplate(interaction, "agy -p", prompt);
 	}
 }
 

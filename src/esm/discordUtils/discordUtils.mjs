@@ -202,6 +202,12 @@ export async function validateInteractionChannel(interaction) {
   return false;
 }
 
+function isInteractionUnavailable(err) {
+  return [10062, "UND_ERR_CONNECT_TIMEOUT"].includes(
+    err?.code ?? err?.rawError?.code ?? err?.cause?.code,
+  );
+}
+
 export async function discordAwaitReply(interaction) {
   try {
     if (!interaction) {
@@ -217,7 +223,7 @@ export async function discordAwaitReply(interaction) {
     return true;
   } catch (err) {
     // interaction expirada
-    if (err?.code === 10062 || err?.rawError?.code === 10062) {
+    if (isInteractionUnavailable(err)) {
       console.warn("[safeDeferReply] interaction expired");
       return false;
     }
@@ -247,11 +253,24 @@ export async function replyWarning(interaction, message, isPrivate = true) {
     flags: isPrivate ? 64 : 0,
   };
 
-  if (interaction.deferred || interaction.replied) {
-    return interaction.editReply(payload);
-  }
+  try {
+    if (interaction.deferred || interaction.replied) {
+      return await interaction.editReply(payload);
+    }
 
-  return interaction.reply(payload);
+    return await interaction.reply(payload);
+  } catch (err) {
+    if (
+		isInteractionUnavailable(err) ||
+		err?.code === 40060 ||
+		err?.rawError?.code === 40060
+	) {
+      console.warn("[replyWarning] interaction unavailable");
+      return;
+    }
+
+    throw err;
+  }
 }
 
 export async function discordHandleExecTemplate(
@@ -277,9 +296,17 @@ export async function discordHandleExecTemplate(
     });
   } catch (err) {
     console.error(err);
-    await interaction.editReply({
-      content: `⚠️ Error while running/Erro ao executar:\n\`\`\`\n${(err.message || String(err)).slice(0, 1900)}\n\`\`\``,
-    });
+    try {
+      if (!interaction.replied && !interaction.deferred) {
+        return;
+      }
+
+      await interaction.editReply({
+        content: `⚠️ Error while running/Erro ao executar:\n\`\`\`\n${(err.message || String(err)).slice(0, 1900)}\n\`\`\``,
+      });
+    } catch (replyError) {
+      console.error("[discordHandleExecTemplate] response failed", replyError);
+    }
   }
 }
 
