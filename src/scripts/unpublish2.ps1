@@ -42,7 +42,7 @@ function DespublicarVersao {
 
     # Exibir as versoes disponiveis
     Write-Host "Exibindo versoes disponiveis:"
-    $versions = $response.versions.PSObject.Properties.Name
+    $versions = @($response.versions.PSObject.Properties.Name)
     $counter = 1
 
     # Exibir as versoes para o usuario
@@ -52,11 +52,12 @@ function DespublicarVersao {
     }
 
     # Solicitar ao usuario para escolher uma versao
-    $choice = Read-Host "Escolha a versao para despublicar (1-para despublicar versao)"
+    $choice = Read-Host "Escolha a versao para despublicar (1-$($versions.Count))"
+    $choiceNumber = 0
 
     # Validar a escolha
-    if ($choice -ge 1 -and $choice -le $versions.Count) {
-        $versionToDelete = $versions[$choice - 1]
+    if ([int]::TryParse($choice, [ref]$choiceNumber) -and $choiceNumber -ge 1 -and $choiceNumber -le $versions.Count) {
+        $versionToDelete = $versions[$choiceNumber - 1]
         Write-Host "Voce escolheu despublicar a versao: $versionToDelete"
 
         # Confirmar despublicando
