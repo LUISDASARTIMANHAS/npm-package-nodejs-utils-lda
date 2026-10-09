@@ -6,6 +6,7 @@ import {
   getUsersCount,
   setEmbed,
 } from "../discordUtils.mjs";
+import { getBotByInteraction } from "../interactionGetters.mjs";
 
 let statusCommand = new SlashCommandBuilder()
   .setName("status")
@@ -31,7 +32,7 @@ function formatUptime(ms) {
 async function handleStatus(interaction) {
   if (interaction.commandName !== "status") return;
 
-  const bot = interaction.client;
+  const bot = getBotByInteraction(interaction);
   const guilds = getGuildsCount(bot);
   const users = getUsersCount(bot);
   const channels = getChannelsCount(bot);

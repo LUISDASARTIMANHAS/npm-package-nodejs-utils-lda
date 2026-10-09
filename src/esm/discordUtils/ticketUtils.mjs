@@ -327,10 +327,6 @@ export async function createStaffDiscussionThread(ticketChannel, staffRoleId) {
  * Fecha um ticket e remove o registro local.
  * @param {import("discord.js").Interaction} interaction
  */
-/**
- * Fecha um ticket e remove o registro local.
- * @param {import("discord.js").ButtonInteraction} interaction
- */
 export async function closeTicket(interaction) {
   try {
     await interaction.reply({

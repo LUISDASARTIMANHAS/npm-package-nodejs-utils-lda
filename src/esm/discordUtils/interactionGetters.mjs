@@ -107,6 +107,17 @@ export function getMemberRolesByInteraction(interaction) {
     : null;
 }
 
+/**
+ * Obtém o bot associado à interação.
+ * @param {import("discord.js").Interaction} interaction
+ * @returns {import("discord.js").Client|null}
+ */
+export function getBotByInteraction(interaction) {
+  return interaction?.client
+    ? [...interaction.client.values()]
+    : null;
+}
+
 /* -----------------------------
 	 COMMAND GETTERS
 ----------------------------- */
@@ -220,6 +231,7 @@ export function getInteractionSummary(interaction) {
     userId: getUserIdByInteraction(interaction),
     userTag: interaction.user?.tag ?? null,
     memberRoles: getMemberRolesByInteraction(interaction),
+    bot: getBotByInteraction(interaction),
     command: getCommandNameByInteraction(interaction),
     subcommand: getSubcommandByInteraction(interaction),
     options: getOptionsByInteraction(interaction),

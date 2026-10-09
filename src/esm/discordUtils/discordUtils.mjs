@@ -4,7 +4,7 @@ import { REST } from "@discordjs/rest";
 import { ActivityType, Routes } from "discord.js";
 import { isDM } from "./interactionGetters.mjs";
 import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
-import { fopen } from "../autoFileSysModule.mjs";
+import { fopen, fwrite } from "../autoFileSysModule.mjs";
 import os from "os";
 // exporters pre commands
 export * from "./defaultCommands/setStatus.mjs";
@@ -108,7 +108,7 @@ export function changeStatus(bot) {
   });
   fileExistAndCreate(ActivitiesFile, [
     "${guildsCount} servers!",
-    "${hostname}",
+    "${hostname} - ${ping} ms",
     "${description} - ${ano}",
     "${channelsCount} channels!",
     "${description} - ${ano}",
@@ -127,6 +127,7 @@ export function changeStatus(bot) {
   const status = configs.typeStatus || "idle";
   const dataTime = date.toLocaleString("pt-BR");
   const hostname = os.hostname();
+  const ping = Math.round(bot.ws.ping || 0);
   // Seleciona uma atividade aleatória
   const rawActivity = atividades[getRandomInt(atividades.length)];
 
@@ -138,6 +139,7 @@ export function changeStatus(bot) {
     description,
     ano,
     dataTime,
+    ping,
   };
   // Seleciona uma atividade aleatória
   const randomActivity = renderTemplate(rawActivity, variables);
@@ -150,6 +152,7 @@ export function changeStatus(bot) {
     { name: `${dataTime}`, type: ActivityType.Listening },
     { name: randomActivity, type: ActivityType.Playing },
     { name: `${dataTime}`, type: ActivityType.Playing },
+    { name: `${ping} ms`, type: ActivityType.Playing },
     {
       name: randomActivity,
       type: ActivityType.Streaming,
@@ -353,6 +356,7 @@ export async function commandsSYNC(
     console.error("Error: TOKEN or CLIENT_ID not defined in .env");
     return;
   }
+  await fwrite("./src/commands.backup.json", commands);
 
   const rest = new REST({ version: "10" }).setToken(token);
   try {
