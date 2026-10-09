@@ -1,6 +1,6 @@
 {
   "name": "npm-package-nodejs-utils-lda",
-  "version": "1.0.95",
+  "version": "1.0.96",
   "description": "Este projeto tem como fins de criar e abstrair módulos basicos e utilidades para o node js",
   "exports": {
     ".": {
@@ -29,26 +29,26 @@
   "dependencies": {
     "@discordjs/builders": "^1.14.1",
     "@discordjs/rest": "^2.6.3",
-    "@google/genai": "^2.23.0",
+    "@google/genai": "^2.28.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.6",
     "discord.js": "^14.27.0",
-    "dotenv": "^18.0.1",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.7.0",
-    "figlet": "^1.11.4",
+    "dotenv": "^18.0.6",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "figlet": "^1.12.0",
     "form-data": "^4.0.6",
     "helmet": "^8.3.0",
-    "mongodb": "^7.6.0",
+    "mongodb": "^7.7.0",
     "multer": "^2.4.0",
     "node-fetch": "3.3.2",
     "node-forge": "^1.4.0",
-    "nodemailer": "^10.0.10",
+    "nodemailer": "^10.0.16",
     "os": "^0.1.2",
     "path": "^0.12.7",
     "url": "^0.11.4",
     "uuid": "^14.0.2",
-    "ws": "^8.21.3",
+    "ws": "^8.22.0",
     "xss": "^1.0.15"
   },
   "devDependencies": {
