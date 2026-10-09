@@ -324,23 +324,59 @@ export async function createStaffDiscussionThread(ticketChannel, staffRoleId) {
   }
 }
 
+function isRetryableTicketDeletionError(error) {
+  const errorCode = error?.code ?? error?.cause?.code;
+  return (
+    [
+      "UND_ERR_CONNECT_TIMEOUT",
+      "ECONNRESET",
+      "ECONNREFUSED",
+      "ETIMEDOUT",
+    ].includes(errorCode) || [500, 502, 503, 504].includes(error?.status)
+  );
+}
+
+async function deleteTicketChannel(channel, retriesRemaining = 3) {
+  try {
+    await channel.delete();
+  } catch (error) {
+    if (error?.code === 10003) {
+      return;
+    }
+
+    if (retriesRemaining > 0 && isRetryableTicketDeletionError(error)) {
+      console.warn(
+        `[closeTicket] Channel deletion failed; retrying (${retriesRemaining} retries left).`,
+        error,
+      );
+      setTimeout(() => {
+        void deleteTicketChannel(channel, retriesRemaining - 1);
+      }, 5000);
+      return;
+    }
+
+    console.error("[closeTicket] Channel deletion failed", error);
+  }
+}
+
 /**
  * Fecha um ticket e remove o registro local.
  * @param {import("discord.js").Interaction} interaction
  */
 export async function closeTicket(interaction) {
+  const channel = interaction?.channel;
+  if (!channel) return;
+
+  removeTicketByChannel(channel.id);
+  setTimeout(() => {
+    void deleteTicketChannel(channel);
+  }, 3000);
+
   try {
     await replyInteraction(interaction, {
       content: "Fechando ticket...",
     });
-
-    if (!interaction.channel) return;
-    removeTicketByChannel(interaction.channel.id);
-
-    setTimeout(() => {
-      interaction.channel?.delete?.().catch(console.error);
-    }, 3000);
   } catch (err) {
-    console.error("[closeTicket]:", err);
+    console.warn("[closeTicket] Could not respond to interaction; continuing closure.", err);
   }
 }
