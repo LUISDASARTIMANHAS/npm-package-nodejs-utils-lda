@@ -5,6 +5,7 @@ import {
   getMemberByInteraction,
 } from "./interactionGetters.mjs";
 import { verifyBotPermission } from "./permissionValidators.mjs";
+import { replyInteraction } from "./interactionResponses.mjs";
 
 /**
  * @typedef {{ categoryId?: string, staffRoleId?: string, ticketType?: string }} TicketChannelOptions
@@ -329,7 +330,7 @@ export async function createStaffDiscussionThread(ticketChannel, staffRoleId) {
  */
 export async function closeTicket(interaction) {
   try {
-    await interaction.reply({
+    await replyInteraction(interaction, {
       content: "Fechando ticket...",
     });
 

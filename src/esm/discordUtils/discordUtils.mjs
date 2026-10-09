@@ -3,6 +3,7 @@
 import { REST } from "@discordjs/rest";
 import { ActivityType, Routes } from "discord.js";
 import { isDM } from "./interactionGetters.mjs";
+import { replyInteraction } from "./interactionResponses.mjs";
 import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
 import { fopen, fwrite } from "../autoFileSysModule.mjs";
 import os from "os";
@@ -16,6 +17,7 @@ export * from "./defaultCommands/ping.mjs";
 export * from "./defaultCommands/status.mjs";
 export * from "./ticketUtils.mjs";
 export * from "./discordEmbed.mjs";
+export * from "./interactionResponses.mjs";
 
 /**
  * Retorna o número de usuários que o bot consegue ver.
@@ -257,11 +259,7 @@ export async function replyWarning(interaction, message, isPrivate = true) {
   };
 
   try {
-    if (interaction.deferred || interaction.replied) {
-      return await interaction.editReply(payload);
-    }
-
-    return await interaction.reply(payload);
+    return await replyInteraction(interaction, payload);
   } catch (err) {
     if (
 		isInteractionUnavailable(err) ||
@@ -346,6 +344,47 @@ export async function discordHandleExecTemplate(
   }
 }
 
+/** @param {unknown} error @returns {boolean} */
+function isAuthenticationError(error) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    (error.status === 401 || error.status === 403)
+  );
+}
+
+/**
+ * @param {any} commands
+ * @param {string} token
+ * @param {string} applicationId
+ * @returns {Promise<void>}
+ */
+async function sendSlashCommands(commands, token, applicationId) {
+  const rest = new REST({ version: "10" }).setToken(token);
+  console.log(`\n\n \t[LDA SYNC] Reloading slash commands /
+      Recarregando comandos de barra /\n\n`);
+  await rest.put(Routes.applicationCommands(applicationId), {
+    body: commands,
+  });
+  console.log(`\n\n\t [LDA SYNC] Slash commands reloaded successfully! /
+      Comandos de barra recarregados com sucesso! \n\n`);
+}
+
+/**
+ * @param {any} commands
+ * @param {string} token
+ * @param {string} applicationId
+ * @param {number} restartSec
+ */
+function scheduleCommandsSyncRetry(commands, token, applicationId, restartSec) {
+  setTimeout(() => {
+    console.log(`[LDA SYNC] Restarting SYNC... in ${restartSec} Seconds`);
+    void commandsSYNC(commands, token, applicationId, restartSec);
+  }, 1000 * restartSec);
+}
+
+/** @param {any[]} commands */
 export async function commandsSYNC(
   commands,
   token = process.env.DISCORD_BOT_TOKEN,
@@ -358,21 +397,14 @@ export async function commandsSYNC(
   }
   await fwrite("./src/commands.backup.json", commands);
 
-  const rest = new REST({ version: "10" }).setToken(token);
   try {
-    console.log(`\n\n \t[LDA SYNC] Reloading slash commands /
-      Recarregando comandos de barra /\n\n`);
-    await rest.put(Routes.applicationCommands(CLIENT_ID), {
-      body: commands,
-    });
-    console.log(commands);
-    return console.log(`\n\n\t [LDA SYNC] Slash commands reloaded successfully! /
-      Comandos de barra recarregados com sucesso! \n\n`);
+    await sendSlashCommands(commands, token, CLIENT_ID);
   } catch (err) {
     console.log(err);
-    setTimeout(() => {
-      console.log(`[LDA SYNC] Restarting SYNC... in ${restartSec} Seconds`);
-      commandsSYNC(token, CLIENT_ID);
-    }, 1000 * restartSec);
+    if (isAuthenticationError(err)) {
+      console.error("[LDA SYNC] Authentication failed. Check the bot token and application permissions.");
+      return;
+    }
+    scheduleCommandsSyncRetry(commands, token, CLIENT_ID, restartSec);
   }
 }
