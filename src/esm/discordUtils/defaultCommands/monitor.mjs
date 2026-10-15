@@ -25,7 +25,7 @@ import {
 import { replyInteraction } from "../interactionResponses.mjs";
 import { fopen, fwrite } from "../../autoFileSysModule.mjs";
 
-const UPDATE_INTERVAL = 30_000;
+const UPDATE_INTERVAL = 120_000;
 const DATA_FILE = join(process.cwd(), "data", "monitor-panels.json");
 
 /**
