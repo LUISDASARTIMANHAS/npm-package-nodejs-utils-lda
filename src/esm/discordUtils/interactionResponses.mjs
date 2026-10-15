@@ -1,3 +1,4 @@
+// src\esm\discordUtils\interactionResponses.mjs
 /**
  * Responde a uma interação respeitando o estado atual do ACK.
  * @param {any} interaction

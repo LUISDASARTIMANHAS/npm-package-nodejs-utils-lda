@@ -1,3 +1,4 @@
+// src\esm\discordUtils\defaultCommands\implementsCommands.mjs
 import { verifyManageMessagesInInteraction } from "../permissionValidators.mjs";
 import { curlCommand, handleCurl } from "./curl.mjs";
 import { execCommand, handleExec } from "./exec.mjs";
@@ -8,6 +9,7 @@ import { handleTracert, tracertCommand } from "./tracert.mjs";
 import { statusCommand, handleStatus } from "./status.mjs";
 import { nmapCommand, handleNmap } from "./nmap.mjs";
 import { agyCommand, handleAgy } from "./agy.mjs";
+import { monitorCommand, handleMonitor } from "./monitor.mjs";
 
 export const defaultCommandHandlers = {
 	ping: handlePing,
@@ -17,6 +19,7 @@ export const defaultCommandHandlers = {
 	tracert: handleTracert,
 	curl: handleCurl,
 	status: handleStatus,
+	monitor: handleMonitor,
 	nmap: handleNmap,
 	agy: handleAgy,
 };
@@ -28,6 +31,7 @@ export const defaultCommands = [
 	tracertCommand,
 	curlCommand,
 	statusCommand,
+	monitorCommand,
 	nmapCommand,
 	agyCommand,
 ];

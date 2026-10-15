@@ -108,14 +108,12 @@ export function getMemberRolesByInteraction(interaction) {
 }
 
 /**
- * Obtém o bot associado à interação.
+ * Obtém o cliente Discord associado à interação.
  * @param {import("discord.js").Interaction} interaction
  * @returns {import("discord.js").Client|null}
  */
 export function getBotByInteraction(interaction) {
-  return interaction?.client
-    ? [...interaction.client.values()]
-    : null;
+  return interaction?.client ?? null;
 }
 
 /* -----------------------------
