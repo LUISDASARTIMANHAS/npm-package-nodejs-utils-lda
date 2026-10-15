@@ -1,3 +1,4 @@
+// src\esm\autoFileSysModule.mjs
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
