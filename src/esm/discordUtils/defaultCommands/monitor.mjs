@@ -20,6 +20,8 @@ import {
   getCommandNameByInteraction,
 } from "../interactionGetters.mjs";
 
+import { replyInteraction } from "../interactionResponses.mjs";
+
 const UPDATE_INTERVAL = 30_000;
 
 /**
@@ -36,8 +38,7 @@ const UPDATE_INTERVAL = 30_000;
  */
 
 /**
- * Armazena os painéis por instância do cliente e ID do servidor.
- * O registro também impede a criação simultânea de painéis duplicados.
+ * Registra painéis por cliente Discord e servidor.
  *
  * @type {WeakMap<import("discord.js").Client, MonitorRegistry>}
  */
@@ -45,7 +46,6 @@ const monitors = new WeakMap();
 
 /**
  * Define o comando slash /monitor.
- * Não restringe o uso por cargo ou permissão do usuário.
  */
 export const monitorCommand = new SlashCommandBuilder()
   .setName("monitor")
@@ -53,7 +53,7 @@ export const monitorCommand = new SlashCommandBuilder()
   .toJSON();
 
 /**
- * Obtém ou cria o registro de painéis do cliente.
+ * Obtém ou cria o registro do cliente.
  *
  * @param {import("discord.js").Client} bot
  * @returns {MonitorRegistry}
@@ -90,7 +90,7 @@ function formatUptime(ms = 0) {
 }
 
 /**
- * Retorna o consumo de memória do processo Node.js.
+ * Obtém o consumo de memória do processo Node.js.
  *
  * @returns {{heapUsed: string, heapTotal: string, rss: string}}
  */
@@ -106,7 +106,7 @@ function getMemoryUsage() {
 }
 
 /**
- * Extrai o código numérico de um erro, quando disponível.
+ * Obtém o código de um erro, quando disponível.
  *
  * @param {unknown} error
  * @returns {number | null}
@@ -126,7 +126,7 @@ function getErrorCode(error) {
 }
 
 /**
- * Cria o embed com as estatísticas atuais.
+ * Cria o embed de monitoramento.
  *
  * @param {import("discord.js").Client} bot
  * @returns {import("discord.js").EmbedBuilder}
@@ -175,7 +175,7 @@ function createMonitorEmbed(bot) {
 }
 
 /**
- * Atualiza o painel existente.
+ * Atualiza a mensagem do painel.
  *
  * @param {import("discord.js").Client} bot
  * @param {import("discord.js").Message} message
@@ -189,25 +189,43 @@ async function updateMonitor(bot, message) {
 }
 
 /**
- * Encerra a atualização automática e remove o painel do registro.
+ * Interrompe o painel de um servidor.
  *
  * @param {import("discord.js").Client} bot
  * @param {string} guildId
  */
 function stopMonitor(bot, guildId) {
   const registry = monitors.get(bot);
-  const existing = registry?.panels.get(guildId);
+  const monitor = registry?.panels.get(guildId);
 
-  if (!registry || !existing) return;
+  if (!registry || !monitor) return;
 
-  clearInterval(existing.interval);
+  clearInterval(monitor.interval);
   registry.panels.delete(guildId);
 }
 
 /**
- * Trata o comando /monitor.
+ * Responde ou atualiza a resposta temporária da interação.
  *
- * O painel é único por servidor e pode ser criado por qualquer usuário.
+ * O utilitário replyInteraction decide entre reply, editReply e
+ * followUp de acordo com o estado do ACK.
+ *
+ * @param {import("discord.js").ChatInputCommandInteraction} interaction
+ * @param {string} content
+ * @returns {Promise<unknown>}
+ */
+function respond(interaction, content) {
+  return replyInteraction(interaction, {
+    content,
+    ephemeral: true,
+    allowedMentions: { parse: [] },
+  });
+}
+
+/**
+ * Executa o comando /monitor.
+ *
+ * Um painel por servidor; qualquer usuário pode executar o comando.
  *
  * @param {import("discord.js").ChatInputCommandInteraction} interaction
  * @returns {Promise<void>}
@@ -220,25 +238,23 @@ export async function handleMonitor(interaction) {
     return;
   }
 
-  // O comando precisa ser executado dentro de um servidor.
-  const guildId = interaction.guildId;
-
-  if (!guildId) {
-    await interaction.reply({
-      content: "❌ Este comando só pode ser usado em um servidor Discord.",
-      ephemeral: true,
-    });
+  if (!interaction.guildId) {
+    await respond(
+      interaction,
+      "❌ Este comando só pode ser usado em um servidor Discord.",
+    );
     return;
   }
 
-  // Confirma a interação antes de executar operações de rede.
+  // Confirma a interação antes das operações de rede.
   await interaction.deferReply({ ephemeral: true });
 
   const bot = getBotByInteraction(interaction);
   const channel = getChannelFromInteraction(interaction);
+  const guildId = interaction.guildId;
 
   if (!bot.isReady() || !bot.user) {
-    await interaction.editReply("❌ O bot ainda não está pronto.");
+    await respond(interaction, "❌ O bot ainda não está pronto.");
     return;
   }
 
@@ -249,7 +265,8 @@ export async function handleMonitor(interaction) {
     !("permissionsFor" in channel) ||
     typeof channel.permissionsFor !== "function"
   ) {
-    await interaction.editReply(
+    await respond(
+      interaction,
       "❌ Este canal não permite enviar o painel de monitoramento.",
     );
     return;
@@ -257,9 +274,9 @@ export async function handleMonitor(interaction) {
 
   const registry = getRegistry(bot);
 
-  // Evita duas criações simultâneas no mesmo servidor.
   if (registry.busyGuilds.has(guildId)) {
-    await interaction.editReply(
+    await respond(
+      interaction,
       "⏳ O painel deste servidor já está sendo processado. Tente novamente em instantes.",
     );
     return;
@@ -270,12 +287,13 @@ export async function handleMonitor(interaction) {
   try {
     const existing = registry.panels.get(guildId);
 
-    // Reutiliza o painel existente, mesmo que esteja em outro canal.
+    // Reutiliza o painel existente, mesmo em outro canal.
     if (existing) {
       try {
         await updateMonitor(bot, existing.message);
 
-        await interaction.editReply(
+        await respond(
+          interaction,
           `✅ O painel existente foi atualizado: ${existing.message.url}`,
         );
         return;
@@ -291,16 +309,19 @@ export async function handleMonitor(interaction) {
 
     const permissions = channel.permissionsFor(bot.user);
 
+    const sendPermission = channel.isThread?.()
+      ? PermissionFlagsBits.SendMessagesInThreads
+      : PermissionFlagsBits.SendMessages;
+
     const requiredPermissions = [
       PermissionFlagsBits.ViewChannel,
       PermissionFlagsBits.EmbedLinks,
-      channel.isThread?.()
-        ? PermissionFlagsBits.SendMessagesInThreads
-        : PermissionFlagsBits.SendMessages,
+      sendPermission,
     ];
 
     if (!permissions?.has(requiredPermissions)) {
-      await interaction.editReply(
+      await respond(
+        interaction,
         "❌ O bot precisa de permissão para visualizar este canal, enviar mensagens e incorporar links.",
       );
       return;
@@ -330,7 +351,6 @@ export async function handleMonitor(interaction) {
             error,
           );
 
-          // Mensagem/canal inexistente ou permissões removidas.
           if ([10003, 10008, 50001, 50013].includes(code ?? -1)) {
             stopMonitor(bot, guildId);
           }
@@ -343,9 +363,9 @@ export async function handleMonitor(interaction) {
     monitor.interval.unref?.();
     registry.panels.set(guildId, monitor);
 
-    await interaction.editReply(
-      `✅ Painel criado: ${message.url}\n` +
-      "Atualização automática a cada 30 segundos.",
+    await respond(
+      interaction,
+      `✅ Painel criado: ${message.url}\nAtualização automática a cada 30 segundos.`,
     );
   } catch (error) {
     console.error(
@@ -353,7 +373,8 @@ export async function handleMonitor(interaction) {
       error,
     );
 
-    await interaction.editReply(
+    await respond(
+      interaction,
       "❌ Não foi possível criar o painel. Verifique as permissões do bot e tente novamente.",
     );
   } finally {
