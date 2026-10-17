@@ -1,13 +1,26 @@
 // @ts-check
-// src\esm\discordUtils\discordUtils.mjs
+
+// src/esm/discordUtils/discordUtils.mjs
+
 import { REST } from "@discordjs/rest";
 import { ActivityType, Routes } from "discord.js";
+import os from "node:os";
+
 import { isDM } from "./interactionGetters.mjs";
 import { replyInteraction } from "./interactionResponses.mjs";
-import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
+
+import {
+  shell,
+  fileExistAndCreate,
+  getRandomInt,
+} from "../utils.mjs";
+
 import { fopen, fwrite } from "../autoFileSysModule.mjs";
-import os from "os";
-// exporters pre commands
+
+// ============================================================
+// EXPORTS
+// ============================================================
+
 export * from "./defaultCommands/setStatus.mjs";
 export * from "./defaultCommands/exec.mjs";
 export * from "./defaultCommands/nslookup.mjs";
@@ -15,17 +28,192 @@ export * from "./defaultCommands/tracert.mjs";
 export * from "./defaultCommands/curl.mjs";
 export * from "./defaultCommands/ping.mjs";
 export * from "./defaultCommands/status.mjs";
+
 export * from "./ticketUtils.mjs";
 export * from "./discordEmbed.mjs";
 export * from "./interactionResponses.mjs";
 
+// ============================================================
+// ERROR HANDLING
+// ============================================================
+
 /**
- * Retorna o número de usuários que o bot consegue ver.
- * @param {import("discord.js").Client} bot - Instância do cliente Discord
- * @returns {number} Número total de usuários
+ * Extrai informações de um erro, incluindo suas causas internas.
+ *
+ * @param {unknown} error - Erro original.
+ * @returns {{ code: string | null, status: number | null, message: string }}
+ */
+function getErrorDetails(error) {
+  /** @type {unknown[]} */
+  const pending = [error];
+
+  const visited = new Set();
+
+  let code = null;
+  let status = null;
+  let message = error instanceof Error ? error.message : String(error);
+
+  while (pending.length > 0) {
+    const current = pending.shift();
+
+    if (
+      !current ||
+      typeof current !== "object" ||
+      visited.has(current)
+    ) {
+      continue;
+    }
+
+    visited.add(current);
+
+    const item = /** @type {Record<string, unknown>} */ (current);
+
+    if (code === null && item.code !== undefined) {
+      if (
+        typeof item.code === "string" ||
+        typeof item.code === "number"
+      ) {
+        code = String(item.code);
+      }
+    }
+
+    if (status === null && typeof item.status === "number") {
+      status = item.status;
+    }
+
+    if (
+      status === null &&
+      typeof item.statusCode === "number"
+    ) {
+      status = item.statusCode;
+    }
+
+    if (
+      typeof item.message === "string" &&
+      item.message.length > 0
+    ) {
+      message = item.message;
+    }
+
+    if (item.cause) {
+      pending.push(item.cause);
+    }
+
+    if (item.rawError) {
+      pending.push(item.rawError);
+    }
+  }
+
+  return { code, status, message };
+}
+
+/**
+ * Identifica erros de autenticação ou autorização.
+ *
+ * @param {unknown} error - Erro da API.
+ * @returns {boolean}
+ */
+function isAuthenticationError(error) {
+  const { status, code } = getErrorDetails(error);
+
+  return (
+    status === 401 ||
+    status === 403 ||
+    code === "401" ||
+    code === "403"
+  );
+}
+
+/**
+ * Identifica falhas de conexão potencialmente temporárias.
+ *
+ * @param {unknown} error - Erro da requisição.
+ * @returns {boolean}
+ */
+function isRetryableConnectionError(error) {
+  const retryableCodes = new Set([
+    "UND_ERR_CONNECT_TIMEOUT",
+    "UND_ERR_HEADERS_TIMEOUT",
+    "UND_ERR_BODY_TIMEOUT",
+    "UND_ERR_SOCKET",
+    "UND_ERR_ABORTED",
+    "ECONNRESET",
+    "ECONNREFUSED",
+    "ECONNABORTED",
+    "ETIMEDOUT",
+    "EAI_AGAIN",
+    "ENETUNREACH",
+    "EHOSTUNREACH",
+    "EPIPE",
+  ]);
+
+  /** @type {unknown[]} */
+  const pending = [error];
+
+  const visited = new Set();
+
+  while (pending.length > 0) {
+    const current = pending.shift();
+
+    if (
+      !current ||
+      typeof current !== "object" ||
+      visited.has(current)
+    ) {
+      continue;
+    }
+
+    visited.add(current);
+
+    const item = /** @type {Record<string, unknown>} */ (current);
+
+    if (
+      typeof item.code === "string" &&
+      retryableCodes.has(item.code)
+    ) {
+      return true;
+    }
+
+    if (
+      typeof item.status === "number" &&
+      (item.status === 429 || item.status >= 500)
+    ) {
+      return true;
+    }
+
+    if (item.cause) {
+      pending.push(item.cause);
+    }
+
+    if (item.rawError) {
+      pending.push(item.rawError);
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Aguarda um intervalo.
+ *
+ * @param {number} ms - Tempo em milissegundos.
+ * @returns {Promise<void>}
+ */
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ============================================================
+// BOT INFORMATION
+// ============================================================
+
+/**
+ * Retorna o número de usuários contabilizados nos servidores.
+ *
+ * @param {import("discord.js").Client} bot - Cliente Discord.
+ * @returns {number}
  */
 export function getUsersCount(bot) {
-  // Soma de todos os membros nos servidores que o bot consegue acessar
   return bot.guilds.cache.reduce(
     (total, guild) => total + guild.memberCount,
     0,
@@ -33,107 +221,141 @@ export function getUsersCount(bot) {
 }
 
 /**
- * Retorna o número de canais que o bot consegue ver.
- * @param {import("discord.js").Client} bot - Instância do cliente Discord
- * @returns {number} Número total de canais
+ * Retorna o número de canais presentes no cache.
+ *
+ * @param {import("discord.js").Client} bot - Cliente Discord.
+ * @returns {number}
  */
 export function getChannelsCount(bot) {
   return bot.channels.cache.size;
 }
 
 /**
- * Retorna o número de servidores em que o bot está.
- * @param {import("discord.js").Client} bot - Instância do cliente Discord
- * @returns {number} Número total de servidores
+ * Retorna o número de servidores presentes no cache.
+ *
+ * @param {import("discord.js").Client} bot - Cliente Discord.
+ * @returns {number}
  */
 export function getGuildsCount(bot) {
   return bot.guilds.cache.size;
 }
 
 /**
- * Retorna a tag do bot (nome#1234)
- * @param {import("discord.js").Client} bot - Instância do cliente Discord
- * @returns {string} Tag do bot
+ * Retorna a tag do bot.
+ *
+ * @param {import("discord.js").Client} bot - Cliente Discord.
+ * @returns {string}
  */
 export function getBotTag(bot) {
   return bot.user?.tag ?? "Desconhecido#0000";
 }
 
+// ============================================================
+// TEMPLATE ENGINE
+// ============================================================
+
 /**
- * Renderiza uma string substituindo ${variavel}
+ * Substitui placeholders ${variavel} pelos valores fornecidos.
  *
- * @param {string} template
- * @param {Object} variables
+ * @param {string} template - Template original.
+ * @param {Record<string, unknown>} variables - Variáveis disponíveis.
  * @returns {string}
  */
 export function renderTemplate(template, variables) {
   if (typeof template !== "string") {
-    throw new TypeError("Template deve ser uma string");
+    throw new TypeError("Template deve ser uma string.");
   }
 
-  if (!variables || typeof variables !== "object") {
-    throw new TypeError("Variables deve ser um objeto");
+  if (
+    !variables ||
+    typeof variables !== "object" ||
+    Array.isArray(variables)
+  ) {
+    throw new TypeError("Variables deve ser um objeto.");
   }
 
-  /*
-   * Limite defensivo para evitar processamento excessivo
-   * de templates arbitrariamente grandes.
-   */
   if (template.length > 100_000) {
-    throw new Error("Template muito grande");
+    throw new RangeError("Template muito grande.");
   }
 
-  /*
-   * Captura apenas o conteúdo entre ${ e }.
-   *
-   * [^}] evita o uso de .*? e impede que a expressão
-   * procure repetidamente pelo fechamento do placeholder.
-   */
   return template.replace(/\$\{([^}]*)\}/g, (_, key) => {
-    return variables[key.trim()] ?? "";
+    const value = variables[key.trim()];
+
+    if (value === null || value === undefined) {
+      return "";
+    }
+
+    return String(value);
   });
 }
 
+// ============================================================
+// BOT STATUS
+// ============================================================
+
 /**
- * Altera o status do bot de forma aleatória entre diferentes atividades e tipos.
+ * Atualiza aleatoriamente a atividade e o status do bot.
  *
- * @param {import("discord.js").Client} bot - Instância do cliente Discord.
- * @param {string} configs.descricao - Descrição do bot.
- * @returns {void} Atualiza o status do bot e loga informações no console.
+ * @param {import("discord.js").Client} bot - Cliente Discord.
+ * @returns {void}
  */
 export function changeStatus(bot) {
+  if (!bot.user) {
+    console.warn("[LDA STATUS] O bot ainda não está autenticado.");
+    return;
+  }
+
   const statusFile = "./data/status.json";
-  const ActivitiesFile = "./data/Activities.json";
+  const activitiesFile = "./data/Activities.json";
+
   fileExistAndCreate(statusFile, {
     description: "Ausente",
     typeStatus: "idle",
   });
-  fileExistAndCreate(ActivitiesFile, [
+
+  fileExistAndCreate(activitiesFile, [
     "${guildsCount} servers!",
     "${hostname} - ${ping} ms",
     "${description} - ${ano}",
     "${channelsCount} channels!",
-    "${description} - ${ano}",
     "${usersCount} users!",
-    "${description} - ${ano}",
   ]);
+
   const date = new Date();
+
   const ano = date.getFullYear();
   const guildsCount = getGuildsCount(bot);
   const channelsCount = getChannelsCount(bot);
   const usersCount = getUsersCount(bot);
   const botTag = getBotTag(bot);
+
   const configs = fopen(statusFile);
-  const atividades = fopen(ActivitiesFile);
-  const description = configs.description || "Status";
-  const status = configs.typeStatus || "idle";
+  const activities = fopen(activitiesFile);
+
+  const description = configs?.description || "Status";
+  const status = configs?.typeStatus || "idle";
+
   const dataTime = date.toLocaleString("pt-BR");
   const hostname = os.hostname();
   const ping = Math.round(bot.ws.ping || 0);
-  // Seleciona uma atividade aleatória
-  const rawActivity = atividades[getRandomInt(atividades.length)];
 
-  // Variáveis disponíveis para o template
+  if (!Array.isArray(activities) || activities.length === 0) {
+    console.warn("[LDA STATUS] Nenhuma atividade configurada.");
+    return;
+  }
+
+  const randomIndex = Math.min(
+    activities.length - 1,
+    Math.max(0, getRandomInt(activities.length)),
+  );
+
+  const rawActivity = activities[randomIndex];
+
+  if (typeof rawActivity !== "string") {
+    console.warn("[LDA STATUS] Atividade inválida no arquivo JSON.");
+    return;
+  }
+
   const variables = {
     guildsCount,
     channelsCount,
@@ -141,19 +363,19 @@ export function changeStatus(bot) {
     description,
     ano,
     dataTime,
+    hostname,
     ping,
   };
-  // Seleciona uma atividade aleatória
+
   const randomActivity = renderTemplate(rawActivity, variables);
 
-  // Define possíveis tipos de status
   const statusOptions = [
     { name: randomActivity, type: ActivityType.Competing },
-    { name: `${description}`, type: ActivityType.Custom },
+    { name: description, type: ActivityType.Custom },
     { name: randomActivity, type: ActivityType.Listening },
-    { name: `${dataTime}`, type: ActivityType.Listening },
+    { name: dataTime, type: ActivityType.Listening },
     { name: randomActivity, type: ActivityType.Playing },
-    { name: `${dataTime}`, type: ActivityType.Playing },
+    { name: dataTime, type: ActivityType.Playing },
     { name: `${ping} ms`, type: ActivityType.Playing },
     {
       name: randomActivity,
@@ -161,33 +383,97 @@ export function changeStatus(bot) {
       url: "https://twitch.tv",
     },
     { name: randomActivity, type: ActivityType.Watching },
-    { name: `${dataTime}`, type: ActivityType.Watching },
-    { name: `${hostname}`, type: ActivityType.Watching },
+    { name: dataTime, type: ActivityType.Watching },
+    { name: hostname, type: ActivityType.Watching },
   ];
-  const statusOptionsLength = statusOptions.length;
-  const randomOption = getRandomInt(statusOptionsLength);
 
-  // Seleciona um status aleatório
-  const randomStatus = statusOptions[randomOption];
+  const optionIndex = Math.min(
+    statusOptions.length - 1,
+    Math.max(0, getRandomInt(statusOptions.length)),
+  );
 
-  // Atualiza status do bot
+  const randomStatus = statusOptions[optionIndex];
+
   bot.user.setActivity(randomStatus);
   bot.user.setStatus(status);
 
-  // Loga informações
-  console.log(`${botTag} DISCORD STATUS`);
-  console.log(`Status Activity: ${status} - ${randomActivity}`);
+  console.log(`[LDA STATUS] ${botTag}`);
+  console.log(
+    `[LDA STATUS] Status: ${status} | Atividade: ${randomActivity}`,
+  );
+}
+
+// ============================================================
+// INTERACTION HANDLING
+// ============================================================
+
+/**
+ * Identifica uma interação inexistente ou expirada.
+ *
+ * Não confunde falhas de conexão com interações expiradas.
+ *
+ * @param {unknown} error - Erro da interação.
+ * @returns {boolean}
+ */
+function isInteractionUnavailable(error) {
+  const { code } = getErrorDetails(error);
+
+  return (
+    code === "10062" ||
+    code === "UNKNOWN_INTERACTION"
+  );
 }
 
 /**
- * Verifica se a interação está ocorrendo em um canal de servidor válido.
- * Caso seja em DM ou o canal seja indefinido, retorna uma resposta e false.
+ * Confirma uma interação antes de executar operações demoradas.
  *
- * @param {import("discord.js").Interaction} interaction - Objeto da interação do Discord.
- * @returns {Promise<boolean | void>} Retorna false se for em DM, ou void se o canal for válido.
+ * @param {import("discord.js").Interaction} interaction - Interação Discord.
+ * @returns {Promise<boolean>}
+ */
+export async function discordAwaitReply(interaction) {
+  if (!interaction) {
+    throw new TypeError("interaction não foi fornecida.");
+  }
+
+  if (interaction.deferred || interaction.replied) {
+    return true;
+  }
+
+  try {
+    await interaction.deferReply();
+    return true;
+  } catch (error) {
+    const details = getErrorDetails(error);
+
+    if (isInteractionUnavailable(error)) {
+      console.warn(
+        "[LDA INTERACTION] Interação inexistente ou expirada.",
+      );
+      return false;
+    }
+
+    if (
+      details.code === "40060" ||
+      details.code === "INTERACTION_ALREADY_REPLIED"
+    ) {
+      console.warn(
+        "[LDA INTERACTION] A interação já foi confirmada.",
+      );
+      return true;
+    }
+
+    // Timeouts de rede não são tratados como expiração.
+    throw error;
+  }
+}
+
+/**
+ * Valida o canal da interação.
+ *
+ * @param {import("discord.js").Interaction} interaction - Interação Discord.
+ * @returns {Promise<boolean>}
  */
 export async function validateInteractionChannel(interaction) {
-  // ACK IMEDIATO
   const ok = await discordAwaitReply(interaction);
 
   if (!ok) {
@@ -197,84 +483,79 @@ export async function validateInteractionChannel(interaction) {
   if (isDM(interaction)) {
     await replyWarning(
       interaction,
-      `It is not permitted to use commands in DM. Find a server to use this command.
-      Não é permitido usar comandos em DM. Procure um servidor para usar esse comando.`,
+      [
+        "It is not permitted to use commands in DM.",
+        "Find a server to use this command.",
+        "",
+        "Não é permitido usar comandos em DM.",
+        "Procure um servidor para usar este comando.",
+      ].join("\n"),
     );
-    // isDM
+
     return true;
   }
-  console.log("[validateInteractionChannel]: server channel granted!");
+
+  console.log(
+    "[LDA INTERACTION] Canal de servidor validado.",
+  );
+
   return false;
 }
 
-function isInteractionUnavailable(err) {
-  return [10062, "UND_ERR_CONNECT_TIMEOUT"].includes(
-    err?.code ?? err?.rawError?.code ?? err?.cause?.code,
-  );
-}
-
-export async function discordAwaitReply(interaction) {
-  try {
-    if (!interaction) {
-      throw new Error("interaction undefined");
-    }
-
-    if (interaction.deferred || interaction.replied) {
-      return true;
-    }
-
-    await interaction.deferReply();
-
-    return true;
-  } catch (err) {
-    // interaction expirada
-    if (isInteractionUnavailable(err)) {
-      console.warn("[safeDeferReply] interaction expired");
-      return false;
-    }
-
-    // already acknowledged
-    if (err?.code === 40060 || err?.rawError?.code === 40060) {
-      console.warn("[safeDeferReply] interaction already acknowledged");
-      return true;
-    }
-
-    throw err;
-  }
-}
-
 /**
- * Envia uma mensagem de aviso para o usuário dentro da interação.
+ * Envia uma mensagem de aviso pela interação.
  *
- * @param {import("discord.js").Interaction} interaction - Objeto da interação onde a resposta será enviada.
- * @param {string} message - Mensagem de aviso a ser exibida.
- * @param {boolean} [isPrivate=true] - Define se a resposta será visível apenas para o autor da interação.
- * @returns {Promise<void>} Retorna uma Promise que resolve quando a resposta for enviada.
+ * @param {import("discord.js").Interaction} interaction - Interação Discord.
+ * @param {string} message - Mensagem de aviso.
+ * @param {boolean} [isPrivate=true] - Define a visibilidade da resposta.
+ * @returns {Promise<void>}
  */
-
-export async function replyWarning(interaction, message, isPrivate = true) {
+export async function replyWarning(
+  interaction,
+  message,
+  isPrivate = true,
+) {
   const payload = {
-    content: `:warning: ${message}`,
+    content: `⚠️ ${message}`,
     flags: isPrivate ? 64 : 0,
   };
 
   try {
-    return await replyInteraction(interaction, payload);
-  } catch (err) {
+    await replyInteraction(interaction, payload);
+  } catch (error) {
+    const details = getErrorDetails(error);
+
     if (
-		isInteractionUnavailable(err) ||
-		err?.code === 40060 ||
-		err?.rawError?.code === 40060
-	) {
-      console.warn("[replyWarning] interaction unavailable");
+      isInteractionUnavailable(error) ||
+      details.code === "40060" ||
+      details.code === "INTERACTION_ALREADY_REPLIED"
+    ) {
+      console.warn(
+        "[LDA INTERACTION] Não foi possível enviar o aviso: interação indisponível.",
+      );
       return;
     }
 
-    throw err;
+    throw error;
   }
 }
 
+// ============================================================
+// MESSAGE CHUNKING
+// ============================================================
+
+/**
+ * Divide o conteúdo em partes com tamanho máximo definido.
+ *
+ * @param {string} content - Conteúdo original.
+ * @param {number} [maxLength=2000] - Tamanho máximo de cada parte.
+ * @returns {string[]}
+ */
 function splitContent(content, maxLength = 2000) {
+  if (!Number.isInteger(maxLength) || maxLength < 1) {
+    throw new RangeError("maxLength precisa ser um inteiro positivo.");
+  }
+
   const chunks = [];
 
   for (let index = 0; index < content.length; index += maxLength) {
@@ -284,15 +565,42 @@ function splitContent(content, maxLength = 2000) {
   return chunks.length > 0 ? chunks : [""];
 }
 
+/**
+ * Atualiza a resposta e envia partes adicionais.
+ *
+ * @param {import("discord.js").Interaction} interaction - Interação Discord.
+ * @param {string} content - Conteúdo da resposta.
+ * @returns {Promise<void>}
+ */
 async function editReplyWithChunks(interaction, content) {
   const chunks = splitContent(String(content));
-  await interaction.editReply({ content: chunks.shift() });
+
+  await interaction.editReply({
+    content: chunks.shift(),
+  });
 
   for (const chunk of chunks) {
-    await interaction.followUp({ content: chunk });
+    await interaction.followUp({
+      content: chunk,
+    });
   }
 }
 
+// ============================================================
+// COMMAND EXECUTION
+// ============================================================
+
+/**
+ * Executa um comando usando o módulo shell existente.
+ *
+ * ATENÇÃO: execCommand e parameters devem ser controlados e validados
+ * pelo chamador. Não passe argumentos arbitrários de usuários.
+ *
+ * @param {import("discord.js").Interaction} interaction - Interação Discord.
+ * @param {string} execCommand - Comando permitido.
+ * @param {string} [parameters=""] - Parâmetros do comando.
+ * @returns {Promise<void>}
+ */
 export async function discordHandleExecTemplate(
   interaction,
   execCommand,
@@ -304,31 +612,49 @@ export async function discordHandleExecTemplate(
     if (!ok) {
       return;
     }
+
     const command = `${execCommand} ${parameters || ""}`.trim();
 
-    // mostra mensagem de processamento
-    await interaction.editReply(`⏳ Executing ${command}...
-		⏳ Executando ${command}...`);
+    await interaction.editReply({
+      content: [
+        `⏳ Executando: ${command}`,
+        `⏳ Executing: ${command}`,
+      ].join("\n"),
+    });
 
     const resultado = await shell(command);
-  const resultPrefix = `🖥️ ${command}:\n\`\`\`\n`;
-  const resultSuffix = "\n\`\`\`";
-  const resultChunkLength = Math.max(
-    1,
-    2000 - resultPrefix.length - resultSuffix.length,
-  );
-  const resultChunks = splitContent(String(resultado), resultChunkLength);
 
-  await interaction.editReply({
-    content: `${resultPrefix}${resultChunks.shift()}${resultSuffix}`,
-  });
-  for (const chunk of resultChunks) {
-    await interaction.followUp({
-      content: `${resultPrefix}${chunk}${resultSuffix}`,
+    const resultPrefix = `🖥️ ${command}:\n\`\`\`\n`;
+    const resultSuffix = "\n```";
+
+    const resultChunkLength = Math.max(
+      1,
+      2000 - resultPrefix.length - resultSuffix.length,
+    );
+
+    const resultChunks = splitContent(
+      String(resultado),
+      resultChunkLength,
+    );
+
+    await interaction.editReply({
+      content: `${resultPrefix}${resultChunks.shift()}${resultSuffix}`,
     });
-  }
-  } catch (err) {
-    console.error(err);
+
+    for (const chunk of resultChunks) {
+      await interaction.followUp({
+        content: `${resultPrefix}${chunk}${resultSuffix}`,
+      });
+    }
+  } catch (error) {
+    const details = getErrorDetails(error);
+
+    console.error("[LDA EXEC] Falha na execução.", {
+      code: details.code,
+      status: details.status,
+      message: details.message,
+    });
+
     try {
       if (!interaction.replied && !interaction.deferred) {
         return;
@@ -336,75 +662,234 @@ export async function discordHandleExecTemplate(
 
       await editReplyWithChunks(
         interaction,
-        `⚠️ Error while running/Erro ao executar:\n\`\`\`\n${err.message || String(err)}\n\`\`\``,
+        [
+          "⚠️ Erro ao executar o comando.",
+          "⚠️ Error while executing the command.",
+          "",
+          `\`\`\`\n${details.message}\n\`\`\``,
+        ].join("\n"),
       );
     } catch (replyError) {
-      console.error("[discordHandleExecTemplate] response failed", replyError);
+      console.error(
+        "[LDA EXEC] Não foi possível enviar a resposta de erro.",
+        getErrorDetails(replyError),
+      );
     }
   }
 }
 
-/** @param {unknown} error @returns {boolean} */
-function isAuthenticationError(error) {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "status" in error &&
-    (error.status === 401 || error.status === 403)
-  );
-}
+// ============================================================
+// SLASH COMMAND SYNCHRONIZATION
+// ============================================================
+
+const MAX_SYNC_ATTEMPTS = 4;
+
+/** @type {boolean} */
+let syncInProgress = false;
+
+/** @type {ReturnType<typeof setTimeout> | null} */
+let syncRetryTimer = null;
 
 /**
- * @param {any} commands
- * @param {string} token
- * @param {string} applicationId
+ * Sincroniza os comandos globais da aplicação.
+ *
+ * @param {any[]} commands - Comandos serializados do Discord.
+ * @param {string} token - Token do bot.
+ * @param {string} applicationId - ID da aplicação.
  * @returns {Promise<void>}
  */
 async function sendSlashCommands(commands, token, applicationId) {
-  const rest = new REST({ version: "10" }).setToken(token);
-  console.log(`\n\n \t[LDA SYNC] Reloading slash commands /
-      Recarregando comandos de barra /\n\n`);
-  await rest.put(Routes.applicationCommands(applicationId), {
-    body: commands,
-  });
-  console.log(`\n\n\t [LDA SYNC] Slash commands reloaded successfully! /
-      Comandos de barra recarregados com sucesso! \n\n`);
+  const rest = new REST({
+    version: "10",
+    timeout: 60_000,
+    retries: 2,
+  }).setToken(token);
+
+  console.log(
+    `[LDA SYNC] Iniciando sincronização de ${commands.length} comandos globais.`,
+  );
+
+  for (let attempt = 1; attempt <= MAX_SYNC_ATTEMPTS; attempt++) {
+    try {
+      await rest.put(
+        Routes.applicationCommands(applicationId),
+        {
+          body: commands,
+        },
+      );
+
+      console.log(
+        `[LDA SYNC] ${commands.length} comandos sincronizados com sucesso.`,
+      );
+
+      return;
+    } catch (error) {
+      const details = getErrorDetails(error);
+
+      console.error("[LDA SYNC] Falha na requisição.", {
+        attempt,
+        maxAttempts: MAX_SYNC_ATTEMPTS,
+        code: details.code,
+        status: details.status,
+        message: details.message,
+      });
+
+      if (isAuthenticationError(error)) {
+        console.error(
+          "[LDA SYNC] Falha de autenticação. Verifique o token e o ID da aplicação.",
+        );
+
+        throw error;
+      }
+
+      const retryable =
+        isRetryableConnectionError(error) ||
+        details.status === 429 ||
+        (details.status !== null && details.status >= 500);
+
+      if (!retryable || attempt === MAX_SYNC_ATTEMPTS) {
+        throw error;
+      }
+
+      const delay = Math.min(
+        2_000 * 2 ** (attempt - 1),
+        8_000,
+      );
+
+      console.warn(
+        `[LDA SYNC] Nova tentativa em ${delay / 1_000}s.`,
+      );
+
+      await sleep(delay);
+    }
+  }
 }
 
 /**
- * @param {any} commands
- * @param {string} token
- * @param {string} applicationId
- * @param {number} restartSec
+ * Agenda nova sincronização sem duplicar temporizadores.
+ *
+ * @param {any[]} commands - Comandos a sincronizar.
+ * @param {string} token - Token do bot.
+ * @param {string} applicationId - ID da aplicação.
+ * @param {number} restartSec - Intervalo antes da nova tentativa.
+ * @returns {void}
  */
-function scheduleCommandsSyncRetry(commands, token, applicationId, restartSec) {
-  setTimeout(() => {
-    console.log(`[LDA SYNC] Restarting SYNC... in ${restartSec} Seconds`);
-    void commandsSYNC(commands, token, applicationId, restartSec);
-  }, 1000 * restartSec);
+function scheduleCommandsSyncRetry(
+  commands,
+  token,
+  applicationId,
+  restartSec,
+) {
+  if (syncRetryTimer !== null) {
+    return;
+  }
+
+  const delaySeconds =
+    Number.isFinite(restartSec) && restartSec > 0
+      ? restartSec
+      : 20;
+
+  console.warn(
+    `[LDA SYNC] Nova tentativa agendada em ${delaySeconds}s.`,
+  );
+
+  syncRetryTimer = setTimeout(() => {
+    syncRetryTimer = null;
+
+    void commandsSYNC(
+      commands,
+      token,
+      applicationId,
+      delaySeconds,
+    );
+  }, delaySeconds * 1_000);
 }
 
-/** @param {any[]} commands */
+/**
+ * Ponto público de sincronização dos comandos slash.
+ *
+ * @param {any[]} commands - Comandos registrados pelo bot.
+ * @param {string} [token] - Token do bot.
+ * @param {string} [CLIENT_ID] - ID da aplicação.
+ * @param {number} [restartSec=20] - Intervalo entre ciclos de sincronização.
+ * @returns {Promise<void>}
+ */
 export async function commandsSYNC(
   commands,
   token = process.env.DISCORD_BOT_TOKEN,
   CLIENT_ID = process.env.DISCORD_BOT_CLIENT_ID,
   restartSec = 20,
 ) {
-  if (!token || !CLIENT_ID) {
-    console.error("Error: TOKEN or CLIENT_ID not defined in .env");
+  if (
+    typeof token !== "string" ||
+    !token.trim() ||
+    typeof CLIENT_ID !== "string" ||
+    !/^\d{17,20}$/.test(CLIENT_ID)
+  ) {
+    console.error(
+      "[LDA SYNC] DISCORD_BOT_TOKEN ou DISCORD_BOT_CLIENT_ID inválido.",
+    );
+
     return;
   }
-  await fwrite("./src/commands.backup.json", commands);
+
+  if (!Array.isArray(commands)) {
+    throw new TypeError(
+      "[LDA SYNC] commands precisa ser um array.",
+    );
+  }
+
+  if (commands.length > 100) {
+    throw new RangeError(
+      "[LDA SYNC] A aplicação não pode ter mais de 100 comandos globais.",
+    );
+  }
+
+  if (syncInProgress) {
+    console.warn(
+      "[LDA SYNC] Já existe uma sincronização em andamento.",
+    );
+
+    return;
+  }
+
+  syncInProgress = true;
 
   try {
+    try {
+      await fwrite("./src/commands.backup.json", commands);
+    } catch (error) {
+      console.warn(
+        "[LDA SYNC] Não foi possível salvar o backup dos comandos.",
+        getErrorDetails(error),
+      );
+    }
+
     await sendSlashCommands(commands, token, CLIENT_ID);
-  } catch (err) {
-    console.log(err);
-    if (isAuthenticationError(err)) {
-      console.error("[LDA SYNC] Authentication failed. Check the bot token and application permissions.");
+  } catch (error) {
+    const details = getErrorDetails(error);
+
+    console.error("[LDA SYNC] Sincronização não concluída.", {
+      code: details.code,
+      status: details.status,
+      message: details.message,
+    });
+
+    if (isAuthenticationError(error)) {
+      console.error(
+        "[LDA SYNC] Corrija as credenciais antes de tentar novamente.",
+      );
+
       return;
     }
-    scheduleCommandsSyncRetry(commands, token, CLIENT_ID, restartSec);
+
+    scheduleCommandsSyncRetry(
+      commands,
+      token,
+      CLIENT_ID,
+      restartSec,
+    );
+  } finally {
+    syncInProgress = false;
   }
 }
