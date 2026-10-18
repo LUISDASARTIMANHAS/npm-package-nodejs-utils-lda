@@ -30,6 +30,7 @@ export * from "./discordEmbed.mjs";
 export * from "./interactionResponses.mjs";
 
 export * from "./helpers/selectMenuHelper.mjs";
+export * from "./helpers/containerHelper.mjs";
 export * from "./helpers/modalHelper.mjs";
 export * from "./helpers/buttonHelper.mjs";
 
@@ -300,7 +301,7 @@ export function changeStatus(bot) {
   const usersCount = getUsersCount(bot);
   const botTag = getBotTag(bot);
   const configs = fopen(statusFile);
-  const atividades = fopen(ActivitiesFile);
+  const atividades = fopen(activitiesFile);
   const description = configs.description || "Status";
   const status = configs.typeStatus || "idle";
   const dataTime = date.toLocaleString("pt-BR");
