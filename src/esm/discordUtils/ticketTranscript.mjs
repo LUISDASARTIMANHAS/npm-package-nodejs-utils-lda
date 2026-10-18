@@ -1,5 +1,6 @@
+// src\esm\discordUtils\ticketTranscript.mjs
 import { AttachmentBuilder } from "discord.js";
-
+import { log, logError } from "../logger/index.mjs";
 import { existsSync, mkdirSync } from "node:fs";
 
 import path from "node:path";

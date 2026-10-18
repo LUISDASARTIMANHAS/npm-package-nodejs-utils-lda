@@ -1,23 +1,31 @@
-// src\esm\discordUtils\ticketUtils.mjs
+
+ // src/esm/discordUtils/ticketUtils.mjs
 // @ts-nocheck
+
 import { ChannelType, PermissionFlagsBits } from "discord.js";
 import {
   getGuildByInteraction,
   getMemberByInteraction,
 } from "./interactionGetters.mjs";
 import { verifyBotPermission } from "./permissionValidators.mjs";
-import { replyInteraction } from "./interactionResponses.mjs";
+import { log, logError } from "../logger/index.mjs";
 
 /**
- * @typedef {{ categoryId?: string, staffRoleId?: string, ticketType?: string }} TicketChannelOptions
+ * @typedef {{
+ *   categoryId?: string,
+ *   staffRoleId?: string,
+ *   ticketType?: string
+ * }} TicketChannelOptions
  */
 
 const openTickets = new Map();
+
 const DEFAULT_TICKET_TYPE = "ticket";
 const MAX_TICKET_TYPE_LENGTH = 12;
 const MAX_TICKET_USERNAME_LENGTH = 10;
 
 /**
+ * Verifica se o usuário possui um ticket registrado.
  * @param {string} userId
  * @returns {boolean}
  */
@@ -26,6 +34,7 @@ export function hasOpenTicket(userId) {
 }
 
 /**
+ * Registra um ticket aberto.
  * @param {string} userId
  * @param {string} channelId
  */
@@ -34,16 +43,18 @@ export function registerTicket(userId, channelId) {
 }
 
 /**
- * Remove ticket pelo channelId
+ * Remove o registro de um ticket pelo ID do canal.
  * @param {string} channelId
  */
 export function removeTicketByChannel(channelId) {
-  for (const [userId, chId] of openTickets.entries()) {
-    if (chId === channelId) {
+  for (const [userId, registeredChannelId] of openTickets.entries()) {
+    if (registeredChannelId === channelId) {
       openTickets.delete(userId);
-      break;
+      return true;
     }
   }
+
+  return false;
 }
 
 /**
@@ -53,11 +64,13 @@ export function removeTicketByChannel(channelId) {
  * @returns {string}
  */
 export function sanitizeTicketNamePart(value, maxLength = 10) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "")
-    .substring(0, maxLength)
-    .replace(/^-+|-+$/g, "") || "user";
+  return (
+    String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .substring(0, maxLength)
+      .replace(/^-+|-+$/g, "") || "user"
+  );
 }
 
 /**
@@ -67,10 +80,23 @@ export function sanitizeTicketNamePart(value, maxLength = 10) {
  * @param {number} ticketNumber
  * @returns {string}
  */
-export function formatTicketChannelName(ticketType, username, ticketNumber = 1) {
-  const safeType = sanitizeTicketNamePart(ticketType || DEFAULT_TICKET_TYPE, MAX_TICKET_TYPE_LENGTH);
-  const safeUsername = sanitizeTicketNamePart(username || "user", MAX_TICKET_USERNAME_LENGTH);
+export function formatTicketChannelName(
+  ticketType,
+  username,
+  ticketNumber = 1,
+) {
+  const safeType = sanitizeTicketNamePart(
+    ticketType || DEFAULT_TICKET_TYPE,
+    MAX_TICKET_TYPE_LENGTH,
+  );
+
+  const safeUsername = sanitizeTicketNamePart(
+    username || "user",
+    MAX_TICKET_USERNAME_LENGTH,
+  );
+
   const paddedNumber = String(ticketNumber).padStart(3, "0");
+
   return `${safeType}-${safeUsername}-${paddedNumber}`;
 }
 
@@ -86,10 +112,23 @@ export function getTicketCustomIdParts(customId) {
 /**
  * Interpreta o customId de criação de ticket.
  * @param {string} customId
- * @returns {{command:string,ticketType:string,categoryId:string|null,staffRoleId:string|null,logChannelId:string|null}}
+ * @returns {{
+ *   command: string,
+ *   ticketType: string,
+ *   categoryId: string|null,
+ *   staffRoleId: string|null,
+ *   logChannelId: string|null
+ * }}
  */
 export function parseTicketCreateCustomId(customId) {
-  const [command = "", ticketType = DEFAULT_TICKET_TYPE, categoryId = "none", staffRoleId = "none", logChannelId = "none"] = getTicketCustomIdParts(customId);
+  const [
+    command = "",
+    ticketType = DEFAULT_TICKET_TYPE,
+    categoryId = "none",
+    staffRoleId = "none",
+    logChannelId = "none",
+  ] = getTicketCustomIdParts(customId);
+
   return {
     command,
     ticketType: ticketType || DEFAULT_TICKET_TYPE,
@@ -102,10 +141,19 @@ export function parseTicketCreateCustomId(customId) {
 /**
  * Interpreta o customId de fechamento de ticket.
  * @param {string} customId
- * @returns {{command:string,ticketType:string,logChannelId:string|null}}
+ * @returns {{
+ *   command: string,
+ *   ticketType: string,
+ *   logChannelId: string|null
+ * }}
  */
 export function parseTicketCloseCustomId(customId) {
-  const [command = "", ticketType = DEFAULT_TICKET_TYPE, logChannelId = "none"] = getTicketCustomIdParts(customId);
+  const [
+    command = "",
+    ticketType = DEFAULT_TICKET_TYPE,
+    logChannelId = "none",
+  ] = getTicketCustomIdParts(customId);
+
   return {
     command,
     ticketType: ticketType || DEFAULT_TICKET_TYPE,
@@ -121,7 +169,12 @@ export function parseTicketCloseCustomId(customId) {
  * @param {string|null} logChannelId
  * @returns {string}
  */
-export function buildTicketCreateCustomId(ticketType, categoryId, staffRoleId, logChannelId) {
+export function buildTicketCreateCustomId(
+  ticketType,
+  categoryId,
+  staffRoleId,
+  logChannelId,
+) {
   return `create_ticket:${ticketType || DEFAULT_TICKET_TYPE}:${categoryId || "none"}:${staffRoleId || "none"}:${logChannelId || "none"}`;
 }
 
@@ -142,7 +195,10 @@ export function buildTicketCloseCustomId(ticketType, logChannelId) {
  * @returns {string}
  */
 export function formatTicketChannelTopic(ticketType, userTag) {
-  return `[${ticketType.toUpperCase()}] Ticket de ${userTag} • Aberto em ${new Date().toLocaleString("pt-BR")}`;
+  const safeType = String(ticketType || DEFAULT_TICKET_TYPE).toUpperCase();
+  const safeUserTag = String(userTag || "usuário");
+
+  return `[${safeType}] Ticket de ${safeUserTag} • Aberto em ${new Date().toLocaleString("pt-BR")}`;
 }
 
 /**
@@ -159,20 +215,32 @@ export function getStaffDiscussionThreadName() {
  * @param {string} [ticketType]
  * @returns {Promise<number>}
  */
-export async function getNextTicketNumber(guild, ticketType = DEFAULT_TICKET_TYPE) {
+export async function getNextTicketNumber(
+  guild,
+  ticketType = DEFAULT_TICKET_TYPE,
+) {
   const prefix = `${sanitizeTicketNamePart(ticketType, MAX_TICKET_TYPE_LENGTH)}-`;
+
   const ticketChannels = guild.channels.cache.filter(
-    (ch) => ch.isTextBased() && ch.name.startsWith(prefix),
+    (channel) =>
+      channel.type === ChannelType.GuildText &&
+      channel.name.startsWith(prefix),
   );
 
-  if (ticketChannels.size === 0) return 1;
+  if (ticketChannels.size === 0) {
+    return 1;
+  }
 
   const numbers = ticketChannels
-    .map((ch) => {
-      const match = ch.name.match(new RegExp(`^${prefix}.+-([0-9]+)$`));
-      return match ? parseInt(match[1], 10) : 0;
+    .map((channel) => {
+      const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const match = channel.name.match(
+        new RegExp(`^${escapedPrefix}.+-([0-9]+)$`),
+      );
+
+      return match ? Number.parseInt(match[1], 10) : 0;
     })
-    .filter((n) => n > 0);
+    .filter((number) => number > 0);
 
   return numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
 }
@@ -188,7 +256,9 @@ export function buildTicketPermissionOverwrites(interaction, staffRoleId) {
   const member = getMemberByInteraction(interaction);
   const botId = interaction.client?.user?.id;
 
-  if (!guild || !member) return [];
+  if (!guild || !member) {
+    return [];
+  }
 
   /** @type {any[]} */
   const overwrites = [
@@ -215,6 +285,7 @@ export function buildTicketPermissionOverwrites(interaction, staffRoleId) {
         PermissionFlagsBits.SendMessages,
         PermissionFlagsBits.ReadMessageHistory,
         PermissionFlagsBits.AttachFiles,
+        PermissionFlagsBits.ManageChannels,
       ],
     });
   }
@@ -235,9 +306,10 @@ export function buildTicketPermissionOverwrites(interaction, staffRoleId) {
 }
 
 /**
- * Cria um canal de ticket a partir de uma interaction
+ * Cria um canal de ticket a partir de uma interaction.
  * @param {import("discord.js").ButtonInteraction} interaction
  * @param {TicketChannelOptions} options
+ * @returns {Promise<import("discord.js").TextChannel|null>}
  */
 export async function createTicketChannelFromInteraction(
   interaction,
@@ -246,138 +318,222 @@ export async function createTicketChannelFromInteraction(
   const guild = getGuildByInteraction(interaction);
   const member = getMemberByInteraction(interaction);
 
-  if (!guild || !member) return null;
-
-  if (
-    await verifyBotPermission(interaction, PermissionFlagsBits.ManageChannels)
-  )
-    return null;
-
-  const { categoryId, staffRoleId, ticketType = DEFAULT_TICKET_TYPE } = options;
-
-  if (hasOpenTicket(member.id)) {
-    await interaction.reply({
-      content: "Você já possui um ticket aberto.",
-      ephemeral: true,
-    });
+  if (!guild || !member) {
+    console.warn("[ticketUtils] Guild ou membro não encontrado.");
     return null;
   }
 
-  const ticketNumber = await getNextTicketNumber(guild, ticketType);
-  const channelName = formatTicketChannelName(
-    ticketType,
-    member.user?.username || member.id,
-    ticketNumber,
-  );
+  try {
+    const lacksPermission = await verifyBotPermission(
+      interaction,
+      PermissionFlagsBits.ManageChannels,
+    );
 
-  const permissionOverwrites = /** @type {import("discord.js").PermissionOverwriteResolvable[]} */ buildTicketPermissionOverwrites(
-    interaction,
-    staffRoleId || null,
-  );
+    if (lacksPermission) {
+      console.warn(
+        "[ticketUtils] O bot não possui a permissão ManageChannels.",
+      );
+      return null;
+    }
+  } catch (error) {
+    console.error("[ticketUtils] Erro ao verificar permissões:", error);
+    return null;
+  }
+
+  const {
+    categoryId,
+    staffRoleId,
+    ticketType = DEFAULT_TICKET_TYPE,
+  } = options;
+
+  // Não responder à interaction aqui: o ticketSystem controla a resposta.
+  if (hasOpenTicket(member.id)) {
+    console.warn(
+      `[ticketUtils] O usuário ${member.id} já possui um ticket registrado.`,
+    );
+    return null;
+  }
 
   try {
+    const ticketNumber = await getNextTicketNumber(guild, ticketType);
+
+    const channelName = formatTicketChannelName(
+      ticketType,
+      member.user?.username || member.id,
+      ticketNumber,
+    );
+
+    const permissionOverwrites =
+      /** @type {import("discord.js").PermissionOverwriteResolvable[]} */ (
+        buildTicketPermissionOverwrites(interaction, staffRoleId || null)
+      );
+
     const channel = await guild.channels.create({
       name: channelName,
       type: ChannelType.GuildText,
       parent: categoryId && categoryId !== "none" ? categoryId : null,
       permissionOverwrites,
-      topic: formatTicketChannelTopic(ticketType, member.user.tag),
+      topic: formatTicketChannelTopic(
+        ticketType,
+        member.user?.tag || member.id,
+      ),
     });
 
     registerTicket(member.id, channel.id);
 
+    console.log(
+      `[ticketUtils] Ticket criado: ${channel.name} (${channel.id}) para ${member.id}.`,
+    );
+
     return channel;
-  } catch (err) {
-    console.error("[createTicketChannelFromInteraction]:", err);
+  } catch (error) {
+    console.error("[ticketUtils] Erro ao criar canal de ticket:", error);
     return null;
   }
 }
 
 /**
- * Cria um tópico privado para discussão de staff.
+ * Cria um tópico privado para discussão da equipe.
  * @param {import("discord.js").TextChannel} ticketChannel
  * @param {string} staffRoleId
  * @returns {Promise<import("discord.js").ThreadChannel|null>}
  */
-export async function createStaffDiscussionThread(ticketChannel, staffRoleId) {
-  if (!ticketChannel || !staffRoleId) return null;
+export async function createStaffDiscussionThread(
+  ticketChannel,
+  staffRoleId,
+) {
+  if (!ticketChannel || !staffRoleId) {
+    return null;
+  }
 
   try {
     const thread = await ticketChannel.threads.create({
-      name: "🔒 Discussão Privada - Staff",
+      name: getStaffDiscussionThreadName(),
       autoArchiveDuration: 60,
       type: ChannelType.PrivateThread,
     });
 
     const role = ticketChannel.guild?.roles.cache.get(staffRoleId);
+
     if (role) {
       await Promise.allSettled(
         [...role.members.values()].map((member) =>
-          thread.members.add(member.id).catch(() => null),
+          thread.members.add(member.id),
         ),
       );
     }
 
     return thread;
-  } catch (err) {
-    console.error("[createStaffDiscussionThread]:", err);
+  } catch (error) {
+    console.error(
+      "[ticketUtils] Erro ao criar discussão privada da equipe:",
+      error,
+    );
     return null;
   }
 }
 
+/**
+ * Identifica erros temporários de conexão com a API.
+ * @param {any} error
+ * @returns {boolean}
+ */
 function isRetryableTicketDeletionError(error) {
   const errorCode = error?.code ?? error?.cause?.code;
+  const status = error?.status ?? error?.statusCode;
+
   return (
     [
       "UND_ERR_CONNECT_TIMEOUT",
       "ECONNRESET",
       "ECONNREFUSED",
       "ETIMEDOUT",
-    ].includes(errorCode) || [500, 502, 503, 504].includes(error?.status)
+      "ECONNABORTED",
+    ].includes(errorCode) ||
+    [500, 502, 503, 504].includes(status)
   );
 }
 
+/**
+ * Exclui o canal e remove o registro somente após a exclusão
+ * ser confirmada ou o canal já não existir.
+ * @param {import("discord.js").TextChannel} channel
+ * @param {number} retriesRemaining
+ * @returns {Promise<boolean>}
+ */
 async function deleteTicketChannel(channel, retriesRemaining = 3) {
   try {
-    await channel.delete();
+    await channel.delete("Ticket fechado.");
+
+    removeTicketByChannel(channel.id);
+
+    console.log(
+      `[ticketUtils] Canal de ticket excluído: ${channel.id}.`,
+    );
+
+    return true;
   } catch (error) {
-    if (error?.code === 10003) {
-      return;
+    // Discord: Unknown Channel. O canal já não existe.
+    if (Number(error?.code) === 10003) {
+      removeTicketByChannel(channel.id);
+
+      console.warn(
+        `[ticketUtils] O canal ${channel.id} já não existe; registro removido.`,
+      );
+
+      return true;
     }
 
     if (retriesRemaining > 0 && isRetryableTicketDeletionError(error)) {
       console.warn(
-        `[closeTicket] Channel deletion failed; retrying (${retriesRemaining} retries left).`,
+        `[ticketUtils] Falha temporária ao excluir ${channel.id}. ` +
+          `Nova tentativa em 5 segundos (${retriesRemaining} restantes).`,
         error,
       );
+
       setTimeout(() => {
         void deleteTicketChannel(channel, retriesRemaining - 1);
       }, 5000);
-      return;
+
+      return false;
     }
 
-    console.error("[closeTicket] Channel deletion failed", error);
+    console.error(
+      `[ticketUtils] Não foi possível excluir o canal ${channel.id}.`,
+      error,
+    );
+
+    // Mantém o registro para impedir outro ticket enquanto
+    // o canal antigo continuar existindo.
+    return false;
   }
 }
 
 /**
- * Fecha um ticket e remove o registro local.
+ * Agenda o fechamento de um ticket.
+ *
+ * Não responde à interaction: quem controla deferReply/editReply
+ * é o ticketSystem.
+ *
  * @param {import("discord.js").Interaction} interaction
+ * @returns {Promise<boolean>}
  */
 export async function closeTicket(interaction) {
   const channel = interaction?.channel;
-  if (!channel) return;
 
-  removeTicketByChannel(channel.id);
+  if (!channel || typeof channel.delete !== "function") {
+    throw new Error(
+      "[closeTicket] Canal do ticket não encontrado ou inválido.",
+    );
+  }
+
+  console.log(
+    `[ticketUtils] Fechamento solicitado para o canal ${channel.id}.`,
+  );
+
   setTimeout(() => {
     void deleteTicketChannel(channel);
   }, 3000);
 
-  try {
-    await replyInteraction(interaction, {
-      content: "Fechando ticket...",
-    });
-  } catch (err) {
-    console.warn("[closeTicket] Could not respond to interaction; continuing closure.", err);
-  }
+  return true;
 }

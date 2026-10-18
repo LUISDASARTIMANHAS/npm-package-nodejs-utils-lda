@@ -1,11 +1,12 @@
-
- // @ts-check
+// @ts-check
 
 import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
 } from "discord.js";
+
+import { log, logError } from "../../logger/index.mjs";
 
 /**
  * @typedef {import("discord.js").ButtonInteraction} ButtonInteraction
@@ -18,10 +19,37 @@ import {
 /** @type {Map<string, ButtonHandler>} */
 const buttonHandlers = new Map();
 
+/** @type {Map<string, ButtonHandler>} */
+const buttonPrefixHandlers = new Map();
+
+const LOG_FILE = "tickets.log";
+
+/**
+ * Registra uma mensagem de log.
+ * @param {string} message
+ */
+function debugLog(message) {
+    log(`[buttonHelper] ${message}`, LOG_FILE);
+}
+
+/**
+ * Registra um erro.
+ * @param {string} message
+ * @param {unknown} error
+ */
+function debugError(message, error) {
+    const details =
+        error instanceof Error
+            ? `${error.name}: ${error.message}`
+            : String(error);
+
+    logError(`[buttonHelper] ${message} | ${details}`, LOG_FILE);
+}
+
 /**
  * Valida um objeto de opções.
  * @param {unknown} options
- * @param {string} name
+ * @param {string} [name]
  * @returns {Record<string, unknown>}
  */
 function validateOptionsObject(options, name = "options") {
@@ -115,7 +143,9 @@ function applyEmoji(button, emoji) {
         typeof emoji !== "string" &&
         (typeof emoji !== "object" || Array.isArray(emoji))
     ) {
-        throw new TypeError("emoji deve ser uma string ou um objeto de emoji.");
+        throw new TypeError(
+            "emoji deve ser uma string ou um objeto de emoji.",
+        );
     }
 
     if (typeof emoji === "string" && emoji.trim().length === 0) {
@@ -124,13 +154,14 @@ function applyEmoji(button, emoji) {
 
     try {
         button.setEmoji(
-            /** @type {import("discord.js").ComponentEmojiResolvable} */ (emoji),
+            /** @type {import("discord.js").ComponentEmojiResolvable} */ (
+                emoji
+            ),
         );
     } catch (error) {
-        throw new TypeError(
-            "Emoji inválido para o botão.",
-            { cause: error },
-        );
+        throw new TypeError("Emoji inválido para o botão.", {
+            cause: error,
+        });
     }
 }
 
@@ -141,7 +172,9 @@ function applyEmoji(button, emoji) {
  */
 function validateButtonBuilder(button) {
     if (!(button instanceof ButtonBuilder)) {
-        throw new TypeError("Todos os itens devem ser instâncias de ButtonBuilder.");
+        throw new TypeError(
+            "Todos os itens devem ser instâncias de ButtonBuilder.",
+        );
     }
 
     try {
@@ -158,10 +191,9 @@ function validateButtonBuilder(button) {
 /**
  * Registra um handler para um botão.
  *
- * @param {string} customId Identificador do botão.
- * @param {ButtonHandler} handler Função executada ao clicar.
- * @param {{replace?: boolean}} [options] Permite substituir um handler existente.
- * @returns {void}
+ * @param {string} customId
+ * @param {ButtonHandler} handler
+ * @param {{replace?: boolean, prefix?: boolean}} [options]
  */
 export function registerButtonHandler(customId, handler, options = {}) {
     validateCustomId(customId);
@@ -172,43 +204,112 @@ export function registerButtonHandler(customId, handler, options = {}) {
 
     const opts = validateOptionsObject(options);
 
-    if (opts.replace !== undefined && typeof opts.replace !== "boolean") {
+    if (
+        opts.replace !== undefined &&
+        typeof opts.replace !== "boolean"
+    ) {
         throw new TypeError("options.replace deve ser boolean.");
     }
 
-    if (buttonHandlers.has(customId) && opts.replace !== true) {
+    if (
+        opts.prefix !== undefined &&
+        typeof opts.prefix !== "boolean"
+    ) {
+        throw new TypeError("options.prefix deve ser boolean.");
+    }
+
+    const isPrefix = opts.prefix === true;
+    const registry = isPrefix
+        ? buttonPrefixHandlers
+        : buttonHandlers;
+
+    debugLog(
+        `Solicitação de registro. customId="${customId}"; ` +
+        `tipo=${isPrefix ? "prefixo" : "exato"}; ` +
+        `replace=${opts.replace === true}.`,
+    );
+
+    if (registry.has(customId) && opts.replace !== true) {
+        debugError(
+            `Registro duplicado rejeitado. customId="${customId}".`,
+            new Error("Handler já registrado."),
+        );
+
         throw new Error(
-            `Já existe um handler registrado para o customId "${customId}". Use { replace: true } para substituí-lo.`,
+            `Já existe um handler registrado para "${customId}". Use { replace: true } para substituí-lo.`,
         );
     }
 
-    buttonHandlers.set(customId, handler);
+    registry.set(customId, handler);
+
+    debugLog(
+        `Handler registrado. customId="${customId}"; ` +
+        `tipo=${isPrefix ? "prefixo" : "exato"}; ` +
+        `handlersExatos=${buttonHandlers.size}; ` +
+        `handlersPrefixo=${buttonPrefixHandlers.size}.`,
+    );
 }
 
 /**
  * Remove um handler registrado.
- * @param {string} customId Identificador do botão.
+ *
+ * @param {string} customId
+ * @param {{prefix?: boolean}} [options]
  * @returns {boolean}
  */
-export function unregisterButtonHandler(customId) {
-    return buttonHandlers.delete(validateCustomId(customId));
+export function unregisterButtonHandler(customId, options = {}) {
+    validateCustomId(customId);
+
+    const opts = validateOptionsObject(options);
+    const isPrefix = opts.prefix === true;
+
+    const registry = isPrefix
+        ? buttonPrefixHandlers
+        : buttonHandlers;
+
+    const removed = registry.delete(customId);
+
+    debugLog(
+        `Remoção de handler. customId="${customId}"; ` +
+        `tipo=${isPrefix ? "prefixo" : "exato"}; ` +
+        `removido=${removed}.`,
+    );
+
+    return removed;
 }
 
 /**
- * Verifica se um handler está registrado.
- * @param {string} customId Identificador do botão.
+ * Verifica se existe um handler registrado.
+ *
+ * @param {string} customId
+ * @param {{prefix?: boolean}} [options]
  * @returns {boolean}
  */
-export function hasButtonHandler(customId) {
-    return buttonHandlers.has(validateCustomId(customId));
+export function hasButtonHandler(customId, options = {}) {
+    validateCustomId(customId);
+
+    const opts = validateOptionsObject(options);
+    const isPrefix = opts.prefix === true;
+
+    const registry = isPrefix
+        ? buttonPrefixHandlers
+        : buttonHandlers;
+
+    const exists = registry.has(customId);
+
+    debugLog(
+        `Consulta de handler. customId="${customId}"; ` +
+        `tipo=${isPrefix ? "prefixo" : "exato"}; ` +
+        `existe=${exists}.`,
+    );
+
+    return exists;
 }
 
 /**
  * Processa uma interação de botão.
- * Retorna false se não for um botão ou não houver handler.
- * Os erros do handler são propagados ao dispatcher.
  *
- * @param {import("discord.js").Interaction} interaction
+ * @param {ButtonInteraction} interaction
  * @returns {Promise<boolean>}
  */
 export async function handleButton(interaction) {
@@ -217,18 +318,86 @@ export async function handleButton(interaction) {
         typeof interaction.isButton !== "function" ||
         !interaction.isButton()
     ) {
+        debugLog("Interação ignorada: não é um botão.");
         return false;
     }
 
-    const handler = buttonHandlers.get(interaction.customId);
+    const customId = interaction.customId;
+
+    debugLog(
+        `Interação recebida. customId="${customId}"; ` +
+        `usuário=${interaction.user?.id ?? "desconhecido"}; ` +
+        `canal=${interaction.channelId ?? "desconhecido"}.`,
+    );
+
+    // Primeiro, procura uma correspondência exata.
+    let handler = buttonHandlers.get(customId);
+    let matchedBy = handler ? "exato" : null;
+
+    if (handler) {
+        debugLog(
+            `Handler exato encontrado. customId="${customId}".`,
+        );
+    }
+
+    // Se não houver correspondência exata, procura o prefixo
+    // mais específico registrado.
+    if (!handler) {
+        let longestPrefix = "";
+
+        for (const [prefix, prefixHandler] of buttonPrefixHandlers) {
+            if (
+                customId.startsWith(prefix) &&
+                prefix.length > longestPrefix.length
+            ) {
+                longestPrefix = prefix;
+                handler = prefixHandler;
+            }
+        }
+
+        if (handler) {
+            matchedBy = "prefixo";
+
+            debugLog(
+                `Handler por prefixo encontrado. ` +
+                `customId="${customId}"; prefixo="${longestPrefix}".`,
+            );
+        }
+    }
 
     if (!handler) {
+        debugLog(
+            `Nenhum handler encontrado. customId="${customId}"; ` +
+            `handlersExatos=${buttonHandlers.size}; ` +
+            `handlersPrefixo=${buttonPrefixHandlers.size}.`,
+        );
+
         return false;
     }
 
-    await handler(interaction);
+    debugLog(
+        `Iniciando execução do handler. ` +
+        `customId="${customId}"; correspondência=${matchedBy}.`,
+    );
 
-    return true;
+    try {
+        await handler(interaction);
+
+        debugLog(
+            `Handler concluído. customId="${customId}"; ` +
+            `correspondência=${matchedBy}.`,
+        );
+
+        return true;
+    } catch (error) {
+        debugError(
+            `Falha na execução do handler. customId="${customId}"; ` +
+            `correspondência=${matchedBy}.`,
+            error,
+        );
+
+        throw error;
+    }
 }
 
 /**
@@ -248,9 +417,13 @@ export function createButton(options) {
 
     const customId = validateCustomId(opts.customId);
     const label = validateText(opts.label, "label", 80);
+
     const style = validateInteractiveStyle(
-        opts.style === undefined ? ButtonStyle.Primary : opts.style,
+        opts.style === undefined
+            ? ButtonStyle.Primary
+            : opts.style,
     );
+
     const disabled =
         opts.disabled === undefined
             ? false
@@ -271,9 +444,9 @@ export function createButton(options) {
  * Cria um botão de link HTTPS.
  * Botões de link não geram interações.
  *
- * @param {string} url Endereço HTTPS.
- * @param {string} label Texto do botão.
- * @param {import("discord.js").ComponentEmojiResolvable} [emoji] Emoji opcional.
+ * @param {string} url
+ * @param {string} label
+ * @param {import("discord.js").ComponentEmojiResolvable} [emoji]
  * @returns {ButtonBuilder}
  */
 export function createLinkButton(url, label, emoji) {
@@ -318,8 +491,14 @@ export function createLinkButton(url, label, emoji) {
  * @returns {ActionRowBuilder<ButtonBuilder>}
  */
 export function createButtonRow(buttons) {
-    if (!Array.isArray(buttons) || buttons.length < 1 || buttons.length > 5) {
-        throw new RangeError("Uma linha de ação aceita de 1 a 5 botões.");
+    if (
+        !Array.isArray(buttons) ||
+        buttons.length < 1 ||
+        buttons.length > 5
+    ) {
+        throw new RangeError(
+            "Uma linha de ação aceita de 1 a 5 botões.",
+        );
     }
 
     const validatedButtons = buttons.map(validateButtonBuilder);
@@ -331,8 +510,8 @@ export function createButtonRow(buttons) {
 /**
  * Cria um botão secundário desabilitado.
  *
- * @param {string} customId Identificador.
- * @param {string} label Texto.
+ * @param {string} customId
+ * @param {string} label
  * @returns {ButtonBuilder}
  */
 export function createDisabledButton(customId, label) {

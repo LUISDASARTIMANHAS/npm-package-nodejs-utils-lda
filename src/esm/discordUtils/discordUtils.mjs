@@ -287,7 +287,7 @@ export function changeStatus(bot) {
     typeStatus: "idle",
   });
 
-  fileExistAndCreate(ActivitiesFile, [
+  fileExistAndCreate(activitiesFile, [
     "${guildsCount} servers!",
     "${hostname} - ${ping} ms",
     "${description} - ${ano}",
