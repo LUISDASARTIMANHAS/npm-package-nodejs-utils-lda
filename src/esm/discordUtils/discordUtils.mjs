@@ -26,6 +26,8 @@ export * from "./defaultCommands/ping.mjs";
 export * from "./defaultCommands/status.mjs";
 
 export * from "./ticketUtils.mjs";
+export * from "./ticketSystem.mjs";
+export * from "./ticketTranscript.mjs";
 export * from "./discordEmbed.mjs";
 export * from "./interactionResponses.mjs";
 
