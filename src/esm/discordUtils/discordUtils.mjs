@@ -9,11 +9,7 @@ import os from "node:os";
 import { isDM } from "./interactionGetters.mjs";
 import { replyInteraction } from "./interactionResponses.mjs";
 
-import {
-  shell,
-  fileExistAndCreate,
-  getRandomInt,
-} from "../utils.mjs";
+import { shell, fileExistAndCreate, getRandomInt } from "../utils.mjs";
 
 import { fopen, fwrite } from "../autoFileSysModule.mjs";
 
@@ -32,6 +28,10 @@ export * from "./defaultCommands/status.mjs";
 export * from "./ticketUtils.mjs";
 export * from "./discordEmbed.mjs";
 export * from "./interactionResponses.mjs";
+
+export * from "./helpers/selectMenuHelper.mjs";
+export * from "./helpers/modalHelper.mjs";
+export * from "./helpers/buttonHelper.mjs";
 
 // ============================================================
 // ERROR HANDLING
@@ -56,11 +56,7 @@ function getErrorDetails(error) {
   while (pending.length > 0) {
     const current = pending.shift();
 
-    if (
-      !current ||
-      typeof current !== "object" ||
-      visited.has(current)
-    ) {
+    if (!current || typeof current !== "object" || visited.has(current)) {
       continue;
     }
 
@@ -69,10 +65,7 @@ function getErrorDetails(error) {
     const item = /** @type {Record<string, unknown>} */ (current);
 
     if (code === null && item.code !== undefined) {
-      if (
-        typeof item.code === "string" ||
-        typeof item.code === "number"
-      ) {
+      if (typeof item.code === "string" || typeof item.code === "number") {
         code = String(item.code);
       }
     }
@@ -81,17 +74,11 @@ function getErrorDetails(error) {
       status = item.status;
     }
 
-    if (
-      status === null &&
-      typeof item.statusCode === "number"
-    ) {
+    if (status === null && typeof item.statusCode === "number") {
       status = item.statusCode;
     }
 
-    if (
-      typeof item.message === "string" &&
-      item.message.length > 0
-    ) {
+    if (typeof item.message === "string" && item.message.length > 0) {
       message = item.message;
     }
 
@@ -116,12 +103,7 @@ function getErrorDetails(error) {
 function isAuthenticationError(error) {
   const { status, code } = getErrorDetails(error);
 
-  return (
-    status === 401 ||
-    status === 403 ||
-    code === "401" ||
-    code === "403"
-  );
+  return status === 401 || status === 403 || code === "401" || code === "403";
 }
 
 /**
@@ -155,11 +137,7 @@ function isRetryableConnectionError(error) {
   while (pending.length > 0) {
     const current = pending.shift();
 
-    if (
-      !current ||
-      typeof current !== "object" ||
-      visited.has(current)
-    ) {
+    if (!current || typeof current !== "object" || visited.has(current)) {
       continue;
     }
 
@@ -167,10 +145,7 @@ function isRetryableConnectionError(error) {
 
     const item = /** @type {Record<string, unknown>} */ (current);
 
-    if (
-      typeof item.code === "string" &&
-      retryableCodes.has(item.code)
-    ) {
+    if (typeof item.code === "string" && retryableCodes.has(item.code)) {
       return true;
     }
 
@@ -266,11 +241,7 @@ export function renderTemplate(template, variables) {
     throw new TypeError("Template deve ser uma string.");
   }
 
-  if (
-    !variables ||
-    typeof variables !== "object" ||
-    Array.isArray(variables)
-  ) {
+  if (!variables || typeof variables !== "object" || Array.isArray(variables)) {
     throw new TypeError("Variables deve ser um objeto.");
   }
 
@@ -313,49 +284,32 @@ export function changeStatus(bot) {
     typeStatus: "idle",
   });
 
-  fileExistAndCreate(activitiesFile, [
+  fileExistAndCreate(ActivitiesFile, [
     "${guildsCount} servers!",
     "${hostname} - ${ping} ms",
     "${description} - ${ano}",
     "${channelsCount} channels!",
+    "${description} - ${ano}",
     "${usersCount} users!",
+    "${description} - ${ano}",
   ]);
-
   const date = new Date();
-
   const ano = date.getFullYear();
   const guildsCount = getGuildsCount(bot);
   const channelsCount = getChannelsCount(bot);
   const usersCount = getUsersCount(bot);
   const botTag = getBotTag(bot);
-
   const configs = fopen(statusFile);
-  const activities = fopen(activitiesFile);
-
-  const description = configs?.description || "Status";
-  const status = configs?.typeStatus || "idle";
-
+  const atividades = fopen(ActivitiesFile);
+  const description = configs.description || "Status";
+  const status = configs.typeStatus || "idle";
   const dataTime = date.toLocaleString("pt-BR");
   const hostname = os.hostname();
   const ping = Math.round(bot.ws.ping || 0);
+  // Seleciona uma atividade aleatória
+  const rawActivity = atividades[getRandomInt(atividades.length)];
 
-  if (!Array.isArray(activities) || activities.length === 0) {
-    console.warn("[LDA STATUS] Nenhuma atividade configurada.");
-    return;
-  }
-
-  const randomIndex = Math.min(
-    activities.length - 1,
-    Math.max(0, getRandomInt(activities.length)),
-  );
-
-  const rawActivity = activities[randomIndex];
-
-  if (typeof rawActivity !== "string") {
-    console.warn("[LDA STATUS] Atividade inválida no arquivo JSON.");
-    return;
-  }
-
+  // Variáveis disponíveis para o template
   const variables = {
     guildsCount,
     channelsCount,
@@ -363,19 +317,19 @@ export function changeStatus(bot) {
     description,
     ano,
     dataTime,
-    hostname,
     ping,
   };
-
+  // Seleciona uma atividade aleatória
   const randomActivity = renderTemplate(rawActivity, variables);
 
+  // Define possíveis tipos de status
   const statusOptions = [
     { name: randomActivity, type: ActivityType.Competing },
-    { name: description, type: ActivityType.Custom },
+    { name: `${description}`, type: ActivityType.Custom },
     { name: randomActivity, type: ActivityType.Listening },
-    { name: dataTime, type: ActivityType.Listening },
+    { name: `${dataTime}`, type: ActivityType.Listening },
     { name: randomActivity, type: ActivityType.Playing },
-    { name: dataTime, type: ActivityType.Playing },
+    { name: `${dataTime}`, type: ActivityType.Playing },
     { name: `${ping} ms`, type: ActivityType.Playing },
     {
       name: randomActivity,
@@ -383,24 +337,22 @@ export function changeStatus(bot) {
       url: "https://twitch.tv",
     },
     { name: randomActivity, type: ActivityType.Watching },
-    { name: dataTime, type: ActivityType.Watching },
-    { name: hostname, type: ActivityType.Watching },
+    { name: `${dataTime}`, type: ActivityType.Watching },
+    { name: `${hostname}`, type: ActivityType.Watching },
   ];
+  const statusOptionsLength = statusOptions.length;
+  const randomOption = getRandomInt(statusOptionsLength);
 
-  const optionIndex = Math.min(
-    statusOptions.length - 1,
-    Math.max(0, getRandomInt(statusOptions.length)),
-  );
+  // Seleciona um status aleatório
+  const randomStatus = statusOptions[randomOption];
 
-  const randomStatus = statusOptions[optionIndex];
-
+  // Atualiza status do bot
   bot.user.setActivity(randomStatus);
   bot.user.setStatus(status);
 
-  console.log(`[LDA STATUS] ${botTag}`);
-  console.log(
-    `[LDA STATUS] Status: ${status} | Atividade: ${randomActivity}`,
-  );
+  // Loga informações
+  console.log(`${botTag} DISCORD STATUS`);
+  console.log(`Status Activity: ${status} - ${randomActivity}`);
 }
 
 // ============================================================
@@ -418,10 +370,7 @@ export function changeStatus(bot) {
 function isInteractionUnavailable(error) {
   const { code } = getErrorDetails(error);
 
-  return (
-    code === "10062" ||
-    code === "UNKNOWN_INTERACTION"
-  );
+  return code === "10062" || code === "UNKNOWN_INTERACTION";
 }
 
 /**
@@ -446,9 +395,7 @@ export async function discordAwaitReply(interaction) {
     const details = getErrorDetails(error);
 
     if (isInteractionUnavailable(error)) {
-      console.warn(
-        "[LDA INTERACTION] Interação inexistente ou expirada.",
-      );
+      console.warn("[LDA INTERACTION] Interação inexistente ou expirada.");
       return false;
     }
 
@@ -456,9 +403,7 @@ export async function discordAwaitReply(interaction) {
       details.code === "40060" ||
       details.code === "INTERACTION_ALREADY_REPLIED"
     ) {
-      console.warn(
-        "[LDA INTERACTION] A interação já foi confirmada.",
-      );
+      console.warn("[LDA INTERACTION] A interação já foi confirmada.");
       return true;
     }
 
@@ -473,7 +418,9 @@ export async function discordAwaitReply(interaction) {
  * @param {import("discord.js").Interaction} interaction - Interação Discord.
  * @returns {Promise<boolean>}
  */
+
 export async function validateInteractionChannel(interaction) {
+  // ACK IMEDIATO
   const ok = await discordAwaitReply(interaction);
 
   if (!ok) {
@@ -483,22 +430,13 @@ export async function validateInteractionChannel(interaction) {
   if (isDM(interaction)) {
     await replyWarning(
       interaction,
-      [
-        "It is not permitted to use commands in DM.",
-        "Find a server to use this command.",
-        "",
-        "Não é permitido usar comandos em DM.",
-        "Procure um servidor para usar este comando.",
-      ].join("\n"),
+      `It is not permitted to use commands in DM. Find a server to use this command.
+      Não é permitido usar comandos em DM. Procure um servidor para usar esse comando.`,
     );
-
+    // isDM
     return true;
   }
-
-  console.log(
-    "[LDA INTERACTION] Canal de servidor validado.",
-  );
-
+  console.log("[validateInteractionChannel]: server channel granted!");
   return false;
 }
 
@@ -510,11 +448,7 @@ export async function validateInteractionChannel(interaction) {
  * @param {boolean} [isPrivate=true] - Define a visibilidade da resposta.
  * @returns {Promise<void>}
  */
-export async function replyWarning(
-  interaction,
-  message,
-  isPrivate = true,
-) {
+export async function replyWarning(interaction, message, isPrivate = true) {
   const payload = {
     content: `⚠️ ${message}`,
     flags: isPrivate ? 64 : 0,
@@ -616,10 +550,9 @@ export async function discordHandleExecTemplate(
     const command = `${execCommand} ${parameters || ""}`.trim();
 
     await interaction.editReply({
-      content: [
-        `⏳ Executando: ${command}`,
-        `⏳ Executing: ${command}`,
-      ].join("\n"),
+      content: [`⏳ Executando: ${command}`, `⏳ Executing: ${command}`].join(
+        "\n",
+      ),
     });
 
     const resultado = await shell(command);
@@ -632,10 +565,7 @@ export async function discordHandleExecTemplate(
       2000 - resultPrefix.length - resultSuffix.length,
     );
 
-    const resultChunks = splitContent(
-      String(resultado),
-      resultChunkLength,
-    );
+    const resultChunks = splitContent(String(resultado), resultChunkLength);
 
     await interaction.editReply({
       content: `${resultPrefix}${resultChunks.shift()}${resultSuffix}`,
@@ -711,12 +641,9 @@ async function sendSlashCommands(commands, token, applicationId) {
 
   for (let attempt = 1; attempt <= MAX_SYNC_ATTEMPTS; attempt++) {
     try {
-      await rest.put(
-        Routes.applicationCommands(applicationId),
-        {
-          body: commands,
-        },
-      );
+      await rest.put(Routes.applicationCommands(applicationId), {
+        body: commands,
+      });
 
       console.log(
         `[LDA SYNC] ${commands.length} comandos sincronizados com sucesso.`,
@@ -751,14 +678,9 @@ async function sendSlashCommands(commands, token, applicationId) {
         throw error;
       }
 
-      const delay = Math.min(
-        2_000 * 2 ** (attempt - 1),
-        8_000,
-      );
+      const delay = Math.min(2_000 * 2 ** (attempt - 1), 8_000);
 
-      console.warn(
-        `[LDA SYNC] Nova tentativa em ${delay / 1_000}s.`,
-      );
+      console.warn(`[LDA SYNC] Nova tentativa em ${delay / 1_000}s.`);
 
       await sleep(delay);
     }
@@ -774,34 +696,20 @@ async function sendSlashCommands(commands, token, applicationId) {
  * @param {number} restartSec - Intervalo antes da nova tentativa.
  * @returns {void}
  */
-function scheduleCommandsSyncRetry(
-  commands,
-  token,
-  applicationId,
-  restartSec,
-) {
+function scheduleCommandsSyncRetry(commands, token, applicationId, restartSec) {
   if (syncRetryTimer !== null) {
     return;
   }
 
   const delaySeconds =
-    Number.isFinite(restartSec) && restartSec > 0
-      ? restartSec
-      : 20;
+    Number.isFinite(restartSec) && restartSec > 0 ? restartSec : 20;
 
-  console.warn(
-    `[LDA SYNC] Nova tentativa agendada em ${delaySeconds}s.`,
-  );
+  console.warn(`[LDA SYNC] Nova tentativa agendada em ${delaySeconds}s.`);
 
   syncRetryTimer = setTimeout(() => {
     syncRetryTimer = null;
 
-    void commandsSYNC(
-      commands,
-      token,
-      applicationId,
-      delaySeconds,
-    );
+    void commandsSYNC(commands, token, applicationId, delaySeconds);
   }, delaySeconds * 1_000);
 }
 
@@ -834,9 +742,7 @@ export async function commandsSYNC(
   }
 
   if (!Array.isArray(commands)) {
-    throw new TypeError(
-      "[LDA SYNC] commands precisa ser um array.",
-    );
+    throw new TypeError("[LDA SYNC] commands precisa ser um array.");
   }
 
   if (commands.length > 100) {
@@ -846,9 +752,7 @@ export async function commandsSYNC(
   }
 
   if (syncInProgress) {
-    console.warn(
-      "[LDA SYNC] Já existe uma sincronização em andamento.",
-    );
+    console.warn("[LDA SYNC] Já existe uma sincronização em andamento.");
 
     return;
   }
@@ -883,12 +787,7 @@ export async function commandsSYNC(
       return;
     }
 
-    scheduleCommandsSyncRetry(
-      commands,
-      token,
-      CLIENT_ID,
-      restartSec,
-    );
+    scheduleCommandsSyncRetry(commands, token, CLIENT_ID, restartSec);
   } finally {
     syncInProgress = false;
   }

@@ -17,6 +17,9 @@ import {
 	handleMonitor,
 	initializeMonitor,
 } from "./monitor.mjs";
+import { handleSelectMenu } from "../helpers/selectMenuHelper.mjs";
+import { handleModal } from "../helpers/modalHelper.mjs";
+import { handleButton } from "../helpers/buttonHelper.mjs";
 
 // Handlers dos comandos padrão.
 export const defaultCommandHandlers = {
@@ -47,24 +50,115 @@ export const defaultCommands = [
 ];
 
 /**
- * Inicializa os recursos dos comandos padrão para um cliente.
+ * Clientes que já receberam a inicialização.
+ * Evita registrar listeners duplicados.
  *
- * Deve ser chamado uma vez para cada Client do Discord.
+ * @type {WeakSet<import("discord.js").Client>}
+ */
+const initializedClients = new WeakSet();
+
+/**
+ * Trata erros de interações com componentes.
  *
- * @param {import("discord.js").Client} bot
+ * @param {import("discord.js").Interaction} interaction Interação recebida.
+ * @param {unknown} error Erro ocorrido.
+ * @returns {Promise<void>}
+ */
+async function handleComponentError(interaction, error) {
+	console.error("[discordUtils] Erro ao processar componente:", error);
+
+	if (!interaction.isRepliable()) {
+		return;
+	}
+
+	const response = {
+		content: "Não foi possível processar esta interação.",
+		ephemeral: true,
+	};
+
+	try {
+		if (interaction.deferred || interaction.replied) {
+			await interaction.followUp(response);
+		} else {
+			await interaction.reply(response);
+		}
+	} catch (replyError) {
+		console.error(
+			"[discordUtils] Não foi possível responder à interação:",
+			replyError,
+		);
+	}
+}
+
+/**
+ * Distribui interações de botões, menus e formulários
+ * para os respectivos helpers.
+ *
+ * @param {import("discord.js").Interaction} interaction Interação recebida.
+ * @returns {Promise<boolean>} Indica se algum helper processou a interação.
+ */
+export async function dispatchDefaultComponent(interaction) {
+	try {
+		if (interaction.isButton()) {
+			return await handleButton(interaction);
+		}
+
+		if (interaction.isAnySelectMenu()) {
+			return await handleSelectMenu(interaction);
+		}
+
+		if (interaction.isModalSubmit()) {
+			return await handleModal(interaction);
+		}
+
+		return false;
+	} catch (error) {
+		await handleComponentError(interaction, error);
+		return true;
+	}
+}
+
+/**
+ * Inicializa os recursos padrão para um cliente Discord.
+ *
+ * Registra os handlers de componentes apenas uma vez por cliente.
+ * Os comandos slash continuam sendo despachados por
+ * dispatchDefaultCommand() no router do cliente.
+ *
+ * @param {import("discord.js").Client} bot Cliente Discord.
+ * @returns {void}
  */
 export function initializeDefaultCommands(bot) {
+	if (initializedClients.has(bot)) {
+		return;
+	}
+
+	initializedClients.add(bot);
+
 	initializeMonitor(bot);
+
+	bot.on("interactionCreate", async (interaction) => {
+		if (
+			!interaction.isButton() &&
+			!interaction.isAnySelectMenu() &&
+			!interaction.isModalSubmit()
+		) {
+			return;
+		}
+
+		await dispatchDefaultComponent(interaction);
+	});
 }
 
 /**
  * Despacha um comando padrão registrado.
  *
- * O comando /monitor é público; os demais continuam sujeitos
- * à validação de permissões que deve ser feita pelo router do cliente.
+ * O comando /monitor não exige ManageMessages.
+ * Os demais continuam sujeitos à validação de permissões.
  *
  * @param {import("discord.js").ChatInputCommandInteraction} interaction
- * @returns {Promise<boolean>}
+ * Interação de comando slash.
+ * @returns {Promise<boolean>} Indica se o comando foi processado.
  */
 export async function dispatchDefaultCommand(interaction) {
 	if (!interaction.isChatInputCommand()) {
@@ -77,7 +171,6 @@ export async function dispatchDefaultCommand(interaction) {
 		return false;
 	}
 
-	// O monitor não exige ManageMessages.
 	if (interaction.commandName !== "monitor") {
 		if (await verifyManageMessagesInInteraction(interaction)) {
 			return true;
@@ -85,6 +178,7 @@ export async function dispatchDefaultCommand(interaction) {
 	}
 
 	await handler(interaction);
+
 	return true;
 }
 

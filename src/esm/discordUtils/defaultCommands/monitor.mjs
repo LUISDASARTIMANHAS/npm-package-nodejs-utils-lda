@@ -31,6 +31,8 @@ const DATA_FILE = join(process.cwd(), "data", "monitor-panels.json");
 /**
  * @typedef {{
  *   channelId: string,
+ *   channelName: string,
+ *   guildName: string,
  *   messageId: string
  * }} SavedPanel
  */
@@ -84,6 +86,8 @@ function ensureDataFile() {
  *   "botId": {
  *     "guildId": {
  *       "channelId": "...",
+ *       "channelName": "...",
+ *       "guildName": "...",
  *       "messageId": "..."
  *     }
  *   }
@@ -233,8 +237,13 @@ function persistRegistry(bot) {
   const saved = {};
 
   for (const [guildId, state] of getRegistry(bot).panels) {
+    const guild = bot.guilds?.cache.get(guildId);
+    const channel = bot.channels?.cache.get(state.message.channelId);
+
     saved[guildId] = {
       channelId: state.message.channelId,
+      channelName: channel?.name ?? "desconhecido",
+      guildName: guild?.name ?? "desconhecido",
       messageId: state.message.id,
     };
   }
@@ -518,7 +527,7 @@ export async function handleMonitor(interaction) {
 
     await respond(
       interaction,
-      `✅ Painel criado: ${message.url}\nAtualização automática a cada 30 segundos.`,
+      `✅ Painel criado: ${message.url}\nAtualização automática a cada 120 segundos.`,
     );
   } catch (error) {
     console.error("[Monitor] Não foi possível criar o painel:", error);
