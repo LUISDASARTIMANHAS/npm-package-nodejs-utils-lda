@@ -7,17 +7,84 @@ import {
   SectionBuilder,
   MediaGalleryBuilder,
   MediaGalleryItemBuilder,
+  ButtonBuilder,
+  ActionRowBuilder,
   MessageFlags,
 } from "discord.js";
 
-import { checkConfigValue, configExist, getConfig } from "../configHelper.mjs";
+import {
+  checkConfigValue,
+  configExist,
+  getConfig,
+} from "../../configHelper.mjs";
 
 configExist();
 
+const COMPONENTS_PREFIX = "[LDA COMPONENTS]";
+
+/**
+ * Valida um texto obrigatório.
+ * @param {unknown} value
+ * @param {string} name
+ * @returns {string}
+ */
+function requireText(value, name) {
+  if (typeof value !== "string") {
+    throw new TypeError(`${COMPONENTS_PREFIX} "${name}" deve ser uma string.`);
+  }
+
+  if (value.trim().length === 0) {
+    throw new TypeError(`${COMPONENTS_PREFIX} "${name}" não pode estar vazio.`);
+  }
+
+  return value;
+}
+
+/**
+ * Valida um texto opcional.
+ * @param {unknown} value
+ * @param {string} name
+ * @returns {string|undefined}
+ */
+function optionalText(value, name) {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  return requireText(value, name);
+}
+
+/**
+ * Valida uma URL HTTPS.
+ * @param {unknown} value
+ * @param {string} name
+ * @returns {string}
+ */
+function requireHttpsUrl(value, name) {
+  requireText(value, name);
+
+  let url;
+
+  try {
+    url = new URL(value);
+  } catch {
+    throw new TypeError(
+      `${COMPONENTS_PREFIX} "${name}" deve ser uma URL válida.`,
+    );
+  }
+
+  if (url.protocol !== "https:") {
+    throw new TypeError(`${COMPONENTS_PREFIX} "${name}" deve utilizar HTTPS.`);
+  }
+
+  return url.href;
+}
+
 /**
  * Converte uma cor hexadecimal para inteiro.
- * @param {string|number|undefined} colorHex Cor hexadecimal.
- * @returns {number} Cor válida em formato inteiro.
+ * Valores inválidos utilizam a cor padrão magenta.
+ * @param {string|number|undefined} colorHex
+ * @returns {number}
  */
 export function parseColor(colorHex) {
   if (typeof colorHex === "number") {
@@ -38,44 +105,72 @@ export function parseColor(colorHex) {
 }
 
 /**
- * Cria um container padrão da Pingobras.
- * @param {object} options Opções visuais.
- * @param {string} [options.title] Título.
- * @param {string} [options.description] Descrição.
- * @param {string|number} [options.colorHex] Cor hexadecimal.
- * @param {string} [options.footerText] Texto do rodapé.
- * @param {string} [options.footerURL] URL do logotipo.
- * @returns {ContainerBuilder} Container configurado.
+ * Cria um container padrão.
+ * @param {object} [options]
+ * @param {string} [options.title]
+ * @param {string} [options.description]
+ * @param {string|number} [options.colorHex]
+ * @param {string} [options.footerText]
+ * @param {string} [options.footerURL] Opção legada; não é renderizada no rodapé.
+ * @returns {ContainerBuilder}
  */
-export function createContainer({
-  title,
-  description,
-  colorHex,
-  footerText,
-  footerURL,
-} = {}) {
-  const configs = getConfig().discordLogs;
+export function createContainer(options = {}) {
+  if (
+    options === null ||
+    typeof options !== "object" ||
+    Array.isArray(options)
+  ) {
+    throw new TypeError(
+      `${COMPONENTS_PREFIX} createContainer espera um objeto de opções.`,
+    );
+  }
+
+  const { title, description, colorHex, footerText, footerURL } = options;
+
+  const validTitle = optionalText(title, "title");
+  const validDescription = optionalText(description, "description");
+  const validFooterText = optionalText(footerText, "footerText");
+
+  // Compatibilidade com chamadas antigas: valida, mas não renderiza.
+  if (footerURL !== undefined && footerURL !== null) {
+    requireHttpsUrl(footerURL, "footerURL");
+  }
+
+  if (
+    colorHex !== undefined &&
+    colorHex !== null &&
+    typeof colorHex !== "string" &&
+    typeof colorHex !== "number"
+  ) {
+    throw new TypeError(
+      `${COMPONENTS_PREFIX} "colorHex" deve ser uma string ou um número.`,
+    );
+  }
+
+  const config = getConfig();
+  const configs = config?.discordLogs ?? {};
   const year = new Date().getFullYear();
 
   const container = new ContainerBuilder().setAccentColor(
     parseColor(colorHex ?? configs.color),
   );
 
-  if (title) {
+  if (validTitle !== undefined) {
     container.addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(`# ${title}`),
+      new TextDisplayBuilder().setContent(`# ${validTitle}`),
     );
   }
 
-  if (description) {
+  if (validDescription !== undefined) {
     container.addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(description),
+      new TextDisplayBuilder().setContent(validDescription),
     );
   }
 
   const footer = [
     `₢All rights reserved - ${year}`,
-    footerText || configs.footerText,
+    validFooterText ??
+      optionalText(configs.footerText ?? undefined, "discordLogs.footerText"),
   ]
     .filter(Boolean)
     .join(" - ");
@@ -97,19 +192,23 @@ export function createContainer({
 
 /**
  * Cria um componente de texto Markdown.
- * @param {string} content Conteúdo do texto.
- * @returns {TextDisplayBuilder} Componente de texto.
+ * @param {string} content
+ * @returns {TextDisplayBuilder}
  */
 export function createText(content) {
-  return new TextDisplayBuilder().setContent(content);
+  return new TextDisplayBuilder().setContent(requireText(content, "content"));
 }
 
 /**
  * Cria um divisor visual.
- * @param {boolean} [divider] Exibe linha divisória.
- * @returns {SeparatorBuilder} Divisor configurado.
+ * @param {boolean} [divider=true]
+ * @returns {SeparatorBuilder}
  */
 export function createSeparator(divider = true) {
+  if (typeof divider !== "boolean") {
+    throw new TypeError("divider deve ser boolean.");
+  }
+
   return new SeparatorBuilder()
     .setDivider(divider)
     .setSpacing(SeparatorSpacingSize.Small);
@@ -117,15 +216,27 @@ export function createSeparator(divider = true) {
 
 /**
  * Cria uma seção de texto com botão acessório.
- * @param {string|string[]} texts Textos da seção.
- * @param {import("discord.js").ButtonBuilder} button Botão acessório.
- * @returns {SectionBuilder} Seção configurada.
+ * @param {string|string[]} texts
+ * @param {ButtonBuilder} button
+ * @returns {SectionBuilder}
  */
 export function createButtonSection(texts, button) {
   const items = Array.isArray(texts) ? texts : [texts];
 
   if (items.length < 1 || items.length > 3) {
-    throw new RangeError("A seção deve conter de 1 a 3 componentes de texto.");
+    throw new RangeError(
+      `${COMPONENTS_PREFIX} uma seção deve conter de 1 a 3 textos.`,
+    );
+  }
+
+  items.forEach((content, index) => {
+    requireText(content, `texts[${index}]`);
+  });
+
+  if (!(button instanceof ButtonBuilder)) {
+    throw new TypeError(
+      `${COMPONENTS_PREFIX} "button" deve ser um ButtonBuilder válido.`,
+    );
   }
 
   const section = new SectionBuilder();
@@ -140,24 +251,27 @@ export function createButtonSection(texts, button) {
 }
 
 /**
- * Cria uma galeria de imagens.
- * @param {string[]} urls URLs HTTPS das imagens.
- * @returns {MediaGalleryBuilder} Galeria configurada.
+ * Cria uma galeria de imagens HTTPS.
+ * @param {string[]} urls
+ * @returns {MediaGalleryBuilder}
  */
 export function createGallery(urls) {
-  if (!Array.isArray(urls) || urls.length < 1 || urls.length > 10) {
-    throw new RangeError("A galeria aceita de 1 a 10 imagens.");
+  if (!Array.isArray(urls)) {
+    throw new TypeError(`${COMPONENTS_PREFIX} "urls" deve ser um array.`);
+  }
+
+  if (urls.length < 1 || urls.length > 10) {
+    throw new RangeError(
+      `${COMPONENTS_PREFIX} a galeria aceita de 1 a 10 imagens.`,
+    );
   }
 
   const gallery = new MediaGalleryBuilder();
 
   gallery.addItems(
-    ...urls.map((url) => {
-      if (typeof url !== "string" || !url.startsWith("https://")) {
-        throw new TypeError("As imagens devem usar URLs HTTPS.");
-      }
-
-      return new MediaGalleryItemBuilder().setURL(url);
+    ...urls.map((url, index) => {
+      const validUrl = requireHttpsUrl(url, `urls[${index}]`);
+      return new MediaGalleryItemBuilder().setURL(validUrl);
     }),
   );
 
@@ -165,13 +279,78 @@ export function createGallery(urls) {
 }
 
 /**
- * Prepara opções de mensagem Components V2.
- * @param {ContainerBuilder|import("discord.js").MessageTopLevelComponentBuilder[]} components Componentes.
- * @returns {object} Opções de resposta.
+ * Valida um componente antes de adicioná-lo à mensagem.
+ * @param {unknown} component
+ * @param {number} index
+ */
+function validateComponent(component, index) {
+  if (component instanceof ContainerBuilder) {
+    console.log("[LDA DEBUG] Container interno:", component.components);
+
+    component.components.forEach((child, childIndex) => {
+      if (child instanceof TextDisplayBuilder) {
+        try {
+          child.toJSON();
+        } catch (error) {
+          console.error(
+            `[LDA DEBUG] TextDisplay inválido no índice ${childIndex}:`,
+            child,
+          );
+          throw error;
+        }
+      }
+    });
+  }
+
+  const supportedBuilders = [
+    ContainerBuilder,
+    TextDisplayBuilder,
+    SeparatorBuilder,
+    SectionBuilder,
+    MediaGalleryBuilder,
+    ActionRowBuilder,
+  ];
+
+  if (!supportedBuilders.some((Builder) => component instanceof Builder)) {
+    throw new TypeError(
+      `${COMPONENTS_PREFIX} componente inválido na posição ${index}.`,
+    );
+  }
+
+  try {
+    const json = component.toJSON();
+
+    if (!json || typeof json !== "object" || !Number.isInteger(json.type)) {
+      throw new TypeError("O componente não produziu um JSON válido.");
+    }
+  } catch (error) {
+    throw new TypeError(
+      `${COMPONENTS_PREFIX} o componente na posição ${index} é inválido: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+      { cause: error },
+    );
+  }
+}
+
+/**
+ * Prepara opções para uma mensagem Components V2.
+ * @param {ContainerBuilder|import("discord.js").MessageTopLevelComponentBuilder[]} components
+ * @returns {object}
  */
 export function createContainerMessage(components) {
+  const items = Array.isArray(components) ? components : [components];
+
+  if (items.length < 1) {
+    throw new RangeError(
+      `${COMPONENTS_PREFIX} a mensagem precisa de pelo menos um componente.`,
+    );
+  }
+
+  items.forEach(validateComponent);
+
   return {
-    components: Array.isArray(components) ? components : [components],
+    components: items,
     flags: MessageFlags.IsComponentsV2,
     allowedMentions: {
       parse: [],

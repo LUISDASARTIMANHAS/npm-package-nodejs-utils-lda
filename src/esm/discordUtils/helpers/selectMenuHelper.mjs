@@ -1,4 +1,5 @@
-// @ts-check
+
+ // @ts-check
 
 import {
   ActionRowBuilder,
@@ -11,160 +12,275 @@ import {
   ChannelType,
 } from "discord.js";
 
+const PREFIX = "[LDA SELECT MENU]";
+
 /**
- * Valida o identificador de um menu.
- * @param {string} customId Identificador.
- * @returns {string} Identificador validado.
+ * Valida um objeto de opções.
+ * @param {unknown} value
+ * @param {string} name
+ * @returns {Record<string, unknown>}
  */
-function validateCustomId(customId) {
+function validateOptionsObject(value, name = "options") {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    Array.isArray(value)
+  ) {
+    throw new TypeError(`${PREFIX} "${name}" deve ser um objeto válido.`);
+  }
+
+  return /** @type {Record<string, unknown>} */ (value);
+}
+
+/**
+ * Valida um identificador de componente.
+ * @param {unknown} customId
+ * @param {string} [name]
+ * @returns {string}
+ */
+function validateCustomId(customId, name = "customId") {
   if (
     typeof customId !== "string" ||
-    customId.length < 1 ||
+    customId.trim().length < 1 ||
     customId.length > 100
   ) {
-    throw new TypeError("customId deve conter entre 1 e 100 caracteres.");
+    throw new TypeError(
+      `${PREFIX} "${name}" deve conter de 1 a 100 caracteres.`,
+    );
   }
 
   return customId;
 }
 
 /**
- * Valida as opções de seleção múltipla.
- * @param {object} options Configurações.
- * @param {number} [options.minValues] Mínimo de seleções.
- * @param {number} [options.maxValues] Máximo de seleções.
- * @param {number} limit Limite máximo do tipo de menu.
- * @returns {{minValues: number, maxValues: number}} Limites validados.
+ * Valida um texto obrigatório.
+ * @param {unknown} value
+ * @param {string} name
+ * @param {number} maxLength
+ * @returns {string}
  */
-function validateSelectionLimits({ minValues = 1, maxValues = 1 }, limit) {
+function validateText(value, name, maxLength) {
   if (
-    !Number.isInteger(minValues) ||
-    !Number.isInteger(maxValues) ||
-    minValues < 0 ||
-    maxValues < 1 ||
-    minValues > maxValues ||
-    maxValues > limit
+    typeof value !== "string" ||
+    value.trim().length === 0 ||
+    value.length > maxLength
   ) {
-    throw new RangeError(
-      `Seleção inválida: minValues deve ser menor ou igual a maxValues, entre 0 e ${limit}.`,
+    throw new TypeError(
+      `${PREFIX} "${name}" deve conter de 1 a ${maxLength} caracteres.`,
     );
   }
 
-  return { minValues, maxValues };
+  return value;
 }
 
 /**
- * Configura um menu de seleção nativo do Discord.
- * @param {object} options Configurações comuns.
- * @param {string} options.customId Identificador.
- * @param {string} [options.placeholder] Texto de orientação.
- * @param {number} [options.minValues] Mínimo de escolhas.
- * @param {number} [options.maxValues] Máximo de escolhas.
- * @param {boolean} [options.disabled] Desabilita o menu.
- * @returns {{customId: string, placeholder?: string, minValues: number, maxValues: number, disabled: boolean}} Configurações validadas.
+ * Valida um booleano.
+ * @param {unknown} value
+ * @param {string} name
+ * @returns {boolean}
  */
-function getEntityMenuOptions({
-  customId,
-  placeholder,
-  minValues,
-  maxValues,
-  disabled = false,
-}) {
-  validateCustomId(customId);
+function validateBoolean(value, name) {
+  if (typeof value !== "boolean") {
+    throw new TypeError(`${PREFIX} "${name}" deve ser boolean.`);
+  }
 
+  return value;
+}
+
+/**
+ * Valida os limites de seleção.
+ * @param {unknown} minValues
+ * @param {unknown} maxValues
+ * @param {number} limit
+ * @returns {{minValues: number, maxValues: number}}
+ */
+function validateSelectionLimits(minValues, maxValues, limit) {
   if (
-    placeholder !== undefined &&
-    (typeof placeholder !== "string" ||
-      placeholder.length < 1 ||
-      placeholder.length > 150)
+    !Number.isInteger(minValues) ||
+    !Number.isInteger(maxValues) ||
+    /** @type {number} */ (minValues) < 0 ||
+    /** @type {number} */ (maxValues) < 1 ||
+    /** @type {number} */ (minValues) >
+      /** @type {number} */ (maxValues) ||
+    /** @type {number} */ (maxValues) > limit
   ) {
-    throw new RangeError("placeholder deve conter entre 1 e 150 caracteres.");
+    throw new RangeError(
+      `${PREFIX} minValues e maxValues devem ser inteiros válidos, ` +
+      `com 0 <= minValues <= maxValues <= ${limit}.`,
+    );
   }
 
   return {
+    minValues: /** @type {number} */ (minValues),
+    maxValues: /** @type {number} */ (maxValues),
+  };
+}
+
+/**
+ * Valida configurações compartilhadas pelos menus de entidades.
+ * @param {unknown} options
+ */
+function getEntityMenuOptions(options) {
+  const opts = validateOptionsObject(options);
+
+  const customId = validateCustomId(opts.customId);
+  const placeholder =
+    opts.placeholder === undefined || opts.placeholder === null
+      ? undefined
+      : validateText(opts.placeholder, "placeholder", 150);
+
+  const minValues = opts.minValues ?? 1;
+  const maxValues = opts.maxValues ?? 1;
+  const disabled = opts.disabled ?? false;
+
+  const limits = validateSelectionLimits(minValues, maxValues, 25);
+  validateBoolean(disabled, "disabled");
+
+  return {
     customId,
-    ...(placeholder !== undefined ? { placeholder } : {}),
-    ...validateSelectionLimits({ minValues, maxValues }, 25),
+    placeholder,
+    ...limits,
     disabled,
   };
 }
 
 /**
- * Cria um menu com opções personalizadas.
- *
- * @param {object} options Configurações.
- * @param {string} options.customId Identificador.
- * @param {Array<{label: string, value: string, description?: string, emoji?: string, default?: boolean}>} options.options Opções disponíveis.
- * @param {string} [options.placeholder] Texto de orientação.
- * @param {number} [options.minValues] Mínimo de seleções.
- * @param {number} [options.maxValues] Máximo de seleções.
- * @param {boolean} [options.disabled] Desabilita o menu.
- * @returns {StringSelectMenuBuilder} Menu configurado.
+ * Valida a serialização de um builder.
+ * @param {object} builder
+ * @param {string} name
  */
-export function createStringSelectMenu({
-  customId,
-  options,
-  placeholder,
-  minValues = 1,
-  maxValues = 1,
-  disabled = false,
-}) {
-  validateCustomId(customId);
+function validateBuilder(builder, name) {
+  try {
+    if (typeof builder.toJSON !== "function") {
+      throw new TypeError("O builder não possui toJSON().");
+    }
 
-  if (!Array.isArray(options) || options.length < 1 || options.length > 25) {
-    throw new RangeError("O menu deve possuir entre 1 e 25 opções.");
+    const json = builder.toJSON();
+
+    if (
+      !json ||
+      typeof json !== "object" ||
+      !Number.isInteger(json.type)
+    ) {
+      throw new TypeError("O builder não produziu um componente válido.");
+    }
+  } catch (error) {
+    throw new TypeError(
+      `${PREFIX} "${name}" é inválido: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+      { cause: error },
+    );
+  }
+}
+
+/**
+ * Cria um menu de seleção de texto.
+ *
+ * @param {object} options
+ * @param {string} options.customId
+ * @param {Array<{label: string, value: string, description?: string, emoji?: import("discord.js").ComponentEmojiResolvable, default?: boolean}>} options.options
+ * @param {string} [options.placeholder]
+ * @param {number} [options.minValues]
+ * @param {number} [options.maxValues]
+ * @param {boolean} [options.disabled]
+ * @returns {StringSelectMenuBuilder}
+ */
+export function createStringSelectMenu(options) {
+  const opts = validateOptionsObject(options);
+
+  const customId = validateCustomId(opts.customId);
+
+  if (!Array.isArray(opts.options)) {
+    throw new TypeError(`${PREFIX} "options" deve ser um array.`);
   }
 
+  const choices = opts.options;
+
+  if (choices.length < 1 || choices.length > 25) {
+    throw new RangeError(
+      `${PREFIX} um menu de texto deve conter de 1 a 25 opções.`,
+    );
+  }
+
+  const minValues = opts.minValues ?? 1;
+  const maxValues = opts.maxValues ?? 1;
+  const disabled = opts.disabled ?? false;
+
   const limits = validateSelectionLimits(
-    { minValues, maxValues },
-    options.length,
+    minValues,
+    maxValues,
+    choices.length,
   );
+
+  validateBoolean(disabled, "disabled");
+
+  const placeholder =
+    opts.placeholder === undefined || opts.placeholder === null
+      ? undefined
+      : validateText(opts.placeholder, "placeholder", 150);
 
   const seenValues = new Set();
 
-  const menuOptions = options.map((option) => {
-    if (
-      !option ||
-      typeof option.label !== "string" ||
-      option.label.length < 1 ||
-      option.label.length > 100 ||
-      typeof option.value !== "string" ||
-      option.value.length < 1 ||
-      option.value.length > 100
-    ) {
+  const menuOptions = choices.map((choice, index) => {
+    const option = validateOptionsObject(
+      choice,
+      `options[${index}]`,
+    );
+
+    const label = validateText(option.label, `options[${index}].label`, 100);
+    const value = validateText(option.value, `options[${index}].value`, 100);
+
+    if (seenValues.has(value)) {
       throw new TypeError(
-        "Cada opção precisa de label e value entre 1 e 100 caracteres.",
+        `${PREFIX} valor duplicado na opção ${index}: "${value}".`,
       );
     }
 
-    if (seenValues.has(option.value)) {
-      throw new TypeError(`Valor de opção duplicado: ${option.value}`);
-    }
+    seenValues.add(value);
 
-    seenValues.add(option.value);
+    const description =
+      option.description === undefined || option.description === null
+        ? undefined
+        : validateText(
+            option.description,
+            `options[${index}].description`,
+            100,
+          );
 
     if (
-      option.description !== undefined &&
-      (option.description.length < 1 || option.description.length > 100)
+      option.default !== undefined &&
+      typeof option.default !== "boolean"
     ) {
-      throw new RangeError("A descrição deve conter até 100 caracteres.");
+      throw new TypeError(
+        `${PREFIX} "options[${index}].default" deve ser boolean.`,
+      );
     }
 
     const builder = new StringSelectMenuOptionBuilder()
-      .setLabel(option.label)
-      .setValue(option.value);
+      .setLabel(label)
+      .setValue(value);
 
-    if (option.description !== undefined) {
-      builder.setDescription(option.description);
+    if (description !== undefined) {
+      builder.setDescription(description);
     }
 
-    if (option.emoji !== undefined) {
-      builder.setEmoji(option.emoji);
+    if (option.emoji !== undefined && option.emoji !== null) {
+      try {
+        builder.setEmoji(option.emoji);
+      } catch (error) {
+        throw new TypeError(
+          `${PREFIX} emoji inválido em options[${index}].`,
+          { cause: error },
+        );
+      }
     }
 
     if (option.default !== undefined) {
-      builder.setDefault(option.default);
+      builder.setDefault(/** @type {boolean} */ (option.default));
     }
+
+    validateBuilder(builder, `options[${index}]`);
 
     return builder;
   });
@@ -177,60 +293,63 @@ export function createStringSelectMenu({
     .addOptions(menuOptions);
 
   if (placeholder !== undefined) {
-    if (
-      typeof placeholder !== "string" ||
-      placeholder.length < 1 ||
-      placeholder.length > 150
-    ) {
-      throw new RangeError("placeholder deve conter até 150 caracteres.");
-    }
-
     menu.setPlaceholder(placeholder);
   }
+
+  validateBuilder(menu, "StringSelectMenuBuilder");
 
   return menu;
 }
 
 /**
  * Cria um menu de seleção de usuários.
- * @param {object} options Configurações.
- * @returns {UserSelectMenuBuilder} Menu de usuários.
+ * @param {object} options
+ * @returns {UserSelectMenuBuilder}
  */
 export function createUserSelectMenu(options) {
   const config = getEntityMenuOptions(options);
 
-  return new UserSelectMenuBuilder()
+  const menu = new UserSelectMenuBuilder()
     .setCustomId(config.customId)
     .setMinValues(config.minValues)
     .setMaxValues(config.maxValues)
     .setDisabled(config.disabled)
     .setPlaceholder(config.placeholder ?? "Selecione usuários");
+
+  validateBuilder(menu, "UserSelectMenuBuilder");
+
+  return menu;
 }
 
 /**
  * Cria um menu de seleção de cargos.
- * @param {object} options Configurações.
- * @returns {RoleSelectMenuBuilder} Menu de cargos.
+ * @param {object} options
+ * @returns {RoleSelectMenuBuilder}
  */
 export function createRoleSelectMenu(options) {
   const config = getEntityMenuOptions(options);
 
-  return new RoleSelectMenuBuilder()
+  const menu = new RoleSelectMenuBuilder()
     .setCustomId(config.customId)
     .setMinValues(config.minValues)
     .setMaxValues(config.maxValues)
     .setDisabled(config.disabled)
     .setPlaceholder(config.placeholder ?? "Selecione cargos");
+
+  validateBuilder(menu, "RoleSelectMenuBuilder");
+
+  return menu;
 }
 
 /**
  * Cria um menu de seleção de canais.
- * @param {object} options Configurações.
- * @param {ChannelType[]} [options.channelTypes] Tipos permitidos.
- * @returns {ChannelSelectMenuBuilder} Menu de canais.
+ * @param {object} options
+ * @param {ChannelType[]} [options.channelTypes]
+ * @returns {ChannelSelectMenuBuilder}
  */
-export function createChannelSelectMenu({ channelTypes, ...options }) {
-  const config = getEntityMenuOptions(options);
+export function createChannelSelectMenu(options) {
+  const opts = validateOptionsObject(options);
+  const config = getEntityMenuOptions(opts);
 
   const menu = new ChannelSelectMenuBuilder()
     .setCustomId(config.customId)
@@ -239,81 +358,214 @@ export function createChannelSelectMenu({ channelTypes, ...options }) {
     .setDisabled(config.disabled)
     .setPlaceholder(config.placeholder ?? "Selecione canais");
 
-  if (channelTypes !== undefined) {
-    if (!Array.isArray(channelTypes) || channelTypes.length === 0) {
-      throw new TypeError("channelTypes deve ser um array não vazio.");
+  if (opts.channelTypes !== undefined) {
+    if (
+      !Array.isArray(opts.channelTypes) ||
+      opts.channelTypes.length === 0
+    ) {
+      throw new TypeError(
+        `${PREFIX} "channelTypes" deve ser um array não vazio.`,
+      );
     }
 
-    menu.setChannelTypes(...channelTypes);
+    const validChannelTypes = new Set(Object.values(ChannelType));
+
+    for (const [index, type] of opts.channelTypes.entries()) {
+      if (
+        !Number.isInteger(type) ||
+        !validChannelTypes.has(type)
+      ) {
+        throw new TypeError(
+          `${PREFIX} channelTypes[${index}] não é um ChannelType válido.`,
+        );
+      }
+    }
+
+    if (new Set(opts.channelTypes).size !== opts.channelTypes.length) {
+      throw new TypeError(
+        `${PREFIX} "channelTypes" não pode conter valores duplicados.`,
+      );
+    }
+
+    try {
+      menu.setChannelTypes(
+        .../** @type {ChannelType[]} */ (opts.channelTypes),
+      );
+    } catch (error) {
+      throw new TypeError(
+        `${PREFIX} não foi possível configurar channelTypes.`,
+        { cause: error },
+      );
+    }
   }
+
+  validateBuilder(menu, "ChannelSelectMenuBuilder");
 
   return menu;
 }
 
 /**
- * Cria um menu de seleção de usuários ou cargos.
- * @param {object} options Configurações.
- * @returns {MentionableSelectMenuBuilder} Menu de menções.
+ * Cria um menu de seleção de usuários e cargos.
+ * @param {object} options
+ * @returns {MentionableSelectMenuBuilder}
  */
 export function createMentionableSelectMenu(options) {
   const config = getEntityMenuOptions(options);
 
-  return new MentionableSelectMenuBuilder()
+  const menu = new MentionableSelectMenuBuilder()
     .setCustomId(config.customId)
     .setMinValues(config.minValues)
     .setMaxValues(config.maxValues)
     .setDisabled(config.disabled)
-    .setPlaceholder(config.placeholder ?? "Selecione usuários ou cargos");
+    .setPlaceholder(
+      config.placeholder ?? "Selecione usuários ou cargos",
+    );
+
+  validateBuilder(menu, "MentionableSelectMenuBuilder");
+
+  return menu;
 }
 
 /**
  * Cria uma linha de ação para um menu de seleção.
- * Cada linha comporta apenas um menu de seleção.
- *
  * @param {
  *   StringSelectMenuBuilder |
  *   UserSelectMenuBuilder |
  *   RoleSelectMenuBuilder |
  *   ChannelSelectMenuBuilder |
  *   MentionableSelectMenuBuilder
- * } menu Menu a ser adicionado.
- * @returns {ActionRowBuilder} Linha de ação.
+ * } menu
+ * @returns {ActionRowBuilder}
  */
 export function createSelectMenuRow(menu) {
-  return new ActionRowBuilder().addComponents(menu);
+  const valid =
+    menu instanceof StringSelectMenuBuilder ||
+    menu instanceof UserSelectMenuBuilder ||
+    menu instanceof RoleSelectMenuBuilder ||
+    menu instanceof ChannelSelectMenuBuilder ||
+    menu instanceof MentionableSelectMenuBuilder;
+
+  if (!valid) {
+    throw new TypeError(
+      `${PREFIX} createSelectMenuRow exige um builder de menu de seleção válido.`,
+    );
+  }
+
+  validateBuilder(menu, "menu");
+
+  const row = new ActionRowBuilder().addComponents(menu);
+
+  validateBuilder(row, "ActionRowBuilder");
+
+  return row;
 }
 
-/** @type {Map<string, (interaction: import("discord.js").AnySelectMenuInteraction) => Promise<void>>} */
+/**
+ * @typedef {
+ *   (interaction: import("discord.js").AnySelectMenuInteraction) =>
+ *     unknown | Promise<unknown>
+ * } SelectMenuHandler
+ */
+
+/** @type {Map<string, SelectMenuHandler>} */
 const selectMenuHandlers = new Map();
 
 /**
- * Registra um handler para um menu de seleção.
- * @param {string} customId Identificador do menu.
- * @param {(interaction: import("discord.js").AnySelectMenuInteraction) => Promise<void>} handler Função executada após a seleção.
- * @returns {void}
+ * Registra um handler de menu.
+ * Não substitui registros existentes sem autorização explícita.
+ *
+ * @param {string} customId
+ * @param {SelectMenuHandler} handler
+ * @param {{replace?: boolean}} [options]
  */
-export function registerSelectMenuHandler(customId, handler) {
+export function registerSelectMenuHandler(
+  customId,
+  handler,
+  options = {},
+) {
   validateCustomId(customId);
 
   if (typeof handler !== "function") {
-    throw new TypeError("handler deve ser uma função.");
+    throw new TypeError(`${PREFIX} handler deve ser uma função.`);
+  }
+
+  const opts = validateOptionsObject(options);
+
+  if (
+    opts.replace !== undefined &&
+    typeof opts.replace !== "boolean"
+  ) {
+    throw new TypeError(`${PREFIX} replace deve ser boolean.`);
+  }
+
+  if (
+    selectMenuHandlers.has(customId) &&
+    opts.replace !== true
+  ) {
+    throw new Error(
+      `${PREFIX} já existe um handler registrado para "${customId}". ` +
+      "Use { replace: true } para substituí-lo intencionalmente.",
+    );
   }
 
   selectMenuHandlers.set(customId, handler);
 }
 
 /**
+ * Remove um handler registrado.
+ * @param {string} customId
+ * @returns {boolean}
+ */
+export function unregisterSelectMenuHandler(customId) {
+  validateCustomId(customId);
+  return selectMenuHandlers.delete(customId);
+}
+
+/**
+ * Verifica se existe um handler registrado.
+ * @param {string} customId
+ * @returns {boolean}
+ */
+export function hasSelectMenuHandler(customId) {
+  validateCustomId(customId);
+  return selectMenuHandlers.has(customId);
+}
+
+/**
  * Processa uma interação de menu registrada.
- * @param {import("discord.js").Interaction} interaction Interação recebida.
- * @returns {Promise<boolean>} Indica se a interação foi processada.
+ * @param {import("discord.js").Interaction} interaction
+ * @returns {Promise<boolean>}
  */
 export async function handleSelectMenu(interaction) {
-  if (!interaction.isAnySelectMenu()) return false;
+  if (
+    !interaction ||
+    typeof interaction.isAnySelectMenu !== "function"
+  ) {
+    throw new TypeError(
+      `${PREFIX} interaction não é uma interação Discord válida.`,
+    );
+  }
+
+  if (!interaction.isAnySelectMenu()) {
+    return false;
+  }
 
   const handler = selectMenuHandlers.get(interaction.customId);
 
-  if (!handler) return false;
+  if (!handler) {
+    return false;
+  }
 
-  await handler(interaction);
+  try {
+    await handler(interaction);
+  } catch (error) {
+    throw new Error(
+      `${PREFIX} o handler do menu "${interaction.customId}" falhou: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+      { cause: error },
+    );
+  }
+
   return true;
 }
